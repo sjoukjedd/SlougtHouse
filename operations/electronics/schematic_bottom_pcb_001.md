@@ -436,6 +436,92 @@ MAX30101 signal traces fysiek gescheiden van ICG signal traces. Op een 4-laags P
 
 ---
 
+## 6B. Barometrische druksensor — BMP390 (U12)
+
+### 6B.1 Component
+
+**Component:** Bosch BMP390 (BMP390T), LGA-12 (2.0 × 2.0 × 0.75 mm)  
+**Functie:** Meting van luchtdruk (Pa) en omgevingstemperatuur (°C). Primaire toepassing in het VU-AMS: detectie van hoogteverandering bij trapklimmen via drukgradiënt (≈ −12 Pa/m, trapstap ≈ 0.2 m → ≈ 2.4 Pa per tree). Secundair: ambient temperatuur als referentie voor correctie.
+
+**I²C adres:** 0x77 (SDO verbonden aan DVDD_3V3 = VDD-niveau; selecteert adres 0x77)  
+**Alternatief adres:** 0x76 (SDO naar GND) — niet gebruikt in Rev 0.1 (geen conflict met andere I²C-apparaten op 0x77)
+
+---
+
+### 6B.2 Voeding en ontkoppeling
+
+**Voedingspin (VDDIO, pin 2):** verbonden aan **DVDD_3V3** (+3.3V digitale rail, via flex J1 pin 6)  
+*(BMP390 VDDIO range: 1.2–3.6V; 3.3V is binnen spec)*
+
+**Ontkoppelcondensatoren (verplicht, direct bij VDDIO-pin):**
+- C_BMP_1: 100 nF 0402 X7R — van VDDIO naar AGND (HF-ontkoppeling, < 0.5 mm van pin 2)
+- C_BMP_2: 10 µF 0603 X5R — van VDDIO naar AGND (bulk ontkoppeling)
+
+**GND (pin 1, pin 7, exposed pad):** verbonden aan AGND (digitale massa van onderste PCB)
+
+---
+
+### 6B.3 Pinverbindingen
+
+| Pin | Netnaam | Verbinding | Beschrijving |
+|-----|---------|------------|--------------|
+| 1 (GND) | AGND | Analoge massa | Grond |
+| 2 (VDDIO) | DVDD_3V3 | +3.3V digitale rail via flex J1 | Voeding |
+| 3 (SDO) | DVDD_3V3 | Pull-up naar DVDD_3V3 via R_SDO (10 kΩ 0402) | I²C adres = 0x77 |
+| 4 (CSB) | DVDD_3V3 | Pull-up naar DVDD_3V3 via R_CSB (10 kΩ 0402) | Selecteert I²C modus (CSB hoog = I²C) |
+| 5 (SDI / SDA) | I2C_SDA | Gedeelde I²C databus | I²C data |
+| 6 (SCK) | I2C_SCL | Gedeelde I²C klokbus | I²C klok |
+| 7 (GND) | AGND | Analoge massa | Grond |
+| EP (exposed pad) | AGND | Gesoldeerd aan grondvlak | Thermische en elektrische massa |
+
+**Pull-up weerstanden op I²C:** 4.7 kΩ naar AVDD (R_SDA, R_SCL) al aanwezig op onderste PCB (gedeeld met AD5933, MAX30101, TMP117 — zie sectie 5.2 en 6.1).
+
+---
+
+### 6B.4 Plaatsing
+
+- **Locatie:** Bovenste PCB (digitale zone, nabij ESP32-S3 I²C-pinnen GPIO5/GPIO6)  
+  *(De BMP390 is een digitale sensor zonder analoog signaalbeheer; plaatsing op de bovenste PCB is correct. De I²C-bus kruist de flex-strip; dit is conform flex J1 pin 12/13.)*
+- **Vermijden:** Niet plaatsen nabij warmtebronnen (LiPo-lader, ESP32 radiogedeelte, zon-zijde behuizing)
+- **Vrije luchtcirculatie:** Behuizing voorzien van kleine ventilatie-opening (≥ 1 mm²) nabij BMP390 voor correcte drukgeleiding. Zie behuizingsdocumentatie.
+
+---
+
+### 6B.5 I²C bus sharing
+
+De BMP390 deelt de I²C bus (I2C_SDA, I2C_SCL, 400 kHz Fast Mode) met:
+
+| Device | I²C adres | Locatie |
+|--------|-----------|---------|
+| AD5933 | 0x0D | Onderste PCB |
+| MAX30101 | 0x57 | Onderste PCB |
+| TMP117 | 0x48 | Bovenste PCB |
+| BMP390 | 0x77 | Bovenste PCB |
+
+Geen adresconflicten. Bus owned by `task_i2c_sensors` — geen mutex vereist (single owner).
+
+---
+
+### 6B.6 Blokdiagram
+
+```
+DVDD_3V3 ──[C_BMP_2: 10µF]──┬── BMP390 (U12) VDDIO (pin 2)
+                             │                  │
+                         [C_BMP_1: 100nF]    SDI (pin 5) ──► I2C_SDA → flex J1 → ESP32
+                             │                  │
+                           AGND             SCK (pin 6) ──► I2C_SCL → flex J1 → ESP32
+                                               │
+                                          SDO (pin 3) ──[R_SDO: 10kΩ]──► DVDD_3V3  (addr 0x77)
+                                               │
+                                          CSB (pin 4) ──[R_CSB: 10kΩ]──► DVDD_3V3  (I²C mode)
+```
+
+---
+
+*Ref: Bosch BMP390 datasheet Rev 1.8 — Section 4 (pin description), Section 5.3 (I²C interface), Section 8.5 (compensation formulas)*
+
+---
+
 ## 7. Voeding — LT3042 Analoge Rail, REF5025 ADC Referentie
 
 ### 7.1 Analoge LDO: LT3042 (U9)

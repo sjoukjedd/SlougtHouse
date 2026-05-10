@@ -122,6 +122,45 @@ final class BLEManager: NSObject, ObservableObject {
         p.writeValue(Data([byte]), for: ch, type: .withResponse)
     }
 
+    /// Sends 0x01 (START_RECORDING) followed immediately by a SYNC_TIME packet.
+    /// Returns the RecordingSession that was created so the caller can own it.
+    @discardableResult
+    func startRecording() -> RecordingSession? {
+        guard let p = connectedPeripheral,
+              let ch = characteristics[VUAMSUUID.control] else { return nil }
+        // 1. START_RECORDING
+        p.writeValue(Data([0x01]), for: ch, type: .withResponse)
+        // 2. SYNC_TIME — capture wall-clock time as close to the START write as possible
+        let session = RecordingSession(
+            deviceName: p.name ?? p.identifier.uuidString
+        )
+        sendSyncTime(to: p, characteristic: ch, at: session.startTimestamp)
+        return session
+    }
+
+    /// Sends 0x02 (STOP_RECORDING) to the device.
+    func stopRecording() {
+        sendCommand(0x02)
+    }
+
+    /// Writes command 0x03 + 8-byte little-endian Unix microsecond timestamp.
+    func sendSyncTime() {
+        guard let p = connectedPeripheral,
+              let ch = characteristics[VUAMSUUID.control] else { return }
+        sendSyncTime(to: p, characteristic: ch, at: Date())
+    }
+
+    // Internal variant that takes an explicit timestamp so startRecording() and
+    // sendSyncTime() both anchor to the same moment.
+    private func sendSyncTime(to peripheral: CBPeripheral,
+                              characteristic: CBCharacteristic,
+                              at date: Date) {
+        let microseconds = UInt64(date.timeIntervalSince1970 * 1_000_000)
+        var payload = Data([0x03])           // SYNC_TIME opcode
+        withUnsafeBytes(of: microseconds.littleEndian) { payload.append(contentsOf: $0) }
+        peripheral.writeValue(payload, for: characteristic, type: .withResponse)
+    }
+
     // MARK: - Private helpers
 
     private func resetState() {

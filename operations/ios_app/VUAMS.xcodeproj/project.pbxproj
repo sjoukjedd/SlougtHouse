@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		23AA788F032C5E9D719ED5A5 /* DeltaDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */; };
 		33838AC9E3E354C444BBA4AE /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC428D877FFE3D7F2C70EE8 /* ConnectionView.swift */; };
 		3A99A059D71E4EBA1B4663E6 /* SignalDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71761BAC66A5A931253BB24 /* SignalDashboardView.swift */; };
 		509E671ABA1D7DCD4B699671 /* DataBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01929868DE251DE82C04BA27 /* DataBlocks.swift */; };
@@ -29,6 +30,7 @@
 		67D71872D8EA659484F60880 /* GATTProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GATTProfile.swift; sourceTree = "<group>"; };
 		8167555C6AC1798360B24C3C /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaDecoder.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		828926C5EDEDE3371CC45A18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D71761BAC66A5A931253BB24 /* SignalDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalDashboardView.swift; sourceTree = "<group>"; };
 		ECC428D877FFE3D7F2C70EE8 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
@@ -39,6 +41,7 @@
 			isa = PBXGroup;
 			children = (
 				822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */,
 				0A2BE800695CB6B11773EC80 /* SignalBuffer.swift */,
 			);
 			path = Utilities;
@@ -178,6 +181,7 @@
 				6E859388B639EFF41350303A /* ContentView.swift in Sources */,
 				509E671ABA1D7DCD4B699671 /* DataBlocks.swift in Sources */,
 				23AA788F032C5E9D719ED5A5 /* DeltaDecoder.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* RecordingSession.swift in Sources */,
 				87B52313B6D948D461755299 /* GATTProfile.swift in Sources */,
 				586A2C9E7807C9737F3B3887 /* SignalBuffer.swift in Sources */,
 				3A99A059D71E4EBA1B4663E6 /* SignalDashboardView.swift in Sources */,

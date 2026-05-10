@@ -25,6 +25,8 @@
 #include "tasks/task_battery_monitor.h"
 #include "tasks/task_watchdog.h"
 #include "tasks/task_usb_guard.h"
+#include "tasks/task_har.h"
+#include "tasks/task_sad.h"
 
 #include "esp_log.h"
 #include "nvs_flash.h"
@@ -167,6 +169,15 @@ void app_main(void)
         return;
     }
 
+    /* V-block queue: high-ODR accelerometer blocks for SAD (SD-only).
+     * Created here before task_imu_init() so that the init function can
+     * validate the handle is present.                                          */
+    g_v_block_queue = xQueueCreate(4, sizeof(v_block_t *));
+    if (g_v_block_queue == NULL) {
+        ESP_LOGE(TAG, "Failed to create v_block_queue — halting");
+        return;
+    }
+
     task_sd_writer_init();          /* creates g_sd_write_queue, mounts SD  */
     task_ble_stream_init();         /* creates g_ble_tx_queue, inits NimBLE */
     task_adc_init();                /* registers ADS1256 on SPI bus         */
@@ -175,6 +186,8 @@ void app_main(void)
     task_block_assembler_init();    /* no-op for now, assembler uses above queues  */
     task_battery_monitor_init();    /* configures ADC1 channel for VBatt          */
     task_watchdog_init();           /* configures TWDT                            */
+    task_har_init();                /* creates g_x_block_queue, resets HAR state  */
+    task_sad_init();                /* resets HPF state, STE buffer, SAD state    */
 
     /* --- Step 6: Spawn tasks -----------------------------------------------
      *
@@ -186,8 +199,10 @@ void app_main(void)
      *  task_block_assembler |  6   |  1   |  8192
      *  task_sd_writer       |  5   |  1   |  8192
      *  task_ble_stream      |  4   |  1   |  8192
+     *  task_har             |  3   |  1   |  8192
      *  task_watchdog        |  3   |  1   |  2048
      *  task_battery_monitor |  2   |  1   |  2048
+     *  task_sad             |  2   |  1   |  4096
      *  task_usb_guard       |  2   |  0   |  2048
      * ----------------------------------------------------------------------- */
 
@@ -224,6 +239,10 @@ void app_main(void)
                                   NULL, 4, NULL, 1);
     if (ret != pdPASS) { ESP_LOGE(TAG, "Failed to create task_ble"); }
 
+    ret = xTaskCreatePinnedToCore(task_har, "task_har", 8192,
+                                  NULL, 3, NULL, 1);
+    if (ret != pdPASS) { ESP_LOGE(TAG, "Failed to create task_har"); }
+
     ret = xTaskCreatePinnedToCore(task_watchdog, "task_wdt", 2048,
                                   NULL, 3, NULL, 1);
     if (ret != pdPASS) { ESP_LOGE(TAG, "Failed to create task_wdt"); }
@@ -231,6 +250,10 @@ void app_main(void)
     ret = xTaskCreatePinnedToCore(task_battery_monitor, "task_bat", 2048,
                                   NULL, 2, NULL, 1);
     if (ret != pdPASS) { ESP_LOGE(TAG, "Failed to create task_bat"); }
+
+    ret = xTaskCreatePinnedToCore(task_sad, "task_sad", 4096,
+                                  NULL, 2, NULL, 1);
+    if (ret != pdPASS) { ESP_LOGE(TAG, "Failed to create task_sad"); }
 
     ret = xTaskCreatePinnedToCore(task_usb_guard, "task_usbg", 2048,
                                   NULL, 2, NULL, 0);

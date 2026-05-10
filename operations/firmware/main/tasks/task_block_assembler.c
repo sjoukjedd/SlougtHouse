@@ -18,6 +18,8 @@
 #include "task_i2c_sensors.h"
 #include "task_sd_writer.h"
 #include "task_ble_stream.h"
+#include "task_har.h"
+#include "task_sad.h"
 #include "psram_buffer.h"
 #include "data_blocks.h"
 #include "config.h"
@@ -107,6 +109,20 @@ void task_block_assembler(void *pvParameters)
         m_block_t *m_blk = NULL;
         while (xQueueReceive(g_imu_block_queue, &m_blk, 0) == pdTRUE) {
             dispatch_block(m_blk, sizeof(m_block_t), BLOCK_TYPE_M);
+
+            /* Forward a copy to the HAR task's dedicated input queue.
+             * HAR runs at lower priority on the same core, so this copy is
+             * safe.  Drop silently if the HAR queue is full (HAR is behind). */
+            if (g_har_m_block_queue != NULL) {
+                m_block_t *har_copy = (m_block_t *)malloc(sizeof(m_block_t));
+                if (har_copy != NULL) {
+                    memcpy(har_copy, m_blk, sizeof(m_block_t));
+                    if (xQueueSend(g_har_m_block_queue, &har_copy, 0) != pdTRUE) {
+                        free(har_copy); /* HAR is behind — drop */
+                    }
+                }
+            }
+
             free(m_blk);
             m_blk = NULL;
             did_work = true;
@@ -139,6 +155,43 @@ void task_block_assembler(void *pvParameters)
             did_work = true;
         }
 
+        /* Drain Barometer (B-blocks) — SD only, not forwarded to BLE.
+         * HAR stair detection requires barometric altitude; BLE transmission
+         * is omitted because the block is low-rate and BLE bandwidth is reserved
+         * for physiological signals.                                            */
+        b_block_t *b_blk = NULL;
+        while (xQueueReceive(g_baro_block_queue, &b_blk, 0) == pdTRUE) {
+            /* Write to PSRAM ring buffer */
+            size_t written = psram_buf_write(&g_psram_buf, b_blk, sizeof(b_block_t));
+            if (written != sizeof(b_block_t)) {
+                ESP_LOGW(TAG, "PSRAM write incomplete: %u/%u bytes, type=B",
+                         (unsigned)written, (unsigned)sizeof(b_block_t));
+            }
+
+            /* Forward to SD writer only */
+            void *sd_copy = malloc(sizeof(b_block_t));
+            if (sd_copy) {
+                memcpy(sd_copy, b_blk, sizeof(b_block_t));
+                if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
+                    ESP_LOGW(TAG, "sd_write_queue full — B-block dropped");
+                    free(sd_copy);
+                }
+            }
+
+            /* Forward pressure float to HAR's barometer history queue.
+             * This avoids HAR competing with the assembler for g_baro_block_queue. */
+            if (g_har_baro_queue != NULL) {
+                float p = b_blk->baro_pressure_pa;
+                if (xQueueSend(g_har_baro_queue, &p, 0) != pdTRUE) {
+                    /* HAR queue full — oldest baro reading will be stale; acceptable */
+                }
+            }
+
+            free(b_blk);
+            b_blk = NULL;
+            did_work = true;
+        }
+
         /* Drain Z-blocks (raw ICG waveform) — SD only, not forwarded to BLE */
         z_block_t *z_blk = NULL;
         while (xQueueReceive(g_z_block_queue, &z_blk, 0) == pdTRUE) {
@@ -161,6 +214,53 @@ void task_block_assembler(void *pvParameters)
 
             free(z_blk);
             z_blk = NULL;
+            did_work = true;
+        }
+
+        /* Drain X-blocks (HAR/SAD context annotation) — BLE + SD.
+         * Generated every 2 s by task_har; 13 bytes on-wire.                        */
+        x_block_t *x_blk = NULL;
+        while (xQueueReceive(g_x_block_queue, &x_blk, 0) == pdTRUE) {
+            dispatch_block(x_blk, sizeof(x_block_t), BLOCK_TYPE_X);
+            free(x_blk);
+            x_blk = NULL;
+            did_work = true;
+        }
+
+        /* Drain V-blocks (high-ODR SAD accelerometer) — SD only, not forwarded to BLE.
+         * 1 kHz accel, 100 samples per block, 6 kB/s sustained write load.          */
+        v_block_t *v_blk = NULL;
+        while (xQueueReceive(g_v_block_queue, &v_blk, 0) == pdTRUE) {
+            /* Write to PSRAM ring buffer */
+            size_t written = psram_buf_write(&g_psram_buf, v_blk, sizeof(v_block_t));
+            if (written != sizeof(v_block_t)) {
+                ESP_LOGW(TAG, "PSRAM write incomplete: %u/%u bytes, type=V",
+                         (unsigned)written, (unsigned)sizeof(v_block_t));
+            }
+
+            /* Forward to SD writer only (BLE not used for 1 kHz stream) */
+            void *sd_copy = malloc(sizeof(v_block_t));
+            if (sd_copy) {
+                memcpy(sd_copy, v_blk, sizeof(v_block_t));
+                if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
+                    ESP_LOGW(TAG, "sd_write_queue full — V-block dropped");
+                    free(sd_copy);
+                }
+            }
+
+            /* Forward a copy to SAD's dedicated input queue */
+            if (g_sad_v_block_queue != NULL) {
+                v_block_t *sad_copy = (v_block_t *)malloc(sizeof(v_block_t));
+                if (sad_copy != NULL) {
+                    memcpy(sad_copy, v_blk, sizeof(v_block_t));
+                    if (xQueueSend(g_sad_v_block_queue, &sad_copy, 0) != pdTRUE) {
+                        free(sad_copy); /* SAD is behind — drop */
+                    }
+                }
+            }
+
+            free(v_blk);
+            v_blk = NULL;
             did_work = true;
         }
 

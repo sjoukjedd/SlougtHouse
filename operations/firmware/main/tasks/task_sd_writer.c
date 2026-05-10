@@ -179,6 +179,8 @@ void task_sd_writer(void *pvParameters)
                 case BLOCK_TYPE_P: write_size = sizeof(p_block_t); break;
                 case BLOCK_TYPE_S: write_size = sizeof(s_block_t); break;
                 case BLOCK_TYPE_T: write_size = sizeof(t_block_t); break;
+                case BLOCK_TYPE_B: write_size = sizeof(b_block_t); break;
+                case BLOCK_TYPE_V: write_size = sizeof(v_block_t); break;
                 case BLOCK_TYPE_Z: write_size = sizeof(z_block_t); break;
                 default:
                     ESP_LOGW(TAG, "Unknown block type 0x%02X — skipping", type);

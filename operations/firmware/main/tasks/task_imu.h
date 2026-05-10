@@ -16,6 +16,14 @@
 extern QueueHandle_t g_imu_block_queue;
 
 /**
+ * @brief  Queue handle for outgoing V-blocks (v_block_t).
+ *         High-ODR (1 kHz) accelerometer blocks for Speech Activity Detection.
+ *         SD-only — must NOT be forwarded to BLE.
+ *         Populated by task_imu, consumed by task_block_assembler.
+ */
+extern QueueHandle_t g_v_block_queue;
+
+/**
  * @brief  Initialise SPI device handle for ICM-20948.
  *         Must be called from app_main after spi_bus_initialize().
  */

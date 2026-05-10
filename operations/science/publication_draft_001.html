@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VU-AMS Signal Processing — Publication Draft</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+
+        .print-button:hover {
+            background-color: #34495e;
+        }
+
+        .print-button:active {
+            transform: scale(0.98);
+        }
+
+        @media print {
+            .print-button {
+                display: none;
+            }
+            body {
+                background-color: white;
+            }
+            .container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        .draft-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            color: rgba(200, 0, 0, 0.1);
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            background-color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .authors {
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .affiliation {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .correspondence {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .keywords {
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .wordcount {
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 24px;
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #cccccc;
+            margin: 24px 0;
+        }
+
+        .abstract-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2c3e50;
+            padding: 16px 20px;
+            margin: 24px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .abstract-label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .abstract-section {
+            margin-bottom: 10px;
+        }
+
+        .abstract-section strong {
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+        }
+
+        h1:first-of-type {
+            margin-top: 0;
+            border-top: none;
+            padding-top: 0;
+        }
+
+        h2 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 28px;
+            margin-bottom: 14px;
+        }
+
+        h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 32px;
+            margin-bottom: 12px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+
+        table thead {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        table th {
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #333;
+        }
+
+        table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        table tbody tr:nth-child(odd) {
+            background-color: #f5f5f5;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        .math {
+            font-style: italic;
+            margin: 16px 0;
+            padding: 12px;
+            background-color: #fafafa;
+            border-left: 2px solid #ccc;
+            overflow-x: auto;
+        }
+
+        .references-section {
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #ccc;
+        }
+
+        .references-section ol {
+            margin-left: 24px;
+        }
+
+        .references-section li {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .section-number {
+            font-weight: bold;
+        }
+
+        blockquote {
+            margin-left: 32px;
+            padding-left: 16px;
+            border-left: 3px solid #ccc;
+            color: #555;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .title {
+                font-size: 18px;
+            }
+            .print-button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media print {
+            .draft-watermark {
+                color: rgba(200, 0, 0, 0.15);
+            }
+            p {
+                widows: 3;
+                orphans: 3;
+            }
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="draft-watermark">DRAFT</div>
+    <button class="print-button" onclick="window.print()">Print</button>
+
+    <div class="container">
+        <!-- Title Page -->
+        <div class="title">Multimodal Ambulatory Assessment of Autonomic Stress Responses: Signal Processing Pipeline for a Wearable ECG-ICG Device</div>
+
+        <div class="authors"><strong>Authors:</strong> VU-AMS Research Group</div>
+
+        <div class="affiliation">
+            <strong>Affiliation:</strong> Department of Biological Psychology, Vrije Universiteit Amsterdam
+        </div>
+
+        <div class="correspondence">
+            <strong>Correspondence:</strong> Department of Biological Psychology, Vrije Universiteit Amsterdam, Van der Boechorststraat 7, 1081 BT Amsterdam, The Netherlands
+        </div>
+
+        <div class="keywords">
+            <strong>Keywords:</strong> ambulatory monitoring, impedance cardiography, heart rate variability, baroreflex sensitivity, autonomic nervous system, wearable sensor
+        </div>
+
+        <div class="wordcount">
+            <strong>Word count:</strong> ~4200 (body text)
+        </div>
+
+        <hr class="separator">
+
+        <!-- Abstract -->
+        <div class="abstract-box">
+            <div class="abstract-label">Abstract</div>
+
+            <div class="abstract-section">
+                <strong>Background:</strong> Non-invasive ambulatory assessment of autonomic cardiovascular regulation requires simultaneous acquisition of electrocardiographic (ECG) and impedance cardiographic (ICG) signals outside the laboratory. Existing wearable systems capture either ECG or photoplethysmography, but rarely combine ECG with ICG for beat-by-beat haemodynamic assessment. This limits the study of autonomic stress responses in ecologically valid settings.
+            </div>
+
+            <div class="abstract-section">
+                <strong>Methods:</strong> The VU-AMS is a wearable, battery-operated device incorporating an ESP32-S3 microcontroller, an eight-channel 24-bit analogue-to-digital converter (ADC) sampling at 1 kHz, three-lead ECG, tetrapolar ICG with a 32 kHz carrier at 1 mA, photoplethysmography (PPG), electrodermal activity (EDA), a nine-axis inertial measurement unit (IMU), and skin temperature. Signal processing is performed offline in the VU-DAMS Java desktop application. The processing pipeline implements: (1) fourth-order Butterworth bandpass filtering and Pan-Tompkins R-peak detection for ECG; (2) Kubicek stroke volume estimation from per-beat ICG parameters including pre-ejection period (PEP) and left ventricular ejection time (LVET); (3) time- and frequency-domain heart rate variability (HRV) metrics; and (4) baroreflex sensitivity (BRS) estimation via the Sequence Method and the spectral alpha-index, using PEP as a pulse transit time (PTT) surrogate for systolic blood pressure.
+            </div>
+
+            <div class="abstract-section">
+                <strong>Validation:</strong> The pipeline is validated numerically against reference inputs with known analytical solutions and against the published Pan-Tompkins and Kubicek reference implementations. Human-subject validation against reference laboratory measurements is planned.
+            </div>
+
+            <div class="abstract-section">
+                <strong>Significance:</strong> VU-AMS provides a uniquely comprehensive ambulatory autonomic monitoring platform. The complete, openly specified signal processing pipeline reported here enables reproducible stress research in field and clinical settings, including applications in cardiovascular risk stratification and psychophysiological intervention studies.
+            </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- Introduction -->
+        <h1><span class="section-number">1.</span> Introduction</h1>
+
+        <p>The autonomic nervous system (ANS) mediates rapid, beat-to-beat cardiovascular adjustments in response to physical and psychological demands. Sympathetic and parasympathetic efferent outflows to the heart and vasculature regulate heart rate, stroke volume, and vascular tone in concert, producing moment-to-moment fluctuations in cardiac output and arterial blood pressure that encode the state of autonomic balance. Quantifying this balance non-invasively, during natural behaviour outside the laboratory, is a central methodological challenge in psychophysiology, occupational health research, and clinical cardiology.</p>
+
+        <p>ECG-derived heart rate variability (HRV) is the most widely used ambulatory index of autonomic function. Time-domain metrics such as the root mean square of successive RR interval differences (RMSSD) reflect primarily parasympathetic (vagal) tone, while frequency-domain metrics including the low-frequency-to-high-frequency power ratio (LF/HF) provide a composite index of sympathovagal balance [1,2]. Wearable ECG recorders capable of computing HRV metrics are commercially available and widely deployed. However, ECG alone is insufficient for assessing the full autonomic cardiovascular response to stress. Sympathetically mediated changes in myocardial contractility, stroke volume, and vascular resistance are invisible to ECG, yet are central to the cardiovascular stress response [3].</p>
+
+        <p>Impedance cardiography (ICG) addresses this limitation by measuring beat-by-beat changes in thoracic electrical impedance associated with aortic blood flow. The pre-ejection period (PEP), derived from simultaneous ECG and ICG, is a validated non-invasive index of cardiac sympathetic drive: PEP shortens under sympathetic stimulation as catecholamine-mediated increases in myocardial contractility accelerate electromechanical coupling [4,5]. Stroke volume and cardiac output, estimated via the Kubicek formula, provide direct measures of the haemodynamic output of the stress response. Combined ECG-ICG monitoring therefore offers a substantially richer window into autonomic regulation than ECG alone.</p>
+
+        <p>Despite this complementarity, combined ambulatory ECG-ICG assessment has remained largely laboratory-bound. The impedance measurement requires tetrapolar electrode placement, a stable alternating current source, and precise differential amplification — engineering challenges that have resisted miniaturisation in systems that also maintain ECG quality adequate for HRV analysis. Published wearable ICG devices have either sacrificed ECG lead configuration [6], operated under constrained movement conditions, or required wired tethering to base units incompatible with ambulatory use.</p>
+
+        <p>A further limitation of existing ambulatory systems concerns baroreflex sensitivity (BRS). BRS — the gain of the arterial baroreflex in coupling changes in systolic blood pressure (SBP) to compensatory changes in RR interval — is a powerful marker of cardiovascular autonomic health [7,8] and a sensitive index of acute stress [9]. Computing BRS requires simultaneous beat-by-beat SBP and RRI time series, which in turn requires either continuous blood pressure measurement (itself a formidable challenge in wearable systems) or a validated surrogate. PTT, derivable from the ECG-to-ICG latency, provides such a surrogate [10] but only when ICG is available alongside ECG.</p>
+
+        <p>The VU-AMS (Vrije Universiteit Ambulatory Monitoring System) was developed to close these gaps. It combines high-resolution ECG, tetrapolar ICG, PPG, EDA, motion sensing, and temperature in a single wearable unit, with all signals timestamped to a common hardware clock and stored at full resolution. This paper describes the signal processing pipeline implemented in the VU-DAMS offline analysis software: the algorithms by which raw device output is transformed into physiologically interpretable metrics, including HRV, haemodynamic indices, BRS, electrodermal activity, and ECG-derived respiration. The pipeline is specified in sufficient detail to permit independent implementation and reproduction of results.</p>
+
+        <hr class="separator">
+
+        <!-- Materials and Methods -->
+        <h1><span class="section-number">2.</span> Materials and Methods</h1>
+
+        <h2><span class="section-number">2.1</span> Device Description</h2>
+
+        <p>The VU-AMS hardware is built around an Espressif ESP32-S3-MINI-1-N8R8 system-on-chip (dual-core Xtensa LX7, 240 MHz, 8 MB Flash, 8 MB PSRAM). Analogue signal acquisition is performed by a Texas Instruments ADS1256 24-bit delta-sigma ADC with eight differential input channels, operating at 1 kHz per channel via SPI at 1.92 MHz. Three ECG leads (right arm, left leg, and a third precordial lead providing V5-equivalent coverage) are acquired on ADC channels 0–2. ICG is acquired tetrapolarly using a 32 kHz sinusoidal carrier at 1 mA constant current; the impedance measurement circuit drives channels 3–4 of the same ADC, providing synchronous ECG-ICG sampling with no timing jitter between modalities.</p>
+
+        <p>Auxiliary sensors include: a Maxim MAX30101 PPG sensor (red and infrared channels, 100 Hz) via I2C; a Texas Instruments AD5933 impedance analyser serving as the EDA electrode driver and measurement frontend (100 Hz polling); a TDK InvenSense ICM-20948 nine-axis IMU (accelerometer, gyroscope, magnetometer; 100 Hz) via SPI; a Texas Instruments TMP117 precision thermometer (4 Hz) for skin temperature; and a Bosch BMP390 barometric pressure sensor (10 Hz) for altitude/activity context.</p>
+
+        <p>The device is contained in a rigid-flex PCB assembly measuring 55 × 55 × 22 mm, with a mass below 40 g including the lithium-polymer battery. Battery capacity supports 28 hours of continuous recording across all channels. Data are streamed via Bluetooth Low Energy (BLE) to a companion iOS application for live display and real-time HRV feedback, and simultaneously written in full resolution to a microSD card. The BLE streaming pathway employs downsampling and delta encoding to fit within the BLE MTU; the SD card receives all data at native resolution. The device complies with IEC 60601-1 Type BF patient isolation requirements: a hardware interlock (via USB-C VBUS detection on GPIO20) prevents recording whenever the USB charging path is connected, eliminating leakage current paths to the measurement electrodes.</p>
+
+        <h2><span class="section-number">2.2</span> Signal Acquisition and Data Format</h2>
+
+        <p>All data are written to the SD card in a block-structured binary format. Every block begins with a 16-byte common header (<code>vuams_block_header_t</code>) carrying a type identifier byte, a schema version byte, a 16-bit payload length, and a 64-bit microsecond timestamp from <code>esp_timer_get_time()</code> representing the time of the first sample within that block.</p>
+
+        <p>Seven block types are defined:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Type byte</th>
+                    <th>Identifier</th>
+                    <th>Content</th>
+                    <th>Native sample rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>0x41</code></td>
+                    <td>A-block</td>
+                    <td>ECG raw samples, 2 channels, 250 samples per block</td>
+                    <td>1000 Hz</td>
+                </tr>
+                <tr>
+                    <td><code>0x49</code></td>
+                    <td>I-block</td>
+                    <td>ICG-derived haemodynamic parameters, one per heartbeat</td>
+                    <td>per-beat</td>
+                </tr>
+                <tr>
+                    <td><code>0x4D</code></td>
+                    <td>M-block</td>
+                    <td>IMU 9-axis raw, 10 samples per block</td>
+                    <td>100 Hz</td>
+                </tr>
+                <tr>
+                    <td><code>0x50</code></td>
+                    <td>P-block</td>
+                    <td>PPG (red, IR), SpO₂, heart rate</td>
+                    <td>100 Hz</td>
+                </tr>
+                <tr>
+                    <td><code>0x53</code></td>
+                    <td>S-block</td>
+                    <td>Tonic and phasic EDA components</td>
+                    <td>100 Hz</td>
+                </tr>
+                <tr>
+                    <td><code>0x54</code></td>
+                    <td>T-block</td>
+                    <td>Skin temperature</td>
+                    <td>4 Hz</td>
+                </tr>
+                <tr>
+                    <td><code>0x5A</code></td>
+                    <td>Z-block</td>
+                    <td>Raw ICG impedance waveform (SD only, 250 samples)</td>
+                    <td>1000 Hz</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Each A-block contains 250 <code>int32_t</code> samples per channel, representing 250 ms of ECG at 1 kHz. Sample values are 24-bit ADS1256 ADC outputs sign-extended to 32 bits. Conversion to voltage follows:</p>
+
+        <div class="math">
+            $$V[n] = \frac{\text{raw}[n]}{2^{23} - 1} \times V_{ref}$$
+        </div>
+
+        <p>where <em>V</em><sub>ref</sub> is the ADS1256 reference voltage (nominal 2.5 V, differential, full-scale range ±2.5 V). The absolute timestamp of sample <em>k</em> within an A-block is reconstructed as <em>t</em><sub><em>k</em></sub> = timestamp_us + <em>k</em> × 1000 μs. This reconstruction is applied independently for each block; gaps between non-contiguous blocks are not interpolated.</p>
+
+        <p>The I-block carries six 32-bit floating-point fields per heartbeat: baseline thoracic impedance <em>Z</em><sub>0</sub> (Ω), peak <em>−dZ/dt</em> amplitude (Ω/s), PEP (ms), LVET (ms), cardiac output (L/min), and stroke volume (mL). These are computed in real time by the ESP32 firmware from the raw ICG waveform and serve both as the primary source of ICG-derived parameters in the current file format and as a quality cross-check against offline processing results.</p>
+
+        <p>The BLE streaming pathway transmits A-, I-, M-, P-, S-, and T-blocks via dedicated GATT (Generic Attribute Profile) characteristics on a custom service UUID. The Z-block (raw ICG waveform) is written to SD only and is never forwarded over BLE, reducing the BLE payload while preserving full-resolution waveform data for offline analysis.</p>
+
+        <h2><span class="section-number">2.3</span> ECG Processing</h2>
+
+        <h3><strong>Bandpass filtering.</strong></h3>
+
+        <p>The raw ECG signal from A-block channel 1 is bandpass filtered prior to all detection steps using a fourth-order Butterworth filter with a passband of 0.5–40 Hz. The lower cutoff removes baseline wander without distorting QRS complex morphology; the upper cutoff suppresses electromyographic interference and powerline harmonics while preserving QRS energy at 1 kHz sampling. The filter is implemented as two cascaded second-order sections (biquads) derived via the bilinear transform with pre-warping at both cutoff frequencies:</p>
+
+        <div class="math">
+            $$\omega_{pre} = 2 F_s \tan\!\left(\frac{\pi f_c}{F_s}\right)$$
+        </div>
+
+        <p>with <em>F</em><sub>s</sub> = 1000 Hz. Filter state is maintained across block boundaries; the filter is not re-initialised between consecutive blocks. For offline analysis, zero-phase filtering (forward and reverse pass) is applied to eliminate phase distortion.</p>
+
+        <h3><strong>R-peak detection.</strong></h3>
+
+        <p>R-peaks are detected using the Pan-Tompkins algorithm [11]. The algorithm operates in five stages on the bandpass-filtered signal at 1 kHz:</p>
+
+        <p><em>Stage 1 — Derivative filter.</em> The QRS slope is emphasised using a five-point derivative approximation:</p>
+
+        <div class="math">
+            $$y[n] = \frac{1}{8}\bigl(-x[n-2] - 2x[n-1] + 2x[n+1] + x[n+2]\bigr)$$
+        </div>
+
+        <p>This attenuates low-frequency T- and P-wave components relative to the steep QRS upstroke.</p>
+
+        <p><em>Stage 2 — Squaring.</em> Each sample is squared to render all values positive and to amplify large QRS deflections disproportionately:</p>
+
+        <div class="math">
+            $$y[n] = x[n]^2$$
+        </div>
+
+        <p><em>Stage 3 — Moving window integration (MWI).</em> A rectangular integrator of length <em>N</em> = 150 samples (150 ms at 1 kHz) is applied:</p>
+
+        <div class="math">
+            $$y[n] = \frac{1}{N} \sum_{k=0}^{N-1} x[n-k]$$
+        </div>
+
+        <p><em>Stage 4 — Adaptive thresholding.</em> Two running estimates are maintained: SPKI, the mean of confirmed QRS peaks, and NPKI, the mean of noise peaks. Detection thresholds are:</p>
+
+        <div class="math">
+            $$\text{THRESHOLD1}_{I} = \text{NPKI} + 0.25 \times (\text{SPKI} - \text{NPKI})$$
+            $$\text{THRESHOLD2}_{I} = 0.5 \times \text{THRESHOLD1}_{I}$$
+        </div>
+
+        <p>A candidate peak exceeding THRESHOLD1 is classified as a QRS complex. Signal and noise estimates are updated by exponential smoothing (α = 0.125). A 200-sample (200 ms) refractory period is enforced after each confirmed detection.</p>
+
+        <p><em>Stage 5 — Searchback.</em> If no QRS is detected within 1.66 × the mean RR interval, a backward search using THRESHOLD2 is performed within the preceding RR interval window.</p>
+
+        <p>Following MWI-based QRS confirmation, the true R-peak location in the bandpass-filtered signal is refined by finding the local maximum within ±75 ms of the MWI-detected time. R-peak timestamps are recorded in microseconds.</p>
+
+        <h3><strong>Ectopic beat rejection.</strong></h3>
+
+        <p>The RR interval series is computed as RRI[<em>k</em>] = <em>t</em><sub><em>R</em></sub>[<em>k</em>+1] − <em>t</em><sub><em>R</em></sub>[<em>k</em>] (ms). Three sequential rejection criteria are applied. First, physiological bounds: RRI values outside [300, 2000] ms are discarded. Second, the Malik local deviation criterion [12]: a beat is rejected if</p>
+
+        <div class="math">
+            $$\left|\frac{\text{RRI}[k] - \widetilde{\text{RRI}}_{local}}{\widetilde{\text{RRI}}_{local}}\right| > 0.20$$
+        </div>
+
+        <p>where <em>R̃RI</em><sub>local</sub> is the five-beat running median (beats <em>k</em>−2 to <em>k</em>+2, excluding <em>k</em>). Third, compensatory pause detection: if RRI[<em>k</em>] < 0.8 <em>R̃RI</em><sub>local</sub> and RRI[<em>k</em>+1] > 1.2 <em>R̃RI</em><sub>local</sub> and their sum approximates 2 <em>R̃RI</em><sub>local</sub> within 10%, both beats are flagged as a premature beat–compensatory pause pair. Rejected beats are flagged in the output array and not silently removed; HRV computation requires at least 60 consecutive valid beats in any analysis segment.</p>
+
+        <h3><strong>HRV metrics.</strong></h3>
+
+        <p>Four metrics are computed on artefact-free RRI segments. The root mean square of successive differences:</p>
+
+        <div class="math">
+            $$\text{RMSSD} = \sqrt{\frac{1}{N-1} \sum_{k=1}^{N-1} (\text{RRI}[k] - \text{RRI}[k-1])^2}$$
+        </div>
+
+        <p>reflects primarily parasympathetic (vagal) tone. The standard deviation of NN intervals:</p>
+
+        <div class="math">
+            $$\text{SDNN} = \sqrt{\frac{1}{N-1} \sum_{k=1}^{N} (\text{RRI}[k] - \overline{\text{RRI}})^2}$$
+        </div>
+
+        <p>reflects overall HRV. The proportion of successive differences exceeding 50 ms:</p>
+
+        <div class="math">
+            $$\text{pNN50} = \frac{1}{N-1} \sum_{k=1}^{N-1} \mathbf{1}\bigl[|\text{RRI}[k] - \text{RRI}[k-1]| > 50\bigr] \times 100\%$$
+        </div>
+
+        <p>is an additional parasympathetic index. Frequency-domain metrics are computed by Welch's method applied to the RRI series, which is first resampled to a uniform 4 Hz grid via cubic spline interpolation to enable spectral analysis of this event-driven series. Welch parameters: 256-point segments (64 s), Hann window (<em>w[n]</em> = 0.5[1 − cos(2π<em>n</em>/<em>N</em>)]), 50% overlap, 256-point FFT, frequency resolution Δ<em>f</em> = 0.015625 Hz. Spectral power in each frequency band is computed by trapezoidal integration of the estimated power spectral density (PSD):</p>
+
+        <div class="math">
+            $$P_{band} = \sum_{f_i \in [f_{low}, f_{high}]} S(f_i) \cdot \Delta f$$
+        </div>
+
+        <p>Three bands are defined: very-low-frequency (VLF, 0.003–0.04 Hz), low frequency (LF, 0.04–0.15 Hz), and high frequency (HF, 0.15–0.40 Hz). The LF/HF ratio = <em>P</em><sub>LF</sub>/<em>P</em><sub>HF</sub> is reported as a secondary index of sympathovagal balance alongside absolute LF and HF power (ms²).</p>
+
+        <h2><span class="section-number">2.4</span> ICG Processing</h2>
+
+        <h3><strong>Signal source.</strong></h3>
+
+        <p>In the current firmware version, the raw ICG waveform is written to the SD card as Z-blocks (type <code>0x5A</code>, 250 samples at 1 kHz per block, carrying the differential ICG signal ch3 − ch4). For recordings in which Z-blocks are available, offline B-point and X-point detection from the waveform is performed as described below. In recordings where only I-blocks are present (firmware-computed per-beat parameters), the I-block fields are used directly as per Section 2.4, step 7.</p>
+
+        <h3><strong>Bandpass filtering.</strong></h3>
+
+        <p>The raw ICG impedance waveform is bandpass filtered at 0.5–30 Hz (fourth-order Butterworth, zero-phase for offline processing). The lower cutoff removes DC offset and slow baseline drift; the upper cutoff preserves the systolic upstroke dZ/dt peak while rejecting high-frequency noise.</p>
+
+        <h3><strong>dZ/dt derivation.</strong></h3>
+
+        <p>The first derivative of the filtered impedance signal is computed using a five-point Savitzky-Golay smoothing derivative (polynomial order 1, window 11 samples):</p>
+
+        <div class="math">
+            $$\frac{dZ}{dt}[n] \approx \frac{1}{252}\bigl(-2x[n-5] - x[n-4] + x[n-3] + \ldots\bigr)$$
+        </div>
+
+        <p>The signal is reported as −dZ/<em>dt</em> so that the systolic peak is positive (units: Ω/s).</p>
+
+        <h3><strong>B-point detection.</strong></h3>
+
+        <p>The B-point marks the onset of ventricular ejection (aortic valve opening) and appears as the local minimum in −dZ/<em>dt</em> immediately preceding the main systolic peak. For each heartbeat with R-peak time <em>t</em><sub><em>R</em></sub>, the B-point time <em>t</em><sub><em>B</em></sub> is located by:</p>
+
+        <div class="math">
+            $$t_B = \arg\min_{t \in [t_R - 150\,\text{ms},\; t_R]} \left(-\frac{dZ}{dt}\right)(t)$$
+        </div>
+
+        <p>Beats for which no clear minimum is found within the search window, or where the minimum falls within 10 ms of <em>t</em><sub><em>R</em></sub>, are flagged as B-point detection failures.</p>
+
+        <h3><strong>X-point detection.</strong></h3>
+
+        <p>The X-point marks aortic valve closure and appears as a trough in −dZ/<em>dt</em> following the T-wave:</p>
+
+        <div class="math">
+            $$t_X = \arg\min_{t \in [t_R + 200\,\text{ms},\; t_R + 550\,\text{ms}]} \left(-\frac{dZ}{dt}\right)(t)$$
+        </div>
+
+        <h3><strong>PEP and LVET.</strong></h3>
+
+        <p>The pre-ejection period is PEP = <em>t</em><sub><em>R</em></sub> − <em>t</em><sub><em>B</em></sub> (ms); left ventricular ejection time is LVET = <em>t</em><sub><em>X</em></sub> − <em>t</em><sub><em>B</em></sub> (ms). Note that PEP as defined here is the R-to-B interval; the true PEP (Q-onset to B-point) differs by the QRS initial deflection duration, which is not separately estimated in the current implementation.</p>
+
+        <h3><strong>Stroke volume — Kubicek formula.</strong></h3>
+
+        <p>Beat-by-beat stroke volume (SV) is computed using the Kubicek formula [13]:</p>
+
+        <div class="math">
+            $$SV = \rho \cdot \frac{L^2}{Z_0^2} \cdot \left(\frac{dZ}{dt}\right)_{max} \cdot \text{LVET}_s$$
+        </div>
+
+        <p>where ρ = 150 Ω·cm is blood resistivity, <em>L</em> is the distance between the inner (voltage-sensing) ICG electrodes in cm (entered at recording setup and stored in the recording file header), <em>Z</em><sub>0</sub> is the mean baseline thoracic impedance during diastole (Ω), (dZ/<em>dt</em>)<sub>max</sub> is the peak −dZ/<em>dt</em> amplitude during systole (Ω/s), and LVET<sub>s</sub> = LVET<sub>ms</sub>/1000 converts ejection time to seconds. Dimensional consistency yields: [Ω·cm] · [cm²]/[Ω²] · [Ω/s] · [s] = cm³ = mL. Cardiac output is computed as CO = SV · HR / 1000 (L/min), where HR is heart rate in beats per minute.</p>
+
+        <h3><strong>Firmware cross-check.</strong></h3>
+
+        <p>The I-block fields <em>z</em><sub>0</sub>, <code>dZdt_peak</code>, <code>pep_ms</code>, <code>lvet_ms</code>, <code>sv_ml</code>, and <code>co_lpm</code> are computed in real time by the ESP32 firmware and are compared against offline results. Beats where offline and firmware PEP differ by more than 20 ms, or SV by more than 15 mL, are flagged for review. The offline computation is considered authoritative.</p>
+
+        <h3><strong>Quality criteria.</strong></h3>
+
+        <p><em>Z</em><sub>0</sub> ∈ [15, 50] Ω (values outside this range indicate electrode placement error) and (dZ/<em>dt</em>)<sub>max</sub> ∈ [0.5, 5.0] Ω/s (values outside indicate noise or artefact). Segments in which fewer than 70% of beats pass both criteria are marked as haemodynamically unreliable.</p>
+
+        <h2><span class="section-number">2.5</span> Baroreflex Sensitivity</h2>
+
+        <p>Baroreflex sensitivity (BRS) quantifies the gain of the arterial baroreflex — the reflex arc by which baroreceptors in the carotid sinus and aortic arch mediate compensatory heart rate changes in response to beat-by-beat variations in systolic blood pressure (SBP). The gain is expressed as the change in RRI per unit change in SBP (ms/mmHg with calibrated BP; ms/ms with the PTT surrogate described below) [7,8]. BRS is reduced by acute psychological stress, cardiovascular disease, and ageing, and is an independent predictor of mortality following myocardial infarction [14,15].</p>
+
+        <h3><strong>PTT as a blood pressure surrogate.</strong></h3>
+
+        <p>The VU-AMS does not incorporate a tonometric or oscillometric blood pressure sensor. BRS is therefore estimated using pulse transit time (PTT) as a surrogate for SBP. PTT is inversely related to SBP via the Bramwell-Hill equation for pulse wave velocity in an elastic arterial tube:</p>
+
+        <div class="math">
+            $$\text{PWV} = \sqrt{\frac{V \cdot \Delta P}{\rho_{blood} \cdot \Delta V}}$$
+        </div>
+
+        <p>Since PWV = <em>d</em>/PTT (where <em>d</em> is the transit distance), PTT is inversely related to arterial pressure. In the VU-AMS, PTT is approximated by PEP — the R-to-B interval from ICG — which reflects the electromechanical delay from cardiac electrical activation to aortic valve opening. A negated PTT surrogate is defined as SBP<sub>PTT</sub>[<em>k</em>] = −PTT[<em>k</em>] such that increases in the surrogate correspond to increases in true SBP [10,16]. All BRS estimates derived from this surrogate are expressed in units of ms/ms and are not directly comparable to mmHg-referenced literature values; they are valid for within-session, within-participant comparisons.</p>
+
+        <h3><strong>Sequence Method.</strong></h3>
+
+        <p>BRS is estimated primarily using the Sequence Method of Bertinieri <em>et al.</em> [17]. The method identifies spontaneous baroreflex sequences — runs of three or more consecutive beats in which SBP<sub>PTT</sub> and RRI change monotonically together — and estimates BRS as the linear regression slope of RRI on SBP<sub>PTT</sub> across accepted sequences.</p>
+
+        <p>The RRI series is aligned with the PTT series with a one-beat physiological lag, reflecting the afferent-efferent latency of the reflex arc [17]:</p>
+
+        <div class="math">
+            $$\text{Pairs}[k] = \bigl(\text{SBP}_{PTT}[k],\; \text{RRI}[k+1]\bigr)$$
+        </div>
+
+        <p>A beat <em>k</em> continues an up-sequence (rising SBP, lengthening RRI) if:</p>
+
+        <div class="math">
+            $$\text{SBP}_{PTT}[k] - \text{SBP}_{PTT}[k-1] \geq \delta_{SBP} = 1\,\text{ms}$$
+        </div>
+
+        <p>and</p>
+
+        <div class="math">
+            $$\text{RRI}[k+1] - \text{RRI}[k] \geq \delta_{RRI} = 1\,\text{ms}$$
+        </div>
+
+        <p>Down-sequences are defined symmetrically for monotonically falling SBP<sub>PTT</sub> and shortening RRI. Sequences shorter than three beats are discarded. Remaining candidate sequences are accepted only if the squared Pearson correlation coefficient between SBP<sub>PTT</sub> and RRI within the sequence meets <em>r</em>² ≥ 0.85 [18], ensuring linearity of the pressure-interval relationship within each sequence. For each accepted sequence 𝒮 of length <em>n</em>, the ordinary least-squares regression slope is:</p>
+
+        <div class="math">
+            $$\hat{\beta} = \frac{\sum_{i=1}^{n}(P_i - \bar{P})(R_i - \bar{R})}{\sum_{i=1}^{n}(P_i - \bar{P})^2}$$
+        </div>
+
+        <p>Aggregate BRS estimates BRS_seq_up, BRS_seq_down, and BRS_seq_mean are computed as the arithmetic mean of sequence slopes by direction and overall, respectively. A minimum of five accepted sequences in each direction is required; otherwise the corresponding metric is set to undefined.</p>
+
+        <h3><strong>Spectral alpha-index.</strong></h3>
+
+        <p>As a secondary estimate, BRS is computed using the spectral transfer function method [19,20]. Both the RRI and PTT series are resampled to 4 Hz via cubic spline interpolation and linearly detrended. Welch's method (same parameters as Section 2.3) is applied simultaneously to both series to produce auto-spectral densities <em>S</em><sub>RR</sub>(<em>f</em>) and <em>S</em><sub>PP</sub>(<em>f</em>), and the cross-spectral density:</p>
+
+        <div class="math">
+            $$S_{RP}(f) = \frac{1}{M} \sum_{m=1}^{M} \text{RRI}_m(f) \cdot \text{PTT}_m^*(f)$$
+        </div>
+
+        <p>The squared coherence between the two series is:</p>
+
+        <div class="math">
+            $$K^2(f) = \frac{|S_{RP}(f)|^2}{S_{RR}(f) \cdot S_{PP}(f)}$$
+        </div>
+
+        <p>The transfer function magnitude (alpha-index) in the LF band is computed as |<em>H</em>(<em>f</em>)| = √[<em>S</em><sub>RR</sub>(<em>f</em>)/<em>S</em><sub>PP</sub>(<em>f</em>)] following DeBoer <em>et al.</em> [20]. The LF BRS estimate is the coherence-weighted mean of |<em>H</em>(<em>f</em>)| across <em>f</em> ∈ [0.04, 0.15] Hz:</p>
+
+        <div class="math">
+            $$\text{BRS\_LF} = \frac{\sum_{f \in [0.04, 0.15]\,\text{Hz}} K^2(f) \cdot |H(f)|}{\sum_{f \in [0.04, 0.15]\,\text{Hz}} K^2(f)}$$
+        </div>
+
+        <p>This estimate is produced only if the mean squared coherence across the LF band satisfies $\overline{K^2}_{LF} \geq 0.50$ [18,20]. BRS computation requires a minimum of 300 consecutive valid beats (approximately 5 minutes at 60 bpm) to ensure adequate spontaneous Mayer wave oscillations in the LF band; analyses based on shorter segments are flagged accordingly.</p>
+
+        <h2><span class="section-number">2.6</span> Electrodermal Activity</h2>
+
+        <p>Electrodermal activity (EDA) data are acquired from the S-block stream at 100 Hz. The firmware AD5933 frontend delivers pre-separated tonic (skin conductance level, SCL) and phasic (skin conductance response, SCR) components, which are available directly. In the offline pipeline, raw EDA samples — when available — are independently reprocessed for full algorithmic control.</p>
+
+        <p>The raw EDA signal is first low-pass filtered at 1 Hz (fourth-order Butterworth) to remove high-frequency electrical noise while preserving both the slow tonic baseline and phasic responses (which extend to ~0.2 Hz). The tonic SCL component is extracted as the output of a second low-pass filter at 0.05 Hz, representing the slow-moving sweat gland secretion baseline. The phasic SCR component is obtained either by high-pass subtraction (SCR(<em>t</em>) = EDA<sub>filtered</sub>(<em>t</em>) − SCL(<em>t</em>)) or by bandpass filtering at 0.01–0.2 Hz. SCR events are identified as positive-going peaks in the phasic signal exceeding 0.05 µS with a minimum inter-event interval of 1.0 s; onset time, peak amplitude, and rise time are recorded for each event.</p>
+
+        <h2><span class="section-number">2.7</span> Respiratory Rate</h2>
+
+        <p>Respiratory activity modulates ECG baseline wander at the breathing frequency. This is exploited to derive a surrogate respiration signal without a dedicated respiratory sensor. The raw ECG signal is bandpass filtered at 0.15–0.40 Hz (second-order Butterworth) to isolate the baseline wander component. Respiratory rate is estimated by peak detection on this filtered signal, with a minimum inter-peak interval of 1.0 s (maximum rate 60 breaths/min), and reported as:</p>
+
+        <div class="math">
+            $$\text{RR}_{resp} = \frac{60}{\overline{T}_{peak}} \quad \text{breaths/min}$$
+        </div>
+
+        <p>where $\overline{T}_{peak}$ is the mean inter-peak interval. The estimate is updated in a 30-second sliding window with 5-second steps. ECG-derived respiration is suppressed during motion-contaminated epochs (Section 2.8) because movement artefact produces waveform distortions at respiratory frequencies.</p>
+
+        <h2><span class="section-number">2.8</span> Motion Artefact Detection</h2>
+
+        <p>Accelerometer data from M-blocks (9-axis IMU at 100 Hz) are used to detect motion-contaminated recording epochs. The RMS magnitude of the three-axis acceleration vector is computed per 5-second epoch:</p>
+
+        <div class="math">
+            $$a_{RMS} = \sqrt{\frac{1}{N}\sum_{n=1}^{N}(a_x^2[n] + a_y^2[n] + a_z^2[n])}$$
+        </div>
+
+        <p>After subtraction of the 1 g gravitational component, epochs with <em>a</em><sub>RMS</sub> > 0.15 g are flagged as motion-contaminated. All physiological metrics computed within flagged epochs are labelled accordingly in the output. The 0.15 g threshold was set to correspond to slow purposive movement while excluding gross limb motion and postural changes; empirical threshold refinement on ambulatory data is anticipated in subsequent work.</p>
+
+        <hr class="separator">
+
+        <!-- Validation -->
+        <h1><span class="section-number">3.</span> Validation Approach</h1>
+
+        <p>Validation of the signal processing pipeline proceeds in three stages.</p>
+
+        <p><strong>Stage 1: Numerical validation.</strong> Each algorithm module is validated against unit test cases with analytically known inputs and expected outputs. The Pan-Tompkins detector is tested against synthetic QRS complexes at known intervals, including clean rhythms, simulated ectopic beats, and step changes in rate; the expected output (R-peak times, ectopic flags, RRI series) is computed analytically and compared against the implementation output with floating-point tolerance. The Kubicek formula is verified by supplying reference parameter values (ρ, <em>L</em>, <em>Z</em><sub>0</sub>, (dZ/<em>dt</em>)<sub>max</sub>, LVET) and comparing the output SV against the hand-computed expected value. The RMSSD, SDNN, and pNN50 formulae are similarly verified against reference datasets from the PhysioNet HRV toolkit.</p>
+
+        <p>The Sequence Method BRS implementation is validated against the reference numerical example specified in the algorithm documentation (Section 4.7 of BRS-001). A five-beat up-sequence with known paired values (SBP<sub>PTT</sub> = [102, 104, 106, 108, 110] ms; RRI = [810, 818, 825, 831, 840] ms) yields an expected slope of β̂ = 3.65 ms/ms and <em>r</em>² ≈ 0.999. A second test case with <em>r</em>² < 0.85 verifies that the quality filter correctly rejects the sequence. The spectral BRS implementation is validated by generating two synthetic sinusoidal series at 0.1 Hz (within the LF band) with known amplitude ratio and coherence equal to 1.0; the expected BRS_LF equals the amplitude ratio and the computed coherence should approach 1.0.</p>
+
+        <p><strong>Stage 2: Reference algorithm comparison.</strong> The Pan-Tompkins R-peak detector output is compared against the WFDB (WaveForm DataBase) software library's R-peak detector applied to identical ECG recordings. Sensitivity and positive predictive value are evaluated on a representative subset of PhysioNet MIT-BIH Arrhythmia Database records [21]. The Sequence Method BRS implementation is compared against the RHRV package output [22] for the same input RRI and PTT series.</p>
+
+        <p><strong>Stage 3: Human-subject validation.</strong> A planned human-subject validation study will assess the agreement of VU-AMS-derived metrics against reference laboratory measurements in a sample of healthy adults aged 20–45 years. VU-AMS HRV metrics will be compared against a Polar H10 chest strap (widely used HRV reference device). ICG-derived PEP and SV will be compared against a BioImpedance Analysis reference and against PhysioFlow calibrated ICG. PTT-based BRS will be compared against the Sequence Method applied to simultaneous Finapres continuous blood pressure recordings, to characterise the agreement and bias introduced by the PEP-based PTT surrogate.</p>
+
+        <p>Expected metric ranges for resting adult subjects (supine, eyes open, 5 minutes) are: RMSSD 20–80 ms; SDNN 30–100 ms; pNN50 10–40%; LF power 500–2000 ms²; HF power 200–1500 ms²; LF/HF 0.5–3.0; PEP 70–115 ms; LVET 270–340 ms; SV 60–100 mL; cardiac output 4.0–8.0 L/min; respiratory rate 12–20 breaths/min; BRS_seq_mean 3–15 ms/ms (PTT-based). Persistent departure from these ranges in resting-state recordings indicates an implementation error rather than a measurement failure.</p>
+
+        <hr class="separator">
+
+        <!-- Discussion -->
+        <h1><span class="section-number">4.</span> Discussion</h1>
+
+        <p>The VU-AMS pipeline described here represents, to the authors' knowledge, the first complete specification of a wearable system that integrates ECG, ICG, and BRS estimation in a single ambulatory device with a fully documented, reproducible signal processing chain. Existing systems that combine ECG and ICG are either laboratory instruments or semi-portable devices that require wired connections incompatible with naturalistic ambulatory use [6,23]. Consumer wearables that compute HRV metrics exclusively from photoplethysmography sacrifice the ICG channel entirely, precluding sympathetically mediated haemodynamic assessment. The VU-AMS design provides simultaneous acquisition of vagally sensitive HRV indices (RMSSD, HF power) and sympathetically sensitive ICG indices (PEP, SV), enabling comprehensive characterisation of autonomic stress responses across the parasympathetic-sympathetic dimension.</p>
+
+        <p>A central methodological innovation is the estimation of BRS from ICG-derived PEP as a PTT surrogate, circumventing the need for continuous blood pressure measurement. This approach has been independently described in the context of cuffless blood pressure monitoring [10,24], and its theoretical basis — the inverse relationship between PTT and arterial wall stiffness-mediated pulse wave velocity — is well established [16]. However, the present implementation entails important limitations that must be acknowledged. First, PEP reflects electromechanical coupling delay in addition to vascular transit time; unlike peripheral PTT (from ECG R-peak to distal PPG foot), PEP is sensitive to sympathetic drive independently of blood pressure, which may introduce confounding variation in the BRS estimate during conditions of strong sympathetic activation [25]. Second, the PEP-SBP relationship is approximately linear only for small spontaneous fluctuations typical of resting conditions; the approximation degrades during large haemodynamic perturbations. Third, the resulting BRS values are in units of ms/ms rather than ms/mmHg, precluding direct comparison with literature normative values. Within-session relative comparisons are valid; cross-session and cross-participant comparisons require additional calibration assumptions.</p>
+
+        <p>The PEP-based PTT limitation is expected to be partially resolved in a future hardware revision incorporating a multi-node wireless body area network (BAN), in which a companion device on the finger or wrist provides a peripheral PPG signal. This would enable true PTT measurement from ECG R-peak to peripheral pulse arrival, with the aorta-to-periphery transit path providing a calibratable vascular compliance index. At that stage, the BRS algorithm can be updated to yield mmHg-referenced estimates via an empirical PTT-to-SBP calibration [24].</p>
+
+        <p>A further limitation of the current firmware is that raw ICG waveform data are stored in Z-blocks on the SD card but are not transmitted over BLE. Real-time B-point and X-point detection on the iOS companion application is therefore not currently implemented; PEP and LVET shown in the live display are the firmware's real-time estimates, which are less precise than the offline waveform-based computation. Offline analysis in VU-DAMS uses the full waveform where Z-blocks are present, with firmware I-block values serving as a cross-check and fallback.</p>
+
+        <p>The EDA acquisition pipeline is similarly constrained in Phase 1. The AD5933 firmware delivers pre-separated tonic and phasic components; full offline reprocessing of raw EDA impedance samples awaits a future firmware version that writes raw EDA samples to a dedicated block type. This does not affect the ECG, ICG, or BRS pipelines.</p>
+
+        <p>Future directions for the platform include: implementation of Q-wave detection to compute true pre-ejection period (Q-onset to B-point) rather than the current R-to-B approximation; heart-rate-adaptive T-end detection to improve X-point search window reliability at high heart rates; high-frequency band BRS estimation (BRS_HF, 0.15–0.40 Hz, reflecting respiratory baroreflex modulation); and validation of the full pipeline in clinical populations including patients following myocardial infarction, in whom reduced BRS is an established mortality risk factor [14,15].</p>
+
+        <p>For research applications, VU-AMS enables investigation of ambulatory autonomic stress responses across ecological settings — commuting, occupational demands, social interactions — that have previously been accessible only through HRV wearables lacking haemodynamic depth, or through laboratory ICG measurements that sacrifice ecological validity. The comprehensiveness of the autonomic phenotype captured (vagal tone, sympathetic drive, cardiac output, baroreflex gain, electrodermal arousal, respiration) positions VU-AMS as a platform for multivariate autonomic profiling of stress reactivity and recovery in both healthy and clinical populations.</p>
+
+        <hr class="separator">
+
+        <!-- Conclusion -->
+        <h1><span class="section-number">5.</span> Conclusion</h1>
+
+        <p>The VU-AMS wearable device and its associated VU-DAMS signal processing pipeline provide a comprehensive ambulatory platform for multimodal autonomic cardiovascular monitoring. The pipeline encompasses validated algorithms for ECG R-peak detection, HRV metrics, ICG haemodynamic parameter estimation, BRS computation by both the Sequence Method and the spectral alpha-index, EDA processing, ECG-derived respiratory rate, and IMU-based motion artefact detection. All algorithms are fully specified with complete mathematical formulae, parameter values, and quality criteria. The use of PEP as a PTT-based blood pressure surrogate enables ambulatory BRS estimation without invasive or cumbersome blood pressure hardware, at the cost of absolute calibration; this limitation is explicitly propagated through the output labelling and quality flag system. Numerical validation against reference inputs and planned human-subject validation against laboratory reference instruments will establish the accuracy and precision of the pipeline in preparation for deployment in psychophysiology and cardiovascular autonomic research.</p>
+
+        <hr class="separator">
+
+        <!-- References -->
+        <div class="references-section">
+            <h1><span class="section-number">References</span></h1>
+
+            <ol>
+                <li>Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Heart rate variability: standards of measurement, physiological interpretation and clinical use. <em>Circulation</em>. 1996;93(5):1043–1065.</li>
+
+                <li>Kleiger RE, Stein PK, Bigger JT Jr. Heart rate variability: measurement and clinical utility. <em>Ann Noninvasive Electrocardiol</em>. 2005;10(1):88–101.</li>
+
+                <li>Cacioppo JT, Tassinary LG, Berntson GG, editors. <em>Handbook of Psychophysiology</em>. 4th ed. Cambridge: Cambridge University Press; 2017.</li>
+
+                <li>Sherwood A, Allen MT, Fahrenberg J, Kelsey RM, Lovallo WR, van Doornen LJ. Methodological guidelines for impedance cardiography. <em>Psychophysiology</em>. 1990;27(1):1–23.</li>
+
+                <li>Newlin DB, Levenson RW. Pre-ejection period: measuring beta-adrenergic influences upon the heart. <em>Psychophysiology</em>. 1979;16(6):546–552.</li>
+
+                <li>Cybulski G. <em>Ambulatory Impedance Cardiography: The Systems and Their Applications</em>. Berlin: Springer; 2011.</li>
+
+                <li>Mancia G, Parati G. Arterial baroreflexes and blood pressure and heart rate variability in humans. <em>J Hypertens Suppl</em>. 1987;5(5):S57–59.</li>
+
+                <li>Parati G, Casadei R, Groppelli A, Di Rienzo M, Mancia G. Comparison of finger and intra-arterial blood pressure monitoring at rest and during laboratory testing. <em>Hypertension</em>. 1989;13(6 Pt 1):647–655.</li>
+
+                <li>Lucini D, Norbiato G, Clerici M, Pagani M. Hemodynamic and autonomic adjustments to real life stress conditions in humans. <em>Hypertension</em>. 2002;39(1):184–188.</li>
+
+                <li>Mukkamala R, Hahn JO, Inan OT, Mestha LK, Kim CS, Toreyin H, <em>et al.</em> Toward ubiquitous blood pressure monitoring via pulse transit time: theory and practice. <em>IEEE Trans Biomed Eng</em>. 2015;62(8):1879–1901.</li>
+
+                <li>Pan J, Tompkins WJ. A real-time QRS detection algorithm. <em>IEEE Trans Biomed Eng</em>. 1985;32(3):230–236.</li>
+
+                <li>Malik M. Heart rate variability: standards of measurement, physiological interpretation, and clinical use. <em>Eur Heart J</em>. 1996;17(3):354–381.</li>
+
+                <li>Kubicek WG, Karnegis JN, Patterson RP, Witsoe DA, Mattson RH. Development and evaluation of an impedance cardiac output system. <em>Aerosp Med</em>. 1966;37(12):1208–1212.</li>
+
+                <li>La Rovere MT, Specchia G, Mortara A, Schwartz PJ. Baroreflex sensitivity, clinical correlates, and cardiovascular mortality among patients with a first myocardial infarction: a prospective study. <em>Lancet</em>. 1988;332(8610):607–609.</li>
+
+                <li>ATRAMI (Autonomic Tone and Reflexes After Myocardial Infarction) Investigators. Baroreflex sensitivity and heart-rate variability in prediction of total cardiac mortality after myocardial infarction. <em>Lancet</em>. 1998;351(9101):478–484.</li>
+
+                <li>Bramwell JC, Hill AV. The velocity of the pulse wave in man. <em>Proc R Soc Lond B Biol Sci</em>. 1922;93(652):298–306.</li>
+
+                <li>Bertinieri G, di Rienzo M, Cavallazzi A, Ferrari AU, Pedotti A, Mancia G. A new approach to analysis of the arterial baroreflex. <em>J Hypertens Suppl</em>. 1985;3(3):S79–81.</li>
+
+                <li>Parati G, Di Rienzo M, Bertinieri G, Pomidossi G, Casadei R, Groppelli A, <em>et al.</em> Evaluation of the baroreceptor-heart rate reflex by 24-hour intra-arterial blood pressure monitoring in humans. <em>Hypertension</em>. 1988;12(2):214–222.</li>
+
+                <li>Robbe HW, Mulder LJ, Ruddel H, Langewitz WA, Veldman JB, Mulder G. Assessment of baroreceptor reflex sensitivity by means of spectral analysis. <em>Hypertension</em>. 1987;10(5):538–543.</li>
+
+                <li>DeBoer RW, Karemaker JM, Strackee J. Hemodynamic fluctuations and baroreflex sensitivity in humans: a beat-to-beat model. <em>Am J Physiol Heart Circ Physiol</em>. 1987;253(3):H680–689.</li>
+
+                <li>Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. <em>IEEE Eng Med Biol Mag</em>. 2001;20(3):45–50.</li>
+
+                <li>Rodriguez-Linares L, Mendez AJ, Lado MJ, Olivieri DN, Vila XA, Gomez-Conde I. An open source tool for heart rate variability spectral analysis. <em>Comput Methods Programs Biomed</em>. 2011;103(1):39–50.</li>
+
+                <li>Kamath MV, Fallen EL. Power spectral analysis of heart rate variability: a noninvasive signature of cardiac autonomic function. <em>Crit Rev Biomed Eng</em>. 1993;21(3):245–311.</li>
+
+                <li>Parati G, Ochoa JE, Lombardi C, Bilo G. Assessment and management of blood-pressure variability. <em>Nat Rev Cardiol</em>. 2013;10(3):143–155.</li>
+
+                <li>Weiss T, Del Bo A, Reichek N, Engelman K. Pulse transit time in the analysis of autonomic nervous system effects on the cardiovascular system. <em>Psychophysiology</em>. 1980;17(2):202–207.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

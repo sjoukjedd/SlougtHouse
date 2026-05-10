@@ -29,6 +29,8 @@
 #define PIN_IMU_CS          8
 #define SPI_CLK_IMU_HZ      7000000 /* 7 MHz — ICM-20948 max */
 #define IMU_SAMPLE_RATE_HZ  100
+#define IMU_GYRO_RATE_HZ    100     /* Gyroscope ODR [Hz] — GYRO_SMPLRT_DIV=10  */
+#define IMU_ACCEL_RATE_HZ   1000    /* Accelerometer ODR [Hz] for SAD — ACCEL_SMPLRT_DIV=0 */
 
 /* --------------------------------------------------------------------------
  * I²C Bus
@@ -54,7 +56,8 @@
 #define TMP117_SAMPLE_RATE_HZ   4
 
 /* BMP390 barometer */
-#define BMP390_SAMPLE_RATE_HZ   10
+#define I2C_ADDR_BARO           I2C_ADDR_BMP390  /* Alias used by baro driver */
+#define BARO_SAMPLE_RATE_HZ     25               /* 25 Hz — stair-climb detection */
 
 /* --------------------------------------------------------------------------
  * SD Card — SDMMC native 4-bit mode (SDMMC_HOST_SLOT_1)
@@ -108,6 +111,7 @@
 #define VUAMS_T_BLOCK_UUID      "A5D5B007-5A5A-4B4B-8888-1A2B3C4D5E6F"  /* Temperature */
 #define VUAMS_STATUS_UUID       "A5D5B009-5A5A-4B4B-8888-1A2B3C4D5E6F"  /* Status */
 #define VUAMS_CONTROL_UUID      "A5D5B00A-5A5A-4B4B-8888-1A2B3C4D5E6F"  /* Control */
+#define VUAMS_X_BLOCK_UUID      "A5D5B00D-5A5A-4B4B-8888-1A2B3C4D5E6F"  /* HAR/SAD context (X-block) */
 
 /* --------------------------------------------------------------------------
  * FreeRTOS inter-task communication — queue depths

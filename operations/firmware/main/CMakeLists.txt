@@ -11,6 +11,8 @@ idf_component_register(
         "tasks/task_battery_monitor.c"
         "tasks/task_watchdog.c"
         "tasks/task_usb_guard.c"
+        "tasks/task_har.c"
+        "tasks/task_sad.c"
     INCLUDE_DIRS
         "."
         "tasks"

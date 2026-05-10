@@ -123,6 +123,35 @@ The lower PCB hosts the complete analog signal chain. An ESP32-S3-MINI-1-N8R8 on
 
 ---
 
+### Barometric Pressure Sensor
+
+**Selected:** BMP390 (BMP390T) — Bosch Sensortec  
+**Function:** Absolute barometric pressure and ambient temperature measurement. Primary use: altitude change detection (stair climbing) via pressure gradient (≈ −12 Pa/m; one stair step ≈ 0.2 m → ≈ 2.4 Pa detectable change at ±0.5 Pa resolution).  
+**Part number:** BMP390T (or BMP390 in LGA-12 2.0 × 2.0 × 0.75 mm)  
+**Package:** LGA-12, 2.0 × 2.0 × 0.75 mm  
+**Supply voltage (VDDIO):** 1.2–3.6 V — operated at 3.3 V (DVDD_3V3 rail)  
+**I²C address:** 0x77 (SDO pin connected to VDD, selects upper address)  
+**Interface:** I²C (400 kHz Fast Mode), shared bus with AD5933 / MAX30101 / TMP117  
+**Sample rate:** 25 Hz (ODR register 0x1D = 0x03), sufficient for stair-climb detection  
+**Key specs:**
+- Pressure range: 300–1250 hPa (30 000–125 000 Pa)
+- Pressure resolution: ±0.5 Pa RMS (0.0041 m altitude equivalent) at x4 oversampling
+- Absolute pressure accuracy: ±0.5 hPa over 0–65°C
+- Temperature range: −40 to +85°C
+- Current consumption: 3.2 µA at 1 Hz; ~28 µA at 25 Hz typical
+- Standby current: 2.0 µA max
+
+**Rationale:** The BMP390 is the most power-efficient high-resolution barometric sensor available in this form factor. At 25 Hz and 28 µA supply current, its contribution to the total device power budget is negligible. The integrated temperature output eliminates the need for a separate ambient temperature sensor at this measurement location. The ±0.5 Pa pressure resolution enables reliable step-by-step altitude tracking suitable for stair detection algorithms in firmware. The LGA-12 package fits on the upper (digital) PCB near the ESP32. Compensation coefficients are stored in factory-trimmed NVM and applied in firmware per Section 8.5 of the BMP390 datasheet (double-precision floating point compensation for pressure and temperature).
+
+**Decoupling (mandatory):**
+- 100 nF X7R 0402 + 10 µF X5R 0603 local decoupling at VDDIO pin (< 0.5 mm / < 2 mm respectively)
+
+**Pin configuration:**
+- SDO → DVDD_3V3 via 10 kΩ pull-up → I²C address 0x77
+- CSB → DVDD_3V3 via 10 kΩ pull-up → selects I²C mode (not SPI)
+
+---
+
 ## Notes and Open Items
 
 1. **SCL architecture decision** (Vasquez): Confirm whether SCL tonic/phasic signals are to be delivered as analog voltages to ADC ch6/ch7 (requiring discrete TIA + demodulator per Addendum B block diagram) or as digital impedance values over I²C (AD5933 native mode). If analog delivery is required, the AD5933 must be replaced by a discrete chain and ch6/ch7 remain analog inputs.
@@ -148,6 +177,7 @@ The lower PCB hosts the complete analog signal chain. An ESP32-S3-MINI-1-N8R8 on
 | 7 | LT3042EDD#TRPBF | Ultra-low-noise LDO, 200 mA, 3.3V | Analog Devices | Mouser / DigiKey |
 | 8 | AD5933YRSZ | Impedance analyzer IC, SCL excitation + sense | Analog Devices | Mouser / DigiKey |
 | 9 | SG-210STF 32.000KHz | TCXO-class CMOS oscillator, 32.000 kHz, 3,2×2,5 mm SMD, 3.3V | Epson Timing | Mouser / DigiKey / Farnell |
+| 10 | BMP390T | Barometric pressure + temperature sensor, I²C 0x77, LGA-12 2.0×2.0 mm, 3.3V | Bosch Sensortec | Mouser / DigiKey |
 
 ---
 

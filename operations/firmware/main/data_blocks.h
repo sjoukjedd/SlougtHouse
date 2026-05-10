@@ -16,11 +16,13 @@
  * Block type identifiers (header.type)
  * -------------------------------------------------------------------------- */
 #define BLOCK_TYPE_A    0x41    /* 'A' — ECG raw samples        */
+#define BLOCK_TYPE_B    0x42    /* 'B' — Barometric pressure    */
 #define BLOCK_TYPE_I    0x49    /* 'I' — ICG derived parameters */
 #define BLOCK_TYPE_M    0x4D    /* 'M' — IMU raw samples        */
 #define BLOCK_TYPE_P    0x50    /* 'P' — PPG                    */
 #define BLOCK_TYPE_S    0x53    /* 'S' — SCL / EDA              */
 #define BLOCK_TYPE_T    0x54    /* 'T' — Temperature            */
+#define BLOCK_TYPE_V    0x56    /* 'V' — high-ODR accelerometer for SAD (SD only) */
 #define BLOCK_TYPE_Z    0x5A    /* 'Z' — raw ICG impedance waveform (SD only) */
 
 /* Current schema version */
@@ -114,6 +116,16 @@ typedef struct __attribute__((packed)) {
 } t_block_t;
 
 /* --------------------------------------------------------------------------
+ * B-block — Barometric pressure / altitude (BMP390), 25 Hz
+ * payload_len = 4+4 = 8 bytes
+ * -------------------------------------------------------------------------- */
+typedef struct __attribute__((packed)) {
+    vuams_block_header_t header;
+    float baro_pressure_pa;  /* Compensated pressure [Pa]   */
+    float baro_temp_c;       /* Compensated temperature [°C] */
+} b_block_t;
+
+/* --------------------------------------------------------------------------
  * Z-block — raw ICG impedance waveform, 250 samples @ 1 kHz (250 ms window)
  * SD-only: never forwarded to BLE.
  * z_raw[i] = ch3_sample - ch4_sample (ICG differential, 24-bit in int32_t)
@@ -130,12 +142,48 @@ typedef struct __attribute__((packed)) {
 } z_block_t;
 
 /* --------------------------------------------------------------------------
+ * V-block — high-ODR accelerometer for Speech Activity Detection (SAD)
+ * 1 kHz, 100 samples per block (100 ms window), SD-only (never sent over BLE)
+ * payload: 3 axes × 100 samples × 2 bytes = 600 bytes
+ * -------------------------------------------------------------------------- */
+#define V_BLOCK_SAMPLES 100
+
+typedef struct __attribute__((packed)) {
+    uint8_t  block_type;                 /* BLOCK_TYPE_V = 0x56                       */
+    uint16_t seq;                        /* Rolling sequence number                    */
+    uint32_t timestamp_us;               /* esp_timer_get_time() at first sample       */
+    int16_t  ax[V_BLOCK_SAMPLES];        /* 1 kHz accelerometer X, raw 16-bit LSB      */
+    int16_t  ay[V_BLOCK_SAMPLES];        /* 1 kHz accelerometer Y                      */
+    int16_t  az[V_BLOCK_SAMPLES];        /* 1 kHz accelerometer Z                      */
+    uint16_t crc;                        /* CRC-16 over preceding bytes (future use)   */
+} v_block_t;
+
+/* --------------------------------------------------------------------------
+ * X-block — HAR/SAD context annotation, generated every 2 seconds by task_har
+ * Published via BLE AND stored to SD (13 bytes on-wire).
+ * -------------------------------------------------------------------------- */
+#define BLOCK_TYPE_X    0x58    /* 'X' — context / annotation block          */
+
+typedef struct __attribute__((packed)) {
+    uint8_t  block_type;        /* BLOCK_TYPE_X = 0x58                       */
+    uint16_t seq;               /* Rolling sequence number                    */
+    uint32_t timestamp_us;      /* esp_timer_get_time() at block generation   */
+    uint8_t  activity_class;    /* har_class_t value (0–8)                   */
+    uint16_t cadence_spm;       /* Steps per minute × 10 (fixed point)       */
+    uint8_t  motion_intensity;  /* 0–255, normalised from 0.0–1.0             */
+    uint8_t  speaking;          /* 0 = not speaking, 1 = speaking            */
+    uint8_t  speaking_fraction; /* Last 30 s speaking fraction, 0–100 (%)   */
+    uint16_t crc;               /* CRC-16 over preceding bytes (placeholder) */
+} x_block_t;
+
+/* --------------------------------------------------------------------------
  * Generic block pointer — used by queue items
  * -------------------------------------------------------------------------- */
 typedef struct {
     uint8_t type;           /* BLOCK_TYPE_* — identifies which union member is valid */
     union {
         a_block_t a;
+        b_block_t b;
         i_block_t i;
         m_block_t m;
         p_block_t p;
