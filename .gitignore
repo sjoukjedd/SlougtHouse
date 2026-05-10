@@ -1,0 +1,27 @@
+# Build outputs
+operations/firmware/build/
+operations/firmware_dummy/build/
+operations/firmware/.cache/
+operations/firmware_dummy/.cache/
+operations/firmware/managed_components/
+operations/firmware_dummy/managed_components/
+
+# Xcode — workspace and user data (keep .xcodeproj itself)
+operations/ios_app/*.xcodeproj/project.xcworkspace/
+operations/ios_app/*.xcodeproj/xcuserdata/
+operations/ios_simulator/*.xcodeproj/project.xcworkspace/
+operations/ios_simulator/*.xcodeproj/xcuserdata/
+
+# Java/Maven build output
+operations/vudam_app/target/
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+
+# ESP-IDF sdkconfig (generated; keep sdkconfig.defaults)
+sdkconfig
+sdkconfig.old

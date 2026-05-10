@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Slough House — Team Intelligence</title>
+  <style>
+    /* ── RESET & ROOT ────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:       #0A1628;
+      --navy-mid:   #0d1e38;
+      --navy-light: #1E3A5F;
+      --gold:       #C8A96E;
+      --gold-dim:   rgba(200,169,110,0.15);
+      --gold-border:rgba(200,169,110,0.30);
+      --cyan:       #00b6cb;
+      --cyan-dim:   rgba(0,182,203,0.10);
+      --cyan-border:rgba(0,182,203,0.25);
+      --white:      #FFFFFF;
+      --muted:      rgba(255,255,255,0.55);
+      --border:     rgba(255,255,255,0.08);
+
+      /* status */
+      --amber:      #F59E0B;
+      --amber-dim:  rgba(245,158,11,0.15);
+      --blue-st:    #3B82F6;
+      --blue-dim:   rgba(59,130,246,0.15);
+      --green:      #22C55E;
+      --green-dim:  rgba(34,197,94,0.15);
+      --red:        #EF4444;
+      --red-dim:    rgba(239,68,68,0.15);
+
+      /* owner palette */
+      --ow-muller:   #7C3AED;
+      --ow-chen:     #0EA5E9;
+      --ow-nair:     #10B981;
+      --ow-vasquez:  #F59E0B;
+      --ow-reyes:    #EC4899;
+      --ow-bell:     #F97316;
+      --ow-quinn:    #A78BFA;
+      --ow-kim:      #06B6D4;
+      --ow-voss:     #84CC16;
+      --ow-wolff:    #E11D48;
+      --ow-hart:     #C8A96E;
+
+      --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --radius: 10px;
+      --tr: 0.2s ease;
+    }
+
+    html { scroll-behavior: smooth; font-size: 15px; }
+    body { font-family: var(--font); background: var(--navy); color: var(--white); line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── LAYOUT ─────────────────────────────────────── */
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    .site-header {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding-bottom: 20px;
+    }
+
+    .header-brand {}
+    .brand-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .brand-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--white);
+      line-height: 1.1;
+    }
+    .brand-title span { color: var(--gold); }
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .meta-updated {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+    .meta-updated strong { color: var(--cyan); font-weight: 600; }
+
+    /* ── SUMMARY BAR ────────────────────────────────── */
+    .summary-bar {
+      background: var(--navy);
+      border-bottom: 2px solid var(--gold);
+      padding: 14px 0;
+    }
+
+    .summary-inner {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      flex: 1;
+      min-width: 160px;
+    }
+    .stat-pill-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+    .stat-pill-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .stat-pill-value {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+    .stat-pill-value.amber { color: var(--amber); }
+    .stat-pill-value.red   { color: var(--red);   }
+    .stat-pill-value.green { color: var(--green);  }
+    .stat-pill-value.cyan  { color: var(--cyan);   }
+    .stat-pill-value.gold  { color: var(--gold);   }
+
+    .stat-pill.urgent { border-color: rgba(239,68,68,0.30); background: rgba(239,68,68,0.06); }
+    .stat-pill.track-opt  { border-color: var(--cyan-border); background: var(--cyan-dim); }
+    .stat-pill.track-hz   { border-color: var(--gold-border); background: var(--gold-dim); }
+
+    /* ── TRACK TABS ─────────────────────────────────── */
+    .track-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+    }
+    .track-tab {
+      padding: 12px 24px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color var(--tr), border-color var(--tr);
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      outline: none;
+      position: relative;
+      top: 1px;
+    }
+    .track-tab.active { color: var(--white); }
+    .track-tab.opt.active  { border-bottom-color: var(--cyan); }
+    .track-tab.hz.active   { border-bottom-color: var(--gold); }
+    .track-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+    /* ── MAIN ───────────────────────────────────────── */
+    main { padding: 40px 0 80px; }
+
+    .track-panel { display: none; }
+    .track-panel.active { display: block; }
+
+    /* ── SECTION HEADING ────────────────────────────── */
+    .section-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .section-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .section-badge.opt { background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--cyan-border); }
+    .section-badge.hz  { background: var(--gold-dim);  color: var(--gold);  border: 1px solid var(--gold-border); }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .section-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    /* ── MEETING META ───────────────────────────────── */
+    .meeting-meta-bar {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+    }
+    .meta-item { display: flex; align-items: center; gap: 7px; }
+    .meta-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--cyan); flex-shrink: 0;
+    }
+    .meta-dot.gold { background: var(--gold); }
+    .meta-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .meta-val   { font-size: 0.82rem; color: var(--white); font-weight: 600; }
+
+    /* ── TWO-COL LAYOUT ─────────────────────────────── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .full-col { margin-bottom: 28px; }
+
+    /* ── CARD ───────────────────────────────────────── */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-icon-wrap {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 1rem;
+    }
+    .card-icon-wrap.cyan { background: var(--cyan-dim); }
+    .card-icon-wrap.gold { background: var(--gold-dim); }
+    .card-icon-wrap.amber{ background: var(--amber-dim); }
+    .card-title-sm {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── HIGHLIGHTS ─────────────────────────────────── */
+    .highlights-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .highlight-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+    }
+    .highlight-item.gold  { border-left-color: var(--gold); }
+    .highlight-item.amber { border-left-color: var(--amber); }
+    .highlight-item.red   { border-left-color: var(--red); }
+    .highlight-item.green { border-left-color: var(--green); }
+    .highlight-num {
+      font-size: 0.72rem; font-weight: 800; color: var(--cyan);
+      background: var(--cyan-dim); border-radius: 4px;
+      padding: 2px 6px; flex-shrink: 0; margin-top: 2px;
+      line-height: 1.4;
+    }
+    .highlight-num.gold  { color: var(--gold);  background: var(--gold-dim); }
+    .highlight-num.amber { color: var(--amber); background: var(--amber-dim); }
+    .highlight-num.red   { color: var(--red);   background: var(--red-dim); }
+    .highlight-num.green { color: var(--green); background: var(--green-dim); }
+    .highlight-text { font-size: 0.85rem; color: rgba(255,255,255,0.82); line-height: 1.5; }
+    .highlight-text strong { color: var(--white); font-weight: 600; }
+
+    /* ── PRIORITY LIST ──────────────────────────────── */
+    .priority-list { display: flex; flex-direction: column; gap: 10px; }
+    .priority-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .priority-rank {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .rank-1 { background: rgba(239,68,68,0.20);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+    .rank-2 { background: rgba(245,158,11,0.20); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+    .rank-3 { background: rgba(59,130,246,0.20); color: var(--blue-st); border: 1px solid rgba(59,130,246,0.3); }
+    .rank-4 { background: rgba(34,197,94,0.15);  color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .rank-5 { background: rgba(0,182,203,0.15);  color: var(--cyan);  border: 1px solid var(--cyan-border); }
+
+    .priority-content {}
+    .priority-name {
+      font-size: 0.88rem; font-weight: 700; color: var(--white); margin-bottom: 3px;
+    }
+    .priority-rationale { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .priority-act {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px;
+      color: var(--cyan); background: var(--cyan-dim);
+      border-radius: 4px; padding: 1px 6px; display: inline-block; margin-top: 4px;
+    }
+
+    /* ── ACTION ITEMS TABLE ─────────────────────────── */
+    .table-scroll { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table.actions { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    table.actions thead th {
+      background: rgba(0,182,203,0.08);
+      color: var(--cyan);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 11px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    table.actions thead th.gold-head {
+      background: rgba(200,169,110,0.08);
+      color: var(--gold);
+    }
+    table.actions tbody tr td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    table.actions tbody tr:last-child td { border-bottom: none; }
+    table.actions tbody tr:hover td { background: rgba(255,255,255,0.025); }
+
+    .act-id {
+      font-size: 0.7rem; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .act-desc { color: rgba(255,255,255,0.85); line-height: 1.45; }
+    .act-deadline { color: var(--muted); white-space: nowrap; font-size: 0.78rem; }
+    .act-deadline.urgent { color: var(--amber); font-weight: 600; }
+
+    /* owner chip */
+    .owner-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700;
+      white-space: nowrap;
+    }
+    .owner-chip::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor;
+      opacity: 0.9;
+    }
+
+    .chip-muller  { color: #a78bfa; background: rgba(124,58,237,0.18); }
+    .chip-chen    { color: #7dd3fc; background: rgba(14,165,233,0.18); }
+    .chip-nair    { color: #6ee7b7; background: rgba(16,185,129,0.18); }
+    .chip-vasquez { color: #fde68a; background: rgba(245,158,11,0.18); }
+    .chip-reyes   { color: #f9a8d4; background: rgba(236,72,153,0.18); }
+    .chip-bell    { color: #fdba74; background: rgba(249,115,22,0.18); }
+    .chip-quinn   { color: #c4b5fd; background: rgba(167,139,250,0.18); }
+    .chip-kim     { color: #a5f3fc; background: rgba(6,182,212,0.18); }
+    .chip-voss    { color: #bef264; background: rgba(132,204,22,0.18); }
+    .chip-wolff   { color: #fda4af; background: rgba(225,29,72,0.18); }
+    .chip-hart    { color: #e9c87a; background: rgba(200,169,110,0.18); }
+    .chip-multi   { color: #d4d4d4; background: rgba(160,160,160,0.15); }
+
+    /* status chip */
+    .status-chip {
+      display: inline-block;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .status-open       { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+    .status-inprogress { background: var(--blue-dim);  color: var(--blue-st); border: 1px solid rgba(59,130,246,0.3); }
+    .status-done       { background: var(--green-dim); color: var(--green);   border: 1px solid rgba(34,197,94,0.3); }
+    .status-blocked    { background: var(--red-dim);   color: var(--red);     border: 1px solid rgba(239,68,68,0.3); }
+
+    /* ── CONCEPT CARDS ──────────────────────────────── */
+    .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .concept-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 14px;
+      transition: border-color var(--tr), transform var(--tr);
+    }
+    .concept-card:hover { border-color: rgba(200,169,110,0.35); transform: translateY(-2px); }
+
+    .concept-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .concept-name {
+      font-size: 1.1rem; font-weight: 800; color: var(--gold); letter-spacing: -0.3px;
+    }
+    .concept-tagline {
+      font-size: 0.72rem; font-weight: 600; color: var(--muted);
+      letter-spacing: 0.3px; margin-top: 2px;
+    }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .effort-badge {
+      display: inline-block;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 1px;
+    }
+    .effort-S { background: rgba(34,197,94,0.18);  color: var(--green);   border: 1px solid rgba(34,197,94,0.3); }
+    .effort-M { background: rgba(245,158,11,0.18); color: var(--amber);   border: 1px solid rgba(245,158,11,0.3); }
+    .effort-L { background: rgba(239,68,68,0.15);  color: var(--red);     border: 1px solid rgba(239,68,68,0.3); }
+
+    .reg-badge {
+      display: inline-block;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.66rem; font-weight: 700;
+      background: rgba(200,169,110,0.12); color: var(--gold); border: 1px solid var(--gold-border);
+    }
+
+    .concept-pitch {
+      font-size: 0.83rem; color: rgba(255,255,255,0.78); line-height: 1.6;
+    }
+
+    .concept-next {
+      padding: 10px 12px;
+      background: rgba(200,169,110,0.06);
+      border: 1px solid var(--gold-border);
+      border-radius: 7px;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.5;
+    }
+    .concept-next-label {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 4px;
+    }
+
+    .concept-owners { display: flex; gap: 5px; flex-wrap: wrap; }
+
+    /* ── DIVIDER ────────────────────────────────────── */
+    .section-divider {
+      height: 1px; background: var(--border); margin: 36px 0;
+    }
+
+    /* ── LAM QUOTE ──────────────────────────────────── */
+    .lam-quote {
+      background: rgba(200,169,110,0.05);
+      border: 1px solid var(--gold-border);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .lam-mark { font-size: 1.8rem; color: var(--gold); opacity: 0.5; font-family: Georgia, serif; line-height: 1; }
+    .lam-text { font-size: 0.85rem; font-style: italic; color: rgba(255,255,255,0.7); line-height: 1.6; }
+    .lam-attr { font-size: 0.72rem; color: var(--gold); font-weight: 700; margin-top: 6px; font-style: normal; }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+      .concept-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .summary-inner { gap: 8px; }
+      .stat-pill { min-width: 140px; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .track-tab { padding: 10px 14px; font-size: 0.72rem; }
+      .container { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-top">
+      <div class="header-brand">
+        <div class="brand-eyebrow">Slough House — Internal</div>
+        <div class="brand-title">Team <span>Intelligence</span></div>
+        <div class="brand-sub">Fortnightly meeting reports &mdash; VU-AMS development cycle</div>
+      </div>
+      <div class="header-meta">
+        <div class="meta-updated">Last updated &mdash; <strong>2026-05-09</strong></div>
+        <div class="meta-updated">Cycle &mdash; <strong>Meeting 001</strong></div>
+        <div class="meta-updated">Chair &mdash; <strong>Lam</strong></div>
+      </div>
+    </div>
+
+    <!-- Summary bar -->
+    <div class="summary-bar" style="margin: 0 -28px; padding: 14px 28px;">
+      <div class="summary-inner">
+
+        <div class="stat-pill urgent">
+          <div class="stat-pill-icon" style="background:rgba(239,68,68,0.15);">&#9888;</div>
+          <div>
+            <span class="stat-pill-label">Due this week</span>
+            <div class="stat-pill-value red">3</div>
+          </div>
+        </div>
+
+        <div class="stat-pill">
+          <div class="stat-pill-icon" style="background:var(--amber-dim);">&#9711;</div>
+          <div>
+            <span class="stat-pill-label">Open actions</span>
+            <div class="stat-pill-value amber">28</div>
+          </div>
+        </div>
+
+        <div class="stat-pill">
+          <div class="stat-pill-icon" style="background:var(--green-dim);">&#10003;</div>
+          <div>
+            <span class="stat-pill-label">Done</span>
+            <div class="stat-pill-value green">0</div>
+          </div>
+        </div>
+
+        <div class="stat-pill track-opt">
+          <div class="stat-pill-icon" style="background:var(--cyan-dim);">&#9632;</div>
+          <div>
+            <span class="stat-pill-label">Product Opt. last</span>
+            <div class="stat-pill-value cyan">2026-05-09</div>
+          </div>
+        </div>
+
+        <div class="stat-pill track-hz">
+          <div class="stat-pill-icon" style="background:var(--gold-dim);">&#9670;</div>
+          <div>
+            <span class="stat-pill-label">New Horizons last</span>
+            <div class="stat-pill-value gold">2026-05-09</div>
+          </div>
+        </div>
+
+        <div class="stat-pill">
+          <div class="stat-pill-icon" style="background:rgba(167,139,250,0.15);">&#8594;</div>
+          <div>
+            <span class="stat-pill-label">Next meeting</span>
+            <div class="stat-pill-value" style="color:#a78bfa;">2026-05-23</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Track tabs -->
+    <div class="track-tabs">
+      <button class="track-tab opt active" data-target="panel-opt">Product Optimization</button>
+      <button class="track-tab hz"  data-target="panel-hz">New Horizons</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<main>
+  <div class="container">
+
+    <!-- ══════════════════════════
+         PANEL: PRODUCT OPTIMIZATION
+    ══════════════════════════ -->
+    <div class="track-panel active" id="panel-opt">
+
+      <!-- Meeting meta -->
+      <div class="meeting-meta-bar" style="margin-top:32px;">
+        <div class="meta-item"><div class="meta-dot"></div><div class="meta-label">Date</div>&nbsp;<div class="meta-val">2026-05-09</div></div>
+        <div class="meta-item"><div class="meta-dot"></div><div class="meta-label">Meeting</div>&nbsp;<div class="meta-val">001</div></div>
+        <div class="meta-item"><div class="meta-dot"></div><div class="meta-label">Attendees</div>&nbsp;<div class="meta-val">11 + Lam</div></div>
+        <div class="meta-item"><div class="meta-dot gold"></div><div class="meta-label">Agenda</div>&nbsp;<div class="meta-val">Review current product status; identify and prioritize optimization opportunities</div></div>
+      </div>
+
+      <!-- ── KEY FINDINGS ── -->
+      <div class="section-row">
+        <span class="section-badge opt">Key Findings</span>
+        <span class="section-title">What the team surfaced</span>
+      </div>
+
+      <div class="card full-col" style="margin-bottom:28px;">
+        <div class="card-header">
+          <div class="card-icon-wrap cyan">&#9672;</div>
+          <span class="card-title-sm">Critical outcomes from Meeting 001</span>
+        </div>
+        <ul class="highlights-list">
+          <li class="highlight-item red">
+            <span class="highlight-num red">!</span>
+            <span class="highlight-text"><strong>Safety blocker identified:</strong> The USB-C recording interlock required by IEC 60601-1 Type BF is not implemented. Firmware must block recording when <code>PIN_USB_DETECT</code> is high. No human subject recordings permitted until ACT-004 ships.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">1</span>
+            <span class="highlight-text"><strong>Critical path is SPI bus congestion:</strong> The SD card sharing SPI2_HOST with the ADC and IMU creates a throughput bottleneck. Migrating SD to SDMMC native 4-bit mode (GPIO35–40) unblocks raw ICG waveform storage (Z-block), which in turn unblocks Vasquez's full algorithm pipeline and VU-DAMS validation.</span>
+          </li>
+          <li class="highlight-item gold">
+            <span class="highlight-num gold">2</span>
+            <span class="highlight-text"><strong>Battery budget is razor-thin:</strong> Nair's back-of-envelope estimate puts average current draw at 115–120 mA against a 3400 mAh cell — only 28.3 hours against the 28-hour requirement. The AD5933 at 15 mA is the outlier; duty-cycling it to standby between 100 Hz polls could save ~14 mA average and move the margin to comfortable.</span>
+          </li>
+          <li class="highlight-item amber">
+            <span class="highlight-num amber">3</span>
+            <span class="highlight-text"><strong>PEP measurement has a systematic bias:</strong> The I-block records R-to-B interval, not Q-to-B. True PEP requires Q-wave detection, adding 30–50 ms. The bias is constant within-subject so stress tracking is unaffected, but absolute comparisons against published normative data will show an offset.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">4</span>
+            <span class="highlight-text"><strong>Four iOS integration tests are blocked</strong> pending a simulator peripheral app that does not yet exist. Chen owns ACT-015; this is the single biggest blocker to iOS test coverage.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">5</span>
+            <span class="highlight-text"><strong>CI pipeline does not exist.</strong> All 25 tests in TP-001 are manual-only. Bell cannot run tests consistently without automated execution. Kim's ACT-025 is a force-multiplier on every other improvement — it is how we know fixes actually hold.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── PRIORITIES + ACTIONS two-col ── -->
+      <div class="two-col">
+
+        <!-- Priority ranking -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon-wrap amber">&#9650;</div>
+            <span class="card-title-sm">Priority Ranking — Top 5</span>
+          </div>
+          <div class="priority-list">
+
+            <div class="priority-item">
+              <div class="priority-rank rank-1">1</div>
+              <div class="priority-content">
+                <div class="priority-name">USB-C Recording Interlock</div>
+                <div class="priority-rationale">Safety-critical. Type BF classification requires it before any human subject recording. Blocks all clinical use.</div>
+                <div class="priority-act">ACT-004 · ACT-021</div>
+              </div>
+            </div>
+
+            <div class="priority-item">
+              <div class="priority-rank rank-2">2</div>
+              <div class="priority-content">
+                <div class="priority-name">SD → SDMMC Migration</div>
+                <div class="priority-rationale">Unblocks raw ICG storage (Z-block), required for validated PEP/LVET computation and Vasquez's full algorithm pipeline.</div>
+                <div class="priority-act">ACT-001</div>
+              </div>
+            </div>
+
+            <div class="priority-item">
+              <div class="priority-rank rank-3">3</div>
+              <div class="priority-content">
+                <div class="priority-name">Raw ICG Z-Block Implementation</div>
+                <div class="priority-rationale">Enables B/X-point detection in VU-DAMS. Unlocks validated SV and CO computation. Closes the largest gap between firmware outputs and signal processing spec.</div>
+                <div class="priority-act">ACT-002</div>
+              </div>
+            </div>
+
+            <div class="priority-item">
+              <div class="priority-rank rank-4">4</div>
+              <div class="priority-content">
+                <div class="priority-name">AD5933 Duty-Cycle Power Reduction</div>
+                <div class="priority-rationale">Estimated 14 mA average saving moves 28-hour battery runtime from margin risk to comfortable headroom. Without it, E2E-002 is borderline.</div>
+                <div class="priority-act">ACT-005</div>
+              </div>
+            </div>
+
+            <div class="priority-item">
+              <div class="priority-rank rank-5">5</div>
+              <div class="priority-content">
+                <div class="priority-name">CI Pipeline</div>
+                <div class="priority-rationale">All 25 tests in TP-001 are currently manual-only. Without automated execution, regression is invisible. This is the mechanism by which we know the other four items are actually done.</div>
+                <div class="priority-act">ACT-025</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Lam's close summary -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div class="lam-quote">
+            <div class="lam-mark">&ldquo;</div>
+            <div>
+              <div class="lam-text">The critical path is: SPI bus consolidation enables raw ICG storage, which unblocks Vasquez's full algorithm pipeline, which unblocks Reyes's VU-DAMS validation. Parallel to that, the USB recording interlock is a safety requirement — it ships before anything else touches a human subject. The simulator peripheral is blocking four iOS tests. Kim's CI pipeline is blocking consistent test execution across the board.</div>
+              <div class="lam-attr">— Lam, closing remarks</div>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1;">
+            <div class="card-header">
+              <div class="card-icon-wrap cyan">&#9654;</div>
+              <span class="card-title-sm">Workstream Blockers</span>
+            </div>
+            <ul class="highlights-list">
+              <li class="highlight-item red">
+                <span class="highlight-num red">!</span>
+                <span class="highlight-text"><strong>IOS-INT-001 – 004 BLOCKED</strong> — No simulator peripheral app. Owner: Chen (ACT-015). Deadline: 2026-05-23.</span>
+              </li>
+              <li class="highlight-item red">
+                <span class="highlight-num red">!</span>
+                <span class="highlight-text"><strong>FW-INT-005 BLOCKED</strong> — WDT timeout config unconfirmed in sdkconfig. Owner: Müller (ACT-006). Deadline: 2026-05-13.</span>
+              </li>
+              <li class="highlight-item amber">
+                <span class="highlight-num amber">~</span>
+                <span class="highlight-text"><strong>E2E-002 battery test</strong> missing pass criterion. Bell updating current budget (120 mA ± 20 mA). ACT-020, due 2026-05-13.</span>
+              </li>
+              <li class="highlight-item amber">
+                <span class="highlight-num amber">~</span>
+                <span class="highlight-text"><strong>Z-block methods in VU-DAMS</strong> generate empty results and warnings on every run. Reyes to add <code>hasRawICGWaveform</code> feature flag (ACT-018) pending Z-block timeline from Müller (sprint 2).</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── ACTION ITEMS TABLE ── -->
+      <div class="section-row">
+        <span class="section-badge opt">Action Items</span>
+        <span class="section-title">All 28 assigned tasks</span>
+        <span class="section-meta">Meeting 001 · Next review: 2026-05-23</span>
+      </div>
+
+      <div class="full-col">
+        <div class="table-scroll">
+          <table class="actions">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Owner</th>
+                <th>Description</th>
+                <th>Deadline</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- Müller -->
+              <tr>
+                <td class="act-id">ACT-001</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Evaluate and implement SD card migration to SDMMC native 4-bit mode (GPIO35–40); remove SD from SPI2_HOST</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-002</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Define Z-block type in <code>data_blocks.h</code>; add GATT UUID for Z-block (SD-only, no BLE streaming); implement Z-block assembly</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-003</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Increase <code>BLE_BLOCK_QUEUE_DEPTH</code> from 16 to 32 in <code>config.h</code></td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-004</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc"><strong>SAFETY:</strong> Implement USB-C recording interlock — block <code>CMD_RECORDING_START</code> and halt active recording when <code>PIN_USB_DETECT</code> is high</td>
+                <td class="act-deadline urgent">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-005</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Implement AD5933 standby/wake duty cycle in firmware; confirm average AD5933 current drop</td>
+                <td class="act-deadline urgent">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-006</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Confirm <code>CONFIG_ESP_TASK_WDT_TIMEOUT_S=5</code> is set in <code>sdkconfig</code>; unblock FW-INT-005</td>
+                <td class="act-deadline urgent">2026-05-13</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-007</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-desc">Export reference encoded binary from FW-UNIT-004 for Bell's cross-platform delta codec compatibility test</td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Nair -->
+              <tr>
+                <td class="act-id">ACT-008</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-desc">Close SCL architecture — confirm digital I2C path (AD5933 native mode); update <code>component_selection_analog.md</code></td>
+                <td class="act-deadline urgent">2026-05-13</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-009</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-desc">Translate Dutch sections of <code>component_selection_analog.md</code> to English (SG-210STF rationale + Müller note)</td>
+                <td class="act-deadline urgent">2026-05-13</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-010</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-desc">Correct IEC 60601-1 auxiliary current limit note — limit at 32 kHz is 3.2 mA, not ~1 mA</td>
+                <td class="act-deadline urgent">2026-05-13</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-011</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-desc">INA333 gain increase analysis — target G≈400; confirm headroom against worst-case 5 mV ECG; update component doc</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-012</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-desc">Revise PCB layout — consolidate all electrode connectors and USB-C to bottom edge; notify Voss of oscillator placement requirements</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Vasquez -->
+              <tr>
+                <td class="act-id">ACT-013</td>
+                <td><span class="owner-chip chip-vasquez">Vasquez</span></td>
+                <td class="act-desc">Provide synthetic ICG test fixtures (C header arrays with known B-point/X-point ground truth) to Müller for FW-UNIT-008–012</td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-014</td>
+                <td><span class="owner-chip chip-multi">Vasquez + Nair</span></td>
+                <td class="act-desc">Joint sign-off — confirm V_ref = 2.5 V (REF5025) in <code>signal_processing_spec_001.md</code> open items table; close that item</td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Chen -->
+              <tr>
+                <td class="act-id">ACT-015</td>
+                <td><span class="owner-chip chip-chen">Chen</span></td>
+                <td class="act-desc">Build iOS Simulator peripheral app (<code>operations/ios_simulator</code>); unblock IOS-INT-001 through IOS-INT-004</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-016</td>
+                <td><span class="owner-chip chip-chen">Chen</span></td>
+                <td class="act-desc">Design recording metadata sidecar schema (fields: <code>recording_start_unix_ms</code>, <code>electrode_distance_L_cm</code>, <code>subject_id</code>, <code>ams_firmware_version</code>, <code>adc_vref_mv</code>); implement iOS-side write at <code>CMD_RECORDING_START</code></td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-017</td>
+                <td><span class="owner-chip chip-chen">Chen</span></td>
+                <td class="act-desc">Add ECG quality byte to STATUS characteristic payload; implement display in iOS app</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Reyes -->
+              <tr>
+                <td class="act-id">ACT-018</td>
+                <td><span class="owner-chip chip-reyes">Reyes</span></td>
+                <td class="act-desc">Gate waveform-based ICG pipeline (sections 3.1–3.6 of SP-001) behind <code>hasRawICGWaveform</code> feature flag in VU-DAMS parser</td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-019</td>
+                <td><span class="owner-chip chip-reyes">Reyes</span></td>
+                <td class="act-desc">Implement recording metadata sidecar reader in VU-DAMS; use <code>electrode_distance_L_cm</code> for Kubicek formula</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Bell -->
+              <tr>
+                <td class="act-id">ACT-020</td>
+                <td><span class="owner-chip chip-bell">Bell</span></td>
+                <td class="act-desc">Update E2E-002 battery test with current budget acceptance range (120 mA ± 20 mA average)</td>
+                <td class="act-deadline urgent">2026-05-13</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-021</td>
+                <td><span class="owner-chip chip-bell">Bell</span></td>
+                <td class="act-desc">Write FW-INT-006 — assert recording cannot start / halts when USB-C detected</td>
+                <td class="act-deadline">2026-05-16</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-022</td>
+                <td><span class="owner-chip chip-bell">Bell</span></td>
+                <td class="act-desc">Write FW-UNIT-008 through FW-UNIT-012 covering I-block haemodynamic parameter computations using Vasquez's reference fixtures</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-023</td>
+                <td><span class="owner-chip chip-bell">Bell</span></td>
+                <td class="act-desc">Write cross-platform delta codec binary compatibility test using Müller's reference-encoded output (ACT-007)</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Quinn -->
+              <tr>
+                <td class="act-id">ACT-024</td>
+                <td><span class="owner-chip chip-quinn">Quinn</span></td>
+                <td class="act-desc">Write system architecture overview: sample acquisition → firmware task graph → PSRAM → SD/BLE → iOS → VU-DAMS (max 2 pages + block diagram); schedule walkthroughs with Müller and Chen this week</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Kim -->
+              <tr>
+                <td class="act-id">ACT-025</td>
+                <td><span class="owner-chip chip-kim">Kim</span></td>
+                <td class="act-desc">Set up CI pipeline — firmware host test build + Unity test run (ESP-IDF Docker); iOS XCTest on self-hosted macOS runner</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-026</td>
+                <td><span class="owner-chip chip-kim">Kim</span></td>
+                <td class="act-desc">Define firmware version tagging convention; document <code>BLOCK_VERSION</code> → firmware version mapping; enforce via CI tag check</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <!-- Voss -->
+              <tr>
+                <td class="act-id">ACT-027</td>
+                <td><span class="owner-chip chip-voss">Voss</span></td>
+                <td class="act-desc">Revise housing mechanical design to reflect bottom-edge consolidation of electrode connectors and USB-C</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td class="act-id">ACT-028</td>
+                <td><span class="owner-chip chip-multi">Voss + Nair</span></td>
+                <td class="act-desc">Confirm oscillator (SG-210STF) placement on PCB top edge; update housing internal standoff design accordingly</td>
+                <td class="act-deadline">2026-05-23</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lam-quote" style="margin-top:8px;">
+        <div class="lam-mark">&ldquo;</div>
+        <div>
+          <div class="lam-text">We don't celebrate finishing things. We just start the next thing.</div>
+          <div class="lam-attr">— Lam</div>
+        </div>
+      </div>
+
+    </div><!-- /panel-opt -->
+
+
+    <!-- ══════════════════════════
+         PANEL: NEW HORIZONS
+    ══════════════════════════ -->
+    <div class="track-panel" id="panel-hz">
+
+      <!-- Meeting meta -->
+      <div class="meeting-meta-bar" style="margin-top:32px;">
+        <div class="meta-item"><div class="meta-dot gold"></div><div class="meta-label">Date</div>&nbsp;<div class="meta-val">2026-05-09</div></div>
+        <div class="meta-item"><div class="meta-dot gold"></div><div class="meta-label">Meeting</div>&nbsp;<div class="meta-val">001</div></div>
+        <div class="meta-item"><div class="meta-dot gold"></div><div class="meta-label">Attendees</div>&nbsp;<div class="meta-val">11 + Lam</div></div>
+        <div class="meta-item"><div class="meta-dot gold"></div><div class="meta-label">Agenda</div>&nbsp;<div class="meta-val">Open brainstorm on new product opportunities leveraging existing technology and expertise</div></div>
+      </div>
+
+      <!-- ── KEY FINDINGS ── -->
+      <div class="section-row">
+        <span class="section-badge hz">Session Findings</span>
+        <span class="section-title">What emerged from the room</span>
+      </div>
+
+      <div class="card full-col" style="margin-bottom:28px;">
+        <div class="card-header">
+          <div class="card-icon-wrap gold">&#9670;</div>
+          <span class="card-title-sm">Top outcomes — New Horizons Meeting 001</span>
+        </div>
+        <ul class="highlights-list">
+          <li class="highlight-item gold">
+            <span class="highlight-num gold">1</span>
+            <span class="highlight-text"><strong>Three concepts selected for active development:</strong> BRAVO (BRS algorithm extension), FIELDWATCH (occupational SaaS service), and VU-AMS PATCH (adhesive chest patch form factor). Voted in Phase 3. All others remain in the idea log.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">2</span>
+            <span class="highlight-text"><strong>BRAVO is the fastest path to scientific differentiation.</strong> Baroreflex sensitivity via the Sequence Method requires no new hardware — just Vasquez's algorithm and ~2 months of combined work. Positions the VU-AMS as the only wearable with simultaneous BRS, HRV, and haemodynamic output.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">3</span>
+            <span class="highlight-text"><strong>FIELDWATCH unlocks the biggest near-term commercial opportunity.</strong> The B2B occupational health market is using smartwatches and getting unreliable data. A managed service with VU-AMS-grade ICG metrics at premium price point has no real competitor. Requires cloud pipeline (Kim + Reyes) and Protocol Builder (Quinn + Chen).</span>
+          </li>
+          <li class="highlight-item amber">
+            <span class="highlight-num amber">~</span>
+            <span class="highlight-text"><strong>VU-AMS PATCH is the largest bet.</strong> Rigid-flex redesign into a cable-free adhesive chest patch opens neonatal, paediatric, and post-operative markets. But it is 9–12 months of parallel hardware, firmware, and industrial design work. Critical unknown: dry-electrode ICG performance in patch geometry. Nair's feasibility memo in 6 weeks is the go/no-go gate.</span>
+          </li>
+          <li class="highlight-item">
+            <span class="highlight-num">4</span>
+            <span class="highlight-text"><strong>Regulatory strategy is clear:</strong> All three selected concepts should be positioned as Research Use Only for the next 18 months. No clinical diagnostic claims. Existing IEC 60601-1 Type BF certification covers the hardware. Wolff confirmed.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── CONCEPT CARDS ── -->
+      <div class="section-row">
+        <span class="section-badge hz">Top 3 Concepts</span>
+        <span class="section-title">Phase 3 selections</span>
+      </div>
+
+      <div class="concept-grid full-col" style="margin-bottom:28px;">
+
+        <!-- BRAVO -->
+        <div class="concept-card">
+          <div class="concept-card-header">
+            <div>
+              <div class="concept-name">BRAVO</div>
+              <div class="concept-tagline">Baroreflex and Autonomic Variability Observer</div>
+            </div>
+            <div class="badges">
+              <span class="effort-badge effort-S">S</span>
+              <span class="reg-badge">RUO</span>
+            </div>
+          </div>
+
+          <div class="concept-pitch">
+            Algorithm extension to the existing VU-AMS platform computing baroreflex sensitivity (BRS) via the Sequence Method, combining validated RRI series and ICG-derived stroke volume already captured by the device. No new hardware. Delivered as a VU-DAMS module and live iOS display. Positions VU-AMS as the only wearable platform with simultaneous BRS, HRV, and haemodynamic output.
+          </div>
+
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Team</div>
+            <div class="concept-owners">
+              <span class="owner-chip chip-vasquez">Vasquez</span>
+              <span class="owner-chip chip-reyes">Reyes</span>
+              <span class="owner-chip chip-chen">Chen</span>
+            </div>
+          </div>
+
+          <div style="font-size:0.78rem;color:var(--muted);">
+            <strong style="color:var(--white);">Effort:</strong> ~2 months to functional prototype — Vasquez 4 wk algorithm, Reyes 2–3 wk VU-DAMS module, Chen 1–2 wk iOS panel.
+          </div>
+
+          <div class="concept-next">
+            <div class="concept-next-label">Next Actions</div>
+            Vasquez: BRS algorithm spec (Sequence Method + cross-validation) — Meeting 002.<br/>
+            Reyes: stub module interface — Meeting 002.<br/>
+            Chen: add BRAVO panel placeholder in live display — Meeting 002.
+          </div>
+        </div>
+
+        <!-- FIELDWATCH -->
+        <div class="concept-card">
+          <div class="concept-card-header">
+            <div>
+              <div class="concept-name">FIELDWATCH</div>
+              <div class="concept-tagline">Occupational Stress Monitoring Service</div>
+            </div>
+            <div class="badges">
+              <span class="effort-badge effort-M">M</span>
+              <span class="reg-badge">RUO</span>
+            </div>
+          </div>
+
+          <div class="concept-pitch">
+            B2B managed service on the VU-AMS hardware stack — employer contracts for a study package: devices shipped, recording protocol pre-configured via Protocol Builder, data uploaded via Cloud Sync Pipeline, analysis delivered as a branded report within 24 hours. The moat: ICG-validated stress metrics measurably more accurate than any competing wearable, and provably so.
+          </div>
+
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Team</div>
+            <div class="concept-owners">
+              <span class="owner-chip chip-hart">Hart</span>
+              <span class="owner-chip chip-kim">Kim</span>
+              <span class="owner-chip chip-reyes">Reyes</span>
+              <span class="owner-chip chip-quinn">Quinn</span>
+              <span class="owner-chip chip-chen">Chen</span>
+            </div>
+          </div>
+
+          <div style="font-size:0.78rem;color:var(--muted);">
+            <strong style="color:var(--white);">Effort:</strong> ~4 months to first paid pilot — Cloud pipeline 2–3 mo, Protocol Builder 2 mo, Report template 4 wk, B2B sales motion in parallel.
+          </div>
+
+          <div class="concept-next">
+            <div class="concept-next-label">Next Actions</div>
+            Hart: identify 2–3 target occupational health consultancies for pilot conversation — 4 weeks.<br/>
+            Kim: cloud pipeline architecture proposal — Meeting 002.<br/>
+            Quinn: user research interviews with 3 existing research customers on protocol pain points — Meeting 002.
+          </div>
+        </div>
+
+        <!-- PATCH -->
+        <div class="concept-card">
+          <div class="concept-card-header">
+            <div>
+              <div class="concept-name">VU-AMS PATCH</div>
+              <div class="concept-tagline">Adhesive Chest Patch Form Factor</div>
+            </div>
+            <div class="badges">
+              <span class="effort-badge effort-L">L</span>
+              <span class="reg-badge">RUO · BF</span>
+            </div>
+          </div>
+
+          <div class="concept-pitch">
+            Rigid-flex redesign of VU-AMS electronics into a single adhesive chest patch — no cables, no harness, self-applicable in under 60 seconds. Same ECG, ICG, EDA, and IMU signal chain. Opens neonatal, paediatric, post-operative, and continuous ambulatory markets. Paired with LP ambulatory firmware: enables 72-hour continuous recording without participant management.
+          </div>
+
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Team</div>
+            <div class="concept-owners">
+              <span class="owner-chip chip-nair">Nair</span>
+              <span class="owner-chip chip-voss">Voss</span>
+              <span class="owner-chip chip-muller">Müller</span>
+              <span class="owner-chip chip-wolff">Wolff</span>
+            </div>
+          </div>
+
+          <div style="font-size:0.78rem;color:var(--muted);">
+            <strong style="color:var(--white);">Effort:</strong> 9–12 months (adult ambulatory RUO). Paediatric: add 6 months for clinical safety evidence. <strong style="color:var(--amber);">Critical unknown:</strong> dry-electrode ICG in patch geometry.
+          </div>
+
+          <div class="concept-next">
+            <div class="concept-next-label">Next Actions</div>
+            Nair: dry-electrode ICG feasibility memo in patch geometry — 6 weeks (gate decision).<br/>
+            Voss: concept sketches for patch geometry and electrode layout — Meeting 002.<br/>
+            Müller: begin LP ambulatory firmware prototyping against existing hardware — Meeting 002.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── DECISIONS TABLE ── -->
+      <div class="section-row">
+        <span class="section-badge hz">Decisions</span>
+        <span class="section-title">All assigned next actions</span>
+        <span class="section-meta">Meeting 001 · Next review: Meeting 002 (2026-05-23)</span>
+      </div>
+
+      <div class="full-col">
+        <div class="table-scroll">
+          <table class="actions">
+            <thead>
+              <tr>
+                <th class="gold-head">Track</th>
+                <th class="gold-head">Decision / Action</th>
+                <th class="gold-head">Owner</th>
+                <th class="gold-head">Deadline</th>
+                <th class="gold-head">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">BRAVO</td>
+                <td class="act-desc">BRS algorithm specification (Sequence Method + cross-validation against published reference datasets)</td>
+                <td><span class="owner-chip chip-vasquez">Vasquez</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">BRAVO</td>
+                <td class="act-desc">Stub the VU-DAMS BRAVO module interface</td>
+                <td><span class="owner-chip chip-reyes">Reyes</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">BRAVO</td>
+                <td class="act-desc">Add BRAVO metrics panel placeholder to iOS live display</td>
+                <td><span class="owner-chip chip-chen">Chen</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">FIELDWATCH</td>
+                <td class="act-desc">Identify 2–3 target occupational health consultancies for pilot conversation</td>
+                <td><span class="owner-chip chip-hart">Hart</span></td>
+                <td class="act-deadline">4 weeks</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">FIELDWATCH</td>
+                <td class="act-desc">Cloud pipeline architecture proposal</td>
+                <td><span class="owner-chip chip-kim">Kim</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">FIELDWATCH</td>
+                <td class="act-desc">User research interviews with 3 existing research customers on protocol workflow pain points</td>
+                <td><span class="owner-chip chip-quinn">Quinn</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">PATCH</td>
+                <td class="act-desc">Feasibility memo on dry-electrode ICG in patch geometry — critical technical unknown, gate decision</td>
+                <td><span class="owner-chip chip-nair">Nair</span></td>
+                <td class="act-deadline">6 weeks</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">PATCH</td>
+                <td class="act-desc">Patch geometry concept sketches and electrode layout</td>
+                <td><span class="owner-chip chip-voss">Voss</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);font-size:0.72rem;font-weight:700;">PATCH</td>
+                <td class="act-desc">Begin LP ambulatory firmware prototyping against existing hardware</td>
+                <td><span class="owner-chip chip-muller">Müller</span></td>
+                <td class="act-deadline">Meeting 002</td>
+                <td><span class="status-chip status-open">Open</span></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lam-quote" style="margin-top:24px;">
+        <div class="lam-mark">&ldquo;</div>
+        <div>
+          <div class="lam-text">Three targets. Don't miss.</div>
+          <div class="lam-attr">— Lam</div>
+        </div>
+      </div>
+
+    </div><!-- /panel-hz -->
+
+  </div><!-- /container -->
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer style="background:var(--navy-mid);border-top:1px solid var(--border);padding:20px 0;">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <span style="font-size:0.75rem;color:var(--muted);">Slough House &mdash; Team Intelligence &mdash; Internal use only</span>
+    <span style="font-size:0.75rem;color:var(--muted);">VU-AMS &middot; Meeting cycle 001 &middot; Last updated 2026-05-09</span>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+  // ── Tab switching ─────────────────────────────────────
+  const tabs   = document.querySelectorAll('.track-tab');
+  const panels = document.querySelectorAll('.track-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+    });
+  });
+
+  // ── Highlight urgent deadlines ────────────────────────
+  // Rows with deadline <= today get a subtle highlight
+  const TODAY = new Date('2026-05-09');
+  document.querySelectorAll('.act-deadline').forEach(cell => {
+    const txt = cell.textContent.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(txt)) {
+      const d = new Date(txt);
+      const diffDays = (d - TODAY) / 86400000;
+      if (diffDays <= 7) cell.classList.add('urgent');
+    }
+  });
+</script>
+
+</body>
+</html>

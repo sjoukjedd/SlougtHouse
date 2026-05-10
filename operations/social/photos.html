@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Slow Horses — Night Out · Amsterdam · 2026-05-08</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0e0e0e;color:#fff;padding:40px 32px;}
+
+  .page-header{margin-bottom:40px;}
+  .page-header .logo{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;}
+  .page-header .logo span{color:#00b6cb;}
+  .page-header .subtitle{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;}
+
+  .section-label{font-size:10px;font-weight:700;color:#00b6cb;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);}
+
+  /* Photo grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+  .grid.wide{grid-template-columns:repeat(2,1fr);}
+  .photo{border-radius:8px;overflow:hidden;position:relative;background:#1a1a1a;}
+  .photo.tall{grid-row:span 2;}
+  .photo.full{grid-column:span 3;}
+
+  .photo-inner{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .photo.tall .photo-inner{aspect-ratio:3/5;}
+  .photo.full .photo-inner{aspect-ratio:16/6;}
+
+  /* Simulated photo backgrounds */
+  .bg-bar    {background:linear-gradient(135deg,#1a0a00 0%,#3d1a00 40%,#1a0800 100%);}
+  .bg-group  {background:linear-gradient(135deg,#0a0a1a 0%,#101430 60%,#0a1020 100%);}
+  .bg-outside{background:linear-gradient(135deg,#000510 0%,#020b1a 50%,#040818 100%);}
+  .bg-bar2   {background:linear-gradient(135deg,#120008 0%,#2a0018 50%,#0e0010 100%);}
+  .bg-warm   {background:linear-gradient(135deg,#1a0800 0%,#2e1200 60%,#180600 100%);}
+  .bg-gollem {background:linear-gradient(135deg,#080a00 0%,#141800 50%,#0a0c00 100%);}
+  .bg-dark   {background:linear-gradient(135deg,#0a0a0a 0%,#181818 100%);}
+
+  /* Grain overlay */
+  .photo-inner::after{
+    content:'';position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    opacity:0.4;pointer-events:none;
+  }
+
+  /* Light blobs to simulate bar lighting */
+  .light{position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none;}
+
+  /* Caption */
+  .caption{padding:10px 12px;background:#111;border-top:1px solid rgba(255,255,255,0.06);}
+  .caption-main{font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:2px;}
+  .caption-sub{font-size:10px;color:rgba(255,255,255,0.35);}
+
+  /* People tags */
+  .tags{display:flex;flex-wrap:wrap;gap:4px;padding:6px 12px 8px;background:#111;border-top:1px solid rgba(255,255,255,0.04);}
+  .tag{font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,182,203,0.12);color:#00b6cb;border:1px solid rgba(0,182,203,0.25);}
+
+  /* Video placeholder */
+  .video-wrap{background:#111;border-radius:8px;overflow:hidden;margin-bottom:40px;}
+  .video-inner{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#101430);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;}
+  .play-btn{width:64px;height:64px;border-radius:50%;background:rgba(0,182,203,0.2);border:2px solid #00b6cb;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .play-triangle{width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid #00b6cb;margin-left:4px;}
+  .video-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
+  .video-sub{font-size:11px;color:rgba(255,255,255,0.4);}
+  .video-caption{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+  .video-caption-left{font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+  .video-duration{font-size:10px;color:#00b6cb;font-weight:700;}
+
+  /* Footer */
+  .footer{text-align:center;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);}
+  .footer p{font-size:10px;color:rgba(255,255,255,0.2);line-height:1.8;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">Slow <span>Horses</span></div>
+  <div class="subtitle">Amsterdam · Leidseplein → Paradiso → Café Gollem · 2026-05-08</div>
+</div>
+
+<!-- VIDEO -->
+<div class="section-label">Video</div>
+<div class="video-wrap">
+  <div class="video-inner">
+    <!-- Ambient light blobs -->
+    <div class="light" style="width:300px;height:300px;background:#00b6cb;opacity:0.04;top:-80px;left:-60px;"></div>
+    <div class="light" style="width:200px;height:200px;background:#7c3aed;opacity:0.05;bottom:-40px;right:80px;"></div>
+    <div class="play-btn"><div class="play-triangle"></div></div>
+    <div class="video-title">Slow Horses — A Night Off</div>
+    <div class="video-sub">Amsterdam · 8 mei 2026</div>
+  </div>
+  <div class="video-caption">
+    <div class="video-caption-left">Shot by Hart · Edited by Kim · Scored by nobody, we just used the bar's playlist</div>
+    <div class="video-duration">3:47</div>
+  </div>
+</div>
+
+<!-- PHOTOS -->
+<div class="section-label">Foto's</div>
+<div class="grid">
+
+  <!-- 1: Arrival -->
+  <div class="photo tall">
+    <div class="photo-inner bg-outside">
+      <div class="light" style="width:120px;height:120px;background:#f97316;opacity:0.15;top:30px;right:20px;"></div>
+      <div class="light" style="width:80px;height:80px;background:#00b6cb;opacity:0.1;bottom:40px;left:30px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Leidseplein, 20:14</div>
+      <div class="caption-sub">Iedereen op tijd. Behalve Reyes.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Nair</span><span class="tag">Chen</span><span class="tag">Müller</span><span class="tag">Voss</span><span class="tag">Standish</span>
+    </div>
+  </div>
+
+  <!-- 2: Bar -->
+  <div class="photo">
+    <div class="photo-inner bg-bar">
+      <div class="light" style="width:100px;height:100px;background:#e0a81a;opacity:0.2;top:10px;left:20px;"></div>
+      <div class="light" style="width:60px;height:60px;background:#e05c1a;opacity:0.15;bottom:20px;right:30px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Eerste ronde</div>
+      <div class="caption-sub">Wolff keurde het wijnglas af. Twee keer.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Wolff</span><span class="tag">Bell</span><span class="tag">Quinn</span>
+    </div>
+  </div>
+
+  <!-- 3: Vasquez -->
+  <div class="photo">
+    <div class="photo-inner bg-warm">
+      <div class="light" style="width:140px;height:140px;background:#e05c1a;opacity:0.12;bottom:-20px;right:-20px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Vasquez legt iets uit</div>
+      <div class="caption-sub">Akoestiek. Vervolgens ICG. Vervolgens akoestiek.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Vasquez</span><span class="tag">Nair</span>
+    </div>
+  </div>
+
+  <!-- 4: Voss napkin -->
+  <div class="photo">
+    <div class="photo-inner bg-dark">
+      <div class="light" style="width:80px;height:80px;background:#00b6cb;opacity:0.08;top:20px;left:40px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Servet — Rev 0.6</div>
+      <div class="caption-sub">Voss zegt dat het geen werk is. Bell heeft het gefotografeerd en gearchiveerd.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Voss</span><span class="tag">Bell</span>
+    </div>
+  </div>
+
+  <!-- 5: Group Paradiso -->
+  <div class="photo full">
+    <div class="photo-inner bg-group">
+      <div class="light" style="width:400px;height:200px;background:#00b6cb;opacity:0.05;top:0;left:50%;transform:translateX(-50%);"></div>
+      <div class="light" style="width:200px;height:200px;background:#7c3aed;opacity:0.06;bottom:-40px;left:100px;"></div>
+      <div class="light" style="width:200px;height:200px;background:#29c66d;opacity:0.04;bottom:-40px;right:100px;"></div>
+      <div style="text-align:center;z-index:1;">
+        <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.15);letter-spacing:3px;text-transform:uppercase;">Paradiso · Amsterdam</div>
+      </div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Groepsfoto — Paradiso, 22:31</div>
+      <div class="caption-sub">Drie pogingen. Kim's timer werkte niet. Hart nam het over. Lam staat niet recht. Lam staat nooit recht.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Lam</span><span class="tag">Standish</span><span class="tag">Nair</span><span class="tag">Müller</span><span class="tag">Chen</span><span class="tag">Reyes</span><span class="tag">Vasquez</span><span class="tag">Voss</span><span class="tag">Hart</span><span class="tag">Quinn</span><span class="tag">Bell</span><span class="tag">Wolff</span><span class="tag">Okafor</span><span class="tag">Kim</span><span class="tag">De Vries</span>
+    </div>
+  </div>
+
+  <!-- 6: Hart + menu -->
+  <div class="photo">
+    <div class="photo-inner bg-bar2">
+      <div class="light" style="width:100px;height:60px;background:#e0a81a;opacity:0.18;top:30px;right:20px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Hart vs. het menu</div>
+      <div class="caption-sub">"Helvetica Neue. In een bruine kroeg."</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Hart</span><span class="tag">Kim</span>
+    </div>
+  </div>
+
+  <!-- 7: De Vries -->
+  <div class="photo">
+    <div class="photo-inner bg-warm">
+      <div class="light" style="width:120px;height:120px;background:#29c66d;opacity:0.08;top:10px;left:10px;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">De Vries, Café Gollem</div>
+      <div class="caption-sub">Ze sprak met iedereen. Ze zegt niets verder.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">De Vries</span>
+    </div>
+  </div>
+
+  <!-- 8: Last round -->
+  <div class="photo tall">
+    <div class="photo-inner bg-gollem">
+      <div class="light" style="width:80px;height:200px;background:#e0a81a;opacity:0.12;top:0;left:30px;"></div>
+      <div class="light" style="width:60px;height:60px;background:#00b6cb;opacity:0.1;bottom:30px;right:40px;"></div>
+      <div style="text-align:center;z-index:1;">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.12);letter-spacing:2px;text-transform:uppercase;">Café Gollem</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.08);margin-top:4px;">00:14</div>
+      </div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Laatste ronde — Café Gollem</div>
+      <div class="caption-sub">Müller betaalde. Niemand had dit zien aankomen.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Müller</span><span class="tag">Reyes</span><span class="tag">Okafor</span><span class="tag">Bell</span>
+    </div>
+  </div>
+
+  <!-- 9: Lam -->
+  <div class="photo">
+    <div class="photo-inner bg-bar">
+      <div class="light" style="width:150px;height:100px;background:#e05c1a;opacity:0.1;bottom:0;right:0;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Lam, ~23:00</div>
+      <div class="caption-sub">Aan het vertellen. We hadden dit verhaal al gehoord. We lachten toch.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Lam</span>
+    </div>
+  </div>
+
+  <!-- 10: End of night -->
+  <div class="photo">
+    <div class="photo-inner bg-outside">
+      <div class="light" style="width:200px;height:80px;background:#00b6cb;opacity:0.05;bottom:20px;left:0;"></div>
+    </div>
+    <div class="caption">
+      <div class="caption-main">Buiten, 00:47</div>
+      <div class="caption-sub">Iedereen naar huis. Standish had taxi's geregeld. Uiteraard.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">Standish</span><span class="tag">Chen</span><span class="tag">Quinn</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>
+    Slow Horses · Amsterdam · 8 mei 2026<br/>
+    Foto's: Hart · Video: Kim · Organisatie: Standish · Eten vergeten: iedereen
+  </p>
+</div>
+
+</body>
+</html>

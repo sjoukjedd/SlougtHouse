@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open *)",
+      "WebSearch",
+      "WebFetch(domain:www.vu-ams.nl)"
+    ]
+  }
+}

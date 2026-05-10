@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>VU-AMS — LinkedIn Card</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#e8e8e8;padding:40px;display:flex;flex-direction:column;gap:40px;}
+  h2{color:#374151;font-size:13px;font-weight:600;margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<h2>LinkedIn / Social Card — 1200 × 628 px</h2>
+
+<!-- 1200 × 628 card at 100% (scale down in browser if needed) -->
+<div style="width:1200px;height:628px;background:#101430;position:relative;overflow:hidden;border-radius:8px;font-family:'Inter',system-ui,sans-serif;">
+
+  <!-- Background geometry -->
+  <div style="position:absolute;right:-80px;top:-80px;width:480px;height:480px;border-radius:50%;border:2px solid rgba(0,182,203,0.12);"></div>
+  <div style="position:absolute;right:60px;top:60px;width:260px;height:260px;border-radius:50%;border:1px solid rgba(0,182,203,0.08);"></div>
+  <div style="position:absolute;right:160px;top:160px;width:120px;height:120px;border-radius:50%;background:rgba(0,182,203,0.05);"></div>
+
+  <!-- Left accent bar -->
+  <div style="position:absolute;left:0;top:0;width:6px;height:100%;background:linear-gradient(180deg,#00b6cb,#0078A8,#101430);"></div>
+
+  <!-- Top strip -->
+  <div style="position:absolute;top:0;left:6px;right:0;height:4px;background:linear-gradient(90deg,#00b6cb,#0078A8);"></div>
+
+  <!-- Main content -->
+  <div style="position:absolute;left:72px;top:72px;right:520px;">
+
+    <!-- Logo -->
+    <div style="font-size:32px;font-weight:800;color:#ffffff;letter-spacing:-1px;margin-bottom:28px;">
+      VU<span style="color:#00b6cb;">-AMS</span>
+    </div>
+
+    <!-- Eyebrow -->
+    <div style="font-size:12px;font-weight:700;color:#00b6cb;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;">
+      Next Generation · 2026
+    </div>
+
+    <!-- Headline -->
+    <h1 style="font-size:42px;font-weight:800;color:#ffffff;line-height:1.15;margin-bottom:20px;">
+      The only wearable<br/>measuring <span style="color:#00b6cb;">cardiac<br/>output in the field.</span>
+    </h1>
+
+    <!-- Sub -->
+    <p style="font-size:15px;color:rgba(255,255,255,0.65);line-height:1.65;margin-bottom:32px;max-width:440px;">
+      ECG · ICG · Skin conductance · PPG · Body temperature · 9-DOF motion.<br/>
+      28-hour battery. One 55 × 55 mm chest-worn device.
+    </p>
+
+    <!-- Tags -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <span style="background:rgba(0,182,203,0.15);border:1px solid rgba(0,182,203,0.5);color:#00b6cb;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:0.5px;">Research Grade</span>
+      <span style="background:rgba(0,182,203,0.15);border:1px solid rgba(0,182,203,0.5);color:#00b6cb;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:0.5px;">Ambulatory ICG</span>
+      <span style="background:rgba(41,198,109,0.15);border:1px solid rgba(41,198,109,0.5);color:#29c66d;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:0.5px;">New Generation</span>
+      <span style="background:rgba(0,182,203,0.15);border:1px solid rgba(0,182,203,0.5);color:#00b6cb;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:0.5px;">IEC 60601-1 BF</span>
+    </div>
+  </div>
+
+  <!-- Right panel: signal list -->
+  <div style="position:absolute;right:60px;top:72px;width:380px;">
+
+    <!-- Panel header -->
+    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px;">
+      Signal Portfolio
+    </div>
+
+    <!-- Signal rows -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;">
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #00b6cb;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">ICG — Impedance Cardiography</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Cardiac output · Stroke volume · Baroreflex sensitivity</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #0078A8;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">ECG — 2-lead ambulatory</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">HRV · R-peak detection · IEC 60601-2-47</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #29c66d;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">SCL / EDA <span style="background:#29c66d;color:#101430;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;margin-left:4px;">NEW</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Skin conductance · Sympathetic nervous system</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #e05c1a;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">PPG / SpO₂ <span style="background:#e05c1a;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;margin-left:4px;">NEW</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Photoplethysmography · Oxygen saturation</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #e0a81a;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">Body Temperature <span style="background:#e0a81a;color:#101430;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;margin-left:4px;">NEW</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Continuous skin temp · TMP117 · ±0.1°C</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px;border-left:3px solid #7c3aed;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#ffffff;">9-DOF Motion <span style="background:#7c3aed;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;margin-left:4px;">NEW</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Accel · Gyro · Magnetometer · ICM-20948</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- URL -->
+    <div style="text-align:right;font-size:13px;font-weight:700;color:#00b6cb;letter-spacing:0.5px;">vu-ams.nl</div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="position:absolute;bottom:0;left:6px;right:0;height:36px;background:rgba(0,0,0,0.3);display:flex;align-items:center;padding:0 72px;gap:40px;border-top:1px solid rgba(255,255,255,0.06);">
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">Vrije Universiteit Amsterdam</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.2);">·</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">28h Battery</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.2);">·</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">24-bit · 1 kHz</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.2);">·</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">BLE 5.0</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.2);">·</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">IEC 60601-1 BF</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.2);">·</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">For research use only</span>
+  </div>
+
+</div>
+
+</body>
+</html>

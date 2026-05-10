@@ -1,0 +1,65 @@
+name: Firmware Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'operations/firmware/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'operations/firmware/**'
+
+jobs:
+  build:
+    name: ESP32-S3 Firmware Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Cache ESP-IDF
+        id: cache-idf
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/esp/esp-idf
+            ~/.espressif
+          key: idf-v5.3.2
+          restore-keys: |
+            idf-v5.3.2
+
+      - name: Install ESP-IDF v5.3.2
+        if: steps.cache-idf.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            git wget flex bison gperf python3 python3-pip python3-venv \
+            cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+          mkdir -p ~/esp
+          git clone --branch v5.3.2 --depth 1 --recurse-submodules \
+            https://github.com/espressif/esp-idf.git ~/esp/esp-idf
+          ~/esp/esp-idf/install.sh esp32s3
+
+      - name: Set ESP-IDF target to esp32s3
+        run: |
+          source ~/esp/esp-idf/export.sh
+          cd operations/firmware
+          idf.py set-target esp32s3
+
+      - name: Build firmware
+        run: |
+          source ~/esp/esp-idf/export.sh
+          cd operations/firmware
+          idf.py build
+
+      - name: Upload firmware binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vuams-firmware
+          path: operations/firmware/build/vuams_firmware.bin
+          if-no-files-found: error
+          retention-days: 30

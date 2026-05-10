@@ -1,0 +1,335 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 820" width="1120" height="820" font-family="Arial, sans-serif">
+  <rect width="1120" height="820" fill="#0f1923"/>
+
+  <!-- Title -->
+  <text x="560" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#e2e8f0">VU-AMS — PCB Layout &amp; Mechanical Overview</text>
+  <text x="560" y="42" text-anchor="middle" font-size="9" fill="#64748b">Rev 0.2 · 2026-05-08 · E1 contact bovenaan · E4/E5 over schouders (bovenkant uitgang) · E2/E3/E6/E7 onderkant</text>
+
+  <!-- Section labels -->
+  <text x="215" y="60" text-anchor="middle" font-size="10" font-weight="bold" fill="#94a3b8">HOUSING FACE  (5px/mm, huidzijde)</text>
+  <text x="710" y="60" text-anchor="middle" font-size="10" font-weight="bold" fill="#94a3b8">PCB LAYOUT — UITGEVOUWEN  (5px/mm)</text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- HOUSING FACE VIEW  55×55mm @ 5px/mm = 275×275px   -->
+  <!-- Origin: (78, 70)                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <!-- Housing outline -->
+  <rect x="78" y="70" width="275" height="275" rx="14" fill="#141e2e" stroke="#475569" stroke-width="2"/>
+
+  <!-- Dimension lines -->
+  <line x1="78" y1="356" x2="353" y2="356" stroke="#475569" stroke-width="1"/>
+  <line x1="78" y1="353" x2="78" y2="359" stroke="#475569" stroke-width="1"/>
+  <line x1="353" y1="353" x2="353" y2="359" stroke="#475569" stroke-width="1"/>
+  <text x="215" y="367" text-anchor="middle" font-size="9" fill="#64748b">55 mm</text>
+  <line x1="67" y1="70" x2="67" y2="345" stroke="#475569" stroke-width="1"/>
+  <line x1="64" y1="70" x2="70" y2="70" stroke="#475569" stroke-width="1"/>
+  <line x1="64" y1="345" x2="70" y2="345" stroke="#475569" stroke-width="1"/>
+  <text x="55" y="213" text-anchor="middle" font-size="9" fill="#64748b" transform="rotate(-90,55,213)">55 mm</text>
+
+  <!-- Left battery -->
+  <rect x="88" y="82" width="70" height="250" rx="9" fill="#221a00" stroke="#fbbf24" stroke-width="1.8"/>
+  <rect x="100" y="77" width="22" height="6" rx="2" fill="#fbbf24"/>
+  <text x="123" y="207" text-anchor="middle" font-size="8" font-weight="bold" fill="#fde68a" transform="rotate(-90,123,207)">14500 LiPo 3.7V · 1000mAh</text>
+
+  <!-- Right battery -->
+  <rect x="273" y="82" width="70" height="250" rx="9" fill="#221a00" stroke="#fbbf24" stroke-width="1.8"/>
+  <rect x="285" y="77" width="22" height="6" rx="2" fill="#fbbf24"/>
+  <text x="308" y="207" text-anchor="middle" font-size="8" font-weight="bold" fill="#fde68a" transform="rotate(-90,308,207)">14500 LiPo 3.7V · 1000mAh</text>
+
+  <!-- PCB assembly zone 25mm × 52mm = 125×260px -->
+  <rect x="163" y="77" width="125" height="261" rx="4" fill="#1a2535" stroke="#334155" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="163" y1="68" x2="288" y2="68" stroke="#475569" stroke-width="1"/>
+  <text x="225" y="66" text-anchor="middle" font-size="8" fill="#64748b">25 mm</text>
+
+  <!-- TOP EDGE: E4 left shoulder, USB-C centre, E5 right shoulder -->
+  <!-- E4 top-left -->
+  <rect x="168" y="66" width="20" height="13" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="178" y="75" text-anchor="middle" font-size="7" font-weight="bold" fill="#fca5a5">E4</text>
+  <!-- Arrow going up-left (over left shoulder to neck) -->
+  <line x1="178" y1="66" x2="155" y2="48" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <polygon points="155,48 158,58 165,52" fill="#ef4444"/>
+  <text x="140" y="46" text-anchor="middle" font-size="8" fill="#ef4444">→ linker schouder → nek</text>
+
+  <!-- USB-C centre top -->
+  <rect x="201" y="63" width="48" height="14" rx="3" fill="#1a2e1a" stroke="#10b981" stroke-width="1.8"/>
+  <text x="225" y="73" text-anchor="middle" font-size="7" font-weight="bold" fill="#6ee7b7">USB-C</text>
+
+  <!-- E5 top-right -->
+  <rect x="251" y="66" width="20" height="13" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="261" y="75" text-anchor="middle" font-size="7" font-weight="bold" fill="#fca5a5">E5</text>
+  <!-- Arrow going up-right (over right shoulder to lower back) -->
+  <line x1="261" y1="66" x2="284" y2="48" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <polygon points="284,48 277,52 281,59" fill="#ef4444"/>
+  <text x="300" y="46" text-anchor="start" font-size="8" fill="#ef4444">→ rechter schouder → onderrug</text>
+
+  <!-- E1 electrode aperture — UPPER portion of housing face -->
+  <circle cx="225" cy="148" r="24" fill="#0a0f18" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <text x="225" y="144" text-anchor="middle" font-size="8" font-weight="bold" fill="#fca5a5">E1</text>
+  <text x="225" y="155" text-anchor="middle" font-size="7" fill="#fca5a5">electrode clip</text>
+  <text x="225" y="164" text-anchor="middle" font-size="7" fill="#64748b">Ø ≈ 12mm</text>
+
+  <!-- Note: gravity keeps device pressed against collarbone at this point -->
+  <text x="355" y="145" font-size="8" fill="#64748b">← E1 bovenaan:</text>
+  <text x="355" y="157" font-size="8" fill="#64748b">  zwaartekracht drukt</text>
+  <text x="355" y="169" font-size="8" fill="#64748b">  apparaat omlaag,</text>
+  <text x="355" y="181" font-size="8" fill="#64748b">  contact op sleutelbeen</text>
+
+  <!-- Status LED -->
+  <circle cx="225" cy="230" r="6" fill="#10b981" stroke="#065f46" stroke-width="1.2"/>
+  <text x="225" y="221" text-anchor="middle" font-size="7" fill="#6ee7b7">LED</text>
+
+  <!-- BOTTOM EDGE: E2, E3, E6, E7 exits (going down torso) -->
+  <rect x="163" y="324" width="125" height="14" rx="2" fill="#1a1525" stroke="#ef4444" stroke-width="1.2"/>
+  <text x="225" y="334" text-anchor="middle" font-size="7" fill="#fca5a5">↓  E2 · E3 · E6 · E7  (solar plexus, rib, SCL)</text>
+  <!-- Downward arrows -->
+  <line x1="185" y1="338" x2="185" y2="350" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="225" y1="338" x2="225" y2="350" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="265" y1="338" x2="265" y2="350" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <!-- Caption -->
+  <text x="215" y="380" text-anchor="middle" font-size="9" fill="#64748b">55 × 55 × 22mm · BF · 2× 1000mAh · ~28h</text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CROSS-SECTION  22mm depth @ 8px/mm                -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <text x="215" y="415" text-anchor="middle" font-size="9" font-weight="bold" fill="#94a3b8">DWARSDOORSNEDE DIEPTE  (8px/mm)</text>
+
+  <rect x="40" y="424" width="350" height="9" rx="2" fill="#2d1a0a" stroke="#c8a060" stroke-width="1"/>
+  <text x="32" y="431" text-anchor="end" font-size="8" fill="#c8a060">huid</text>
+
+  <rect x="145" y="433" width="140" height="11" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="215" y="441" text-anchor="middle" font-size="7" fill="#fca5a5">E1 veercontact  (2.5mm)</text>
+
+  <rect x="40" y="444" width="350" height="20" rx="2" fill="#131e2e" stroke="#3b82f6" stroke-width="1.8"/>
+  <text x="32" y="456" text-anchor="end" font-size="8" fill="#3b82f6">analog</text>
+  <text x="215" y="452" text-anchor="middle" font-size="7" font-weight="bold" fill="#3b82f6">ONDERSTE PCB (analoog) · 1.6mm + ~3mm componenten</text>
+  <text x="215" y="460" text-anchor="middle" font-size="7" fill="#64748b">ICG · ECG · SCL · ADC · PPG · Temp</text>
+
+  <rect x="40" y="464" width="350" height="6" rx="1" fill="#1a1535" stroke="#a78bfa" stroke-width="1"/>
+  <text x="32" y="469" text-anchor="end" font-size="7" fill="#a78bfa">flex</text>
+  <text x="215" y="469" text-anchor="middle" font-size="7" fill="#a78bfa">FLEX PCB · SPI · I²C · voeding · 0.3mm</text>
+
+  <rect x="40" y="470" width="350" height="20" rx="2" fill="#131e2e" stroke="#10b981" stroke-width="1.8"/>
+  <text x="32" y="482" text-anchor="end" font-size="8" fill="#10b981">digital</text>
+  <text x="215" y="478" text-anchor="middle" font-size="7" font-weight="bold" fill="#10b981">BOVENSTE PCB (digitaal) · 1.6mm + 2.9mm ESP32</text>
+  <text x="215" y="486" text-anchor="middle" font-size="7" fill="#64748b">ESP32-S3 · IMU · Buck · BQ25895 · USB-C</text>
+
+  <rect x="40" y="490" width="350" height="9" rx="2" fill="#1a2535" stroke="#475569" stroke-width="1"/>
+  <text x="32" y="497" text-anchor="end" font-size="7" fill="#64748b">cover</text>
+  <text x="215" y="497" text-anchor="middle" font-size="7" fill="#475569">Achterbehuizing · 1.5mm ABS/PC</text>
+
+  <line x1="400" y1="424" x2="400" y2="499" stroke="#475569" stroke-width="1"/>
+  <line x1="397" y1="424" x2="403" y2="424" stroke="#475569" stroke-width="1"/>
+  <line x1="397" y1="499" x2="403" y2="499" stroke="#475569" stroke-width="1"/>
+  <text x="414" y="462" font-size="9" fill="#64748b">22mm</text>
+  <text x="414" y="474" font-size="8" fill="#10b981">8.6mm</text>
+  <text x="414" y="484" font-size="8" fill="#10b981">reserve</text>
+
+  <!-- Separator -->
+  <line x1="440" y1="55" x2="440" y2="810" stroke="#1e2d3d" stroke-width="1.5"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- UNFOLDED PCB LAYOUT                                -->
+  <!-- Bottom PCB: x=460, y=72, w=125, h=260             -->
+  <!-- Top PCB:    x=680, y=72, w=125, h=260             -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <text x="522" y="60" text-anchor="middle" font-size="10" font-weight="bold" fill="#3b82f6">ONDERSTE PCB — ANALOOG</text>
+  <text x="742" y="60" text-anchor="middle" font-size="10" font-weight="bold" fill="#10b981">BOVENSTE PCB — DIGITAAL</text>
+  <text x="522" y="70" text-anchor="middle" font-size="8" fill="#64748b">huidzijde · 52 × 25mm</text>
+  <text x="742" y="70" text-anchor="middle" font-size="8" fill="#64748b">buitenzijde · 52 × 25mm</text>
+
+  <!-- PCB dimension lines -->
+  <line x1="460" y1="57" x2="585" y2="57" stroke="#475569" stroke-width="1"/>
+  <text x="522" y="55" text-anchor="middle" font-size="8" fill="#64748b">25mm</text>
+  <line x1="680" y1="57" x2="805" y2="57" stroke="#475569" stroke-width="1"/>
+  <text x="742" y="55" text-anchor="middle" font-size="8" fill="#64748b">25mm</text>
+  <line x1="451" y1="72" x2="451" y2="332" stroke="#475569" stroke-width="1"/>
+  <line x1="448" y1="72" x2="454" y2="72" stroke="#475569" stroke-width="1"/>
+  <line x1="448" y1="332" x2="454" y2="332" stroke="#475569" stroke-width="1"/>
+  <text x="440" y="207" text-anchor="middle" font-size="8" fill="#64748b" transform="rotate(-90,440,207)">52mm</text>
+
+  <!-- ── ONDERSTE PCB (ANALOOG) ── -->
+  <rect x="460" y="72" width="125" height="260" rx="3" fill="#0d1624" stroke="#3b82f6" stroke-width="2"/>
+
+  <!-- TOP EDGE: E4/E5 connectors (go over shoulders) + USB passthrough -->
+  <rect x="462" y="65" width="30" height="10" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="477" y="73" text-anchor="middle" font-size="7" font-weight="bold" fill="#fca5a5">E4 ↑</text>
+  <rect x="552" y="65" width="30" height="10" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="567" y="73" text-anchor="middle" font-size="7" font-weight="bold" fill="#fca5a5">E5 ↑</text>
+  <text x="522" y="68" text-anchor="middle" font-size="7" fill="#64748b">↑ schouders</text>
+
+  <!-- Patient protection: just below top edge -->
+  <rect x="462" y="75" width="121" height="22" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1.2"/>
+  <text x="522" y="85" text-anchor="middle" font-size="7" font-weight="bold" fill="#fca5a5">PATIËNTBESCHERMING  E1–E7</text>
+  <text x="522" y="93" text-anchor="middle" font-size="7" fill="#94a3b8">10kΩ series + TVS · IEC 60601-1 BF</text>
+
+  <!-- E1 electrode aperture — UPPER portion of PCB -->
+  <circle cx="522" cy="138" r="22" fill="#060c14" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <text x="522" y="133" text-anchor="middle" font-size="8" font-weight="bold" fill="#fca5a5">E1</text>
+  <text x="522" y="144" text-anchor="middle" font-size="7" fill="#fca5a5">aperture</text>
+  <text x="522" y="153" text-anchor="middle" font-size="7" fill="#64748b">Ø ≈ 12mm</text>
+
+  <!-- ICG Transformer — right of E1 aperture -->
+  <rect x="548" y="100" width="32" height="50" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="564" y="116" text-anchor="middle" font-size="7" font-weight="bold" fill="#93c5fd">ICG</text>
+  <text x="564" y="126" text-anchor="middle" font-size="7" fill="#93c5fd">XFMR</text>
+  <text x="564" y="136" text-anchor="middle" font-size="7" fill="#94a3b8">1:1</text>
+  <text x="564" y="145" text-anchor="middle" font-size="6" fill="#64748b">Faraday</text>
+
+  <!-- 32kHz OSC + current source -->
+  <rect x="462" y="164" width="60" height="28" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="492" y="174" text-anchor="middle" font-size="7" font-weight="bold" fill="#93c5fd">32kHz OSC</text>
+  <text x="492" y="184" text-anchor="middle" font-size="7" fill="#94a3b8">+ CURRENT SRC</text>
+
+  <!-- ICG InAmp + demod -->
+  <rect x="526" y="164" width="57" height="28" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="554" y="174" text-anchor="middle" font-size="7" font-weight="bold" fill="#93c5fd">ICG INAMP</text>
+  <text x="554" y="184" text-anchor="middle" font-size="7" fill="#94a3b8">+ DEMOD</text>
+
+  <!-- ECG InAmps + RLD -->
+  <rect x="462" y="196" width="60" height="28" rx="2" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="492" y="206" text-anchor="middle" font-size="7" font-weight="bold" fill="#6ee7b7">ECG INAMP ×2</text>
+  <text x="492" y="216" text-anchor="middle" font-size="7" fill="#94a3b8">+ RLD  0.05–150Hz</text>
+
+  <!-- SCL circuit -->
+  <rect x="526" y="196" width="57" height="28" rx="2" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="554" y="206" text-anchor="middle" font-size="7" font-weight="bold" fill="#f9a8d4">SCL EXCIT.</text>
+  <text x="554" y="216" text-anchor="middle" font-size="7" fill="#94a3b8">+ SENSE AMP</text>
+
+  <!-- 24-bit ADC -->
+  <rect x="462" y="228" width="60" height="24" rx="2" fill="#2d1a3a" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="492" y="238" text-anchor="middle" font-size="7" font-weight="bold" fill="#c4b5fd">24-BIT ADC</text>
+  <text x="492" y="248" text-anchor="middle" font-size="7" fill="#94a3b8">8ch · SPI→flex</text>
+
+  <!-- Analog LDO + VREF -->
+  <rect x="526" y="228" width="57" height="24" rx="2" fill="#2d2000" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="554" y="238" text-anchor="middle" font-size="7" font-weight="bold" fill="#fde68a">LDO 3.3V</text>
+  <text x="554" y="248" text-anchor="middle" font-size="7" fill="#64748b">VREF 2.5V</text>
+
+  <!-- MAX30101 PPG + TMP117 -->
+  <rect x="462" y="256" width="58" height="20" rx="2" fill="#2d1800" stroke="#f97316" stroke-width="1.5"/>
+  <text x="491" y="265" text-anchor="middle" font-size="7" font-weight="bold" fill="#fdba74">MAX30101 PPG</text>
+  <text x="491" y="272" text-anchor="middle" font-size="6" fill="#64748b">optisch → huid</text>
+  <rect x="524" y="256" width="59" height="20" rx="2" fill="#0a2020" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="553" y="265" text-anchor="middle" font-size="7" font-weight="bold" fill="#67e8f9">TMP117 temp</text>
+  <text x="553" y="272" text-anchor="middle" font-size="6" fill="#64748b">huidcontact</text>
+
+  <!-- BOTTOM EDGE: E2, E3, E6, E7 -->
+  <rect x="462" y="318" width="121" height="12" rx="1" fill="#1a1525" stroke="#ef4444" stroke-width="1.2"/>
+  <text x="522" y="327" text-anchor="middle" font-size="7" fill="#fca5a5">↓  E2 · E3 · E6 · E7  (borst vooruit omlaag)</text>
+
+  <!-- Flex connector tab -->
+  <rect x="490" y="280" width="65" height="8" rx="1" fill="#1a1535" stroke="#a78bfa" stroke-width="1"/>
+  <text x="522" y="287" text-anchor="middle" font-size="6" fill="#a78bfa">FLEX → →</text>
+
+  <!-- Active electrode note -->
+  <text x="462" y="345" font-size="7" fill="#6ee7b7">* E2, E3 actieve electrodeclips (LMP7721)</text>
+  <text x="462" y="355" font-size="7" fill="#6ee7b7">  2-aderig fantoomvoeding in de clip</text>
+
+  <!-- ── FLEX BRIDGE ── -->
+  <rect x="592" y="185" width="80" height="60" rx="4" fill="#1a1535" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="632" y="206" text-anchor="middle" font-size="8" font-weight="bold" fill="#a78bfa">FLEX PCB</text>
+  <text x="632" y="218" text-anchor="middle" font-size="7" fill="#94a3b8">SPI · DRDY</text>
+  <text x="632" y="229" text-anchor="middle" font-size="7" fill="#94a3b8">I²C · 3V3a</text>
+  <text x="632" y="240" text-anchor="middle" font-size="7" fill="#94a3b8">3V3d · GND</text>
+  <line x1="585" y1="215" x2="592" y2="215" stroke="#a78bfa" stroke-width="1.5"/>
+  <line x1="672" y1="215" x2="680" y2="215" stroke="#a78bfa" stroke-width="1.5"/>
+
+  <!-- ── BOVENSTE PCB (DIGITAAL) ── -->
+  <rect x="680" y="72" width="125" height="260" rx="3" fill="#0d1624" stroke="#10b981" stroke-width="2"/>
+
+  <!-- BLE antenna keep-out -->
+  <rect x="682" y="74" width="121" height="26" rx="2" fill="#081208" stroke="#10b981" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="742" y="84" text-anchor="middle" font-size="7" font-weight="bold" fill="#10b981">BLE ANTENNE KEEP-OUT  ≥5mm van accu's</text>
+  <text x="742" y="92" text-anchor="middle" font-size="7" fill="#64748b">Geen koperlaag · PCB rand vrij</text>
+
+  <!-- USB-C at top -->
+  <rect x="708" y="63" width="68" height="12" rx="3" fill="#1a2e1a" stroke="#10b981" stroke-width="1.8"/>
+  <text x="742" y="72" text-anchor="middle" font-size="7" font-weight="bold" fill="#6ee7b7">USB-C  (afdekdop BF-vereiste)</text>
+
+  <!-- ESP32-S3-MINI-1-N8R8: 15.4mm × 20.5mm = 77×103px -->
+  <rect x="692" y="104" width="77" height="103" rx="3" fill="#1a2e1a" stroke="#10b981" stroke-width="2"/>
+  <text x="730" y="121" text-anchor="middle" font-size="7" font-weight="bold" fill="#6ee7b7">ESP32-S3-MINI-1-N8R8</text>
+  <text x="730" y="132" text-anchor="middle" font-size="7" fill="#34d399">8MB Flash · 8MB PSRAM</text>
+  <text x="730" y="143" text-anchor="middle" font-size="7" fill="#94a3b8">BLE 5.0 · USB OTG</text>
+  <text x="730" y="154" text-anchor="middle" font-size="7" fill="#94a3b8">240MHz · LX7 dual-core</text>
+  <text x="730" y="165" text-anchor="middle" font-size="7" fill="#64748b">PCB antenne ↑ (top)</text>
+  <text x="730" y="176" text-anchor="middle" font-size="7" fill="#64748b">15.4 × 20.5mm</text>
+  <text x="730" y="199" text-anchor="middle" font-size="7" fill="#94a3b8">FreeRTOS · ESP-IDF</text>
+  <line x1="773" y1="104" x2="773" y2="207" stroke="#10b981" stroke-width="0.8"/>
+  <text x="782" y="162" font-size="7" fill="#10b981" transform="rotate(90,782,162)">20.5mm</text>
+
+  <!-- ICM-20948 + BMP390 -->
+  <rect x="680" y="216" width="50" height="26" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="705" y="226" text-anchor="middle" font-size="7" font-weight="bold" fill="#93c5fd">ICM-20948</text>
+  <text x="705" y="236" text-anchor="middle" font-size="7" fill="#94a3b8">9-DOF · SPI</text>
+  <rect x="734" y="216" width="46" height="26" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="757" y="226" text-anchor="middle" font-size="7" font-weight="bold" fill="#93c5fd">BMP390</text>
+  <text x="757" y="236" text-anchor="middle" font-size="7" fill="#94a3b8">baro · I²C</text>
+
+  <!-- SPI Flash + Buck -->
+  <rect x="680" y="246" width="50" height="20" rx="2" fill="#1a2e1a" stroke="#10b981" stroke-width="1.2"/>
+  <text x="705" y="259" text-anchor="middle" font-size="7" fill="#6ee7b7">SPI Flash</text>
+  <rect x="734" y="246" width="46" height="20" rx="2" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="757" y="256" text-anchor="middle" font-size="7" font-weight="bold" fill="#fde68a">BUCK 3.3V</text>
+  <text x="757" y="264" text-anchor="middle" font-size="7" fill="#64748b">digitaal rail</text>
+
+  <!-- BQ25895 + fuel gauge -->
+  <rect x="680" y="270" width="50" height="20" rx="2" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="705" y="280" text-anchor="middle" font-size="7" font-weight="bold" fill="#fde68a">BQ25895</text>
+  <text x="705" y="288" text-anchor="middle" font-size="7" fill="#64748b">charger</text>
+  <rect x="734" y="270" width="46" height="20" rx="2" fill="#2d2000" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="757" y="280" text-anchor="middle" font-size="7" fill="#fde68a">Fuel gauge</text>
+  <text x="757" y="288" text-anchor="middle" font-size="7" fill="#64748b">I²C</text>
+
+  <!-- Battery spring contacts -->
+  <rect x="680" y="294" width="121" height="12" rx="2" fill="#221a00" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="742" y="303" text-anchor="middle" font-size="7" font-weight="bold" fill="#fde68a">ACCU VEERCONTACTEN  (O/W PCB-randen) → BQ25895</text>
+
+  <!-- Flex connector tab -->
+  <rect x="700" y="310" width="65" height="8" rx="1" fill="#1a1535" stroke="#a78bfa" stroke-width="1"/>
+  <text x="732" y="317" text-anchor="middle" font-size="6" fill="#a78bfa">← ← FLEX</text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- DESIGN NOTES                                       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="460" y="375" width="640" height="255" rx="6" fill="#1a2535" stroke="#2d3f55" stroke-width="1"/>
+  <text x="480" y="396" font-size="10" font-weight="bold" fill="#e2e8f0">Ontwerpnoten — Nair + Voss</text>
+
+  <text x="480" y="416" font-size="9" font-weight="bold" fill="#ef4444">Kabelrouting (Voss — behuizingontwerp):</text>
+  <text x="480" y="430" font-size="9" fill="#94a3b8">· E4 (nek rug): kabel bovenkant links → over linker schouder → achterkant nek</text>
+  <text x="480" y="443" font-size="9" fill="#94a3b8">· E5 (onderrug): kabel bovenkant rechts → over rechter schouder → laag op de rug</text>
+  <text x="480" y="456" font-size="9" fill="#94a3b8">· E2/E3/E6/E7: cables onderkant → omlaag langs de borst/torso</text>
+  <text x="480" y="469" font-size="9" fill="#f97316">· USB-C afdekdop vereist zodat laden tijdens dragen onmogelijk is (BF-classificatie)</text>
+
+  <text x="480" y="489" font-size="9" font-weight="bold" fill="#3b82f6">E1 positie (sleutelontwerp):</text>
+  <text x="480" y="502" font-size="9" fill="#94a3b8">· Contactpunt bovenaan de PCB — apparaat hangt aan halskoordje, zwaartekracht drukt</text>
+  <text x="480" y="515" font-size="9" fill="#94a3b8">  onderkant naar voren, bovenkant (E1) blijft tegen het sleutelbeen gedrukt</text>
+  <text x="480" y="528" font-size="9" fill="#94a3b8">· ICG-transformator direct naast E1-aperture — minimale hoge-impedantie geleiderlengte</text>
+
+  <text x="480" y="548" font-size="9" font-weight="bold" fill="#10b981">Digitale PCB:</text>
+  <text x="480" y="561" font-size="9" fill="#94a3b8">· ESP32-antenne bovenkant → minimaal 5mm van accucellen</text>
+  <text x="480" y="574" font-size="9" fill="#94a3b8">· PPG (MAX30101) en TMP117 op analoge PCB — optische/thermische toegang tot huid</text>
+
+  <text x="480" y="594" font-size="9" font-weight="bold" fill="#fbbf24">Vermogen:</text>
+  <text x="480" y="607" font-size="9" fill="#94a3b8">· 2× 14500 LiPo 1000mAh parallel = 2000mAh · ~28h bij 72mA · ~36h geoptimaliseerd</text>
+  <text x="480" y="620" font-size="9" fill="#f97316">· 50h: extern USB-C accupakket (passthrough laden via BQ25895)</text>
+
+  <!-- Key dimensions box -->
+  <rect x="20" y="530" width="420" height="195" rx="6" fill="#1a2535" stroke="#2d3f55" stroke-width="1"/>
+  <text x="40" y="550" font-size="9" font-weight="bold" fill="#e2e8f0">Bevestigde maten</text>
+  <text x="40" y="566" font-size="9" fill="#94a3b8">Behuizing:            55 × 55 × 22 mm</text>
+  <text x="40" y="580" font-size="9" fill="#94a3b8">Elke PCB:            52 × 25 mm</text>
+  <text x="40" y="594" font-size="9" fill="#94a3b8">PCB-stack diepte:   ~13.4mm  (8.6mm reserve)</text>
+  <text x="40" y="608" font-size="9" fill="#94a3b8">Accu (×2):           14500 · Ø14×50mm · 3.7V · 1000mAh</text>
+  <text x="40" y="622" font-size="9" fill="#fbbf24">Totale capaciteit:   2000mAh</text>
+  <text x="40" y="636" font-size="9" fill="#10b981">Gebruiksduur:        ~28h nominaal · ~36h opt. · 50h extern</text>
+  <text x="40" y="650" font-size="9" fill="#94a3b8">Behuizingswanden:   1mm O/W (bij accu's) · 2.5mm N/Z</text>
+  <text x="40" y="664" font-size="9" fill="#94a3b8">E1 aperture:         Ø≈12mm · bovenkant PCB · veercontact</text>
+  <text x="40" y="678" font-size="9" fill="#ef4444">E4/E5 uitgang:       bovenkant behuizing → over schouders</text>
+  <text x="40" y="692" font-size="9" fill="#94a3b8">E2/E3/E6/E7:        onderkant → langs torso omlaag</text>
+  <text x="40" y="706" font-size="9" fill="#94a3b8">Classificatie:       BF · IEC 60601-1 · batterijbedreven</text>
+
+</svg>

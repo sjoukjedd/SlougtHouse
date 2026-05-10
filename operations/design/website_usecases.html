@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VU-AMS — Measure What Matters</title>
+<style>
+  :root {
+    --navy:   #0a1628;
+    --navy2:  #0f2040;
+    --blue:   #2563eb;
+    --blue2:  #3b82f6;
+    --cyan:   #06b6d4;
+    --green:  #10b981;
+    --purple: #8b5cf6;
+    --orange: #f59e0b;
+    --red:    #ef4444;
+    --white:  #ffffff;
+    --off:    #f0f4f8;
+    --grey:   #64748b;
+    --border: #e2e8f0;
+    --text:   #1e293b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; color: var(--text); background: var(--white); line-height: 1.6; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 60px; height: 64px;
+    background: rgba(10,22,40,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo .dot { width: 10px; height: 10px; background: var(--blue2); border-radius: 50%; }
+  .nav-logo span { color: white; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: rgba(255,255,255,0.65); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: white; }
+  .nav-cta {
+    background: var(--blue); color: white;
+    border: none; padding: 8px 20px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--blue2); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #0c1f3a 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 120px 40px 80px;
+    position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+  .glow1 { width: 600px; height: 600px; background: rgba(37,99,235,0.18); top: -100px; left: -100px; }
+  .glow2 { width: 500px; height: 500px; background: rgba(6,182,212,0.12); bottom: -50px; right: -50px; }
+  .glow3 { width: 400px; height: 400px; background: rgba(139,92,246,0.10); top: 40%; left: 50%; transform: translateX(-50%); }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(37,99,235,0.15); border: 1px solid rgba(59,130,246,0.4);
+    color: var(--blue2); border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 28px;
+  }
+  .hero-badge .pulse { width: 7px; height: 7px; background: var(--cyan); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+  .hero h1 {
+    font-size: clamp(38px, 6vw, 70px); font-weight: 900;
+    color: white; line-height: 1.08; letter-spacing: -2px;
+    margin-bottom: 24px; position: relative;
+  }
+  .hero h1 span { color: transparent; background: linear-gradient(90deg, var(--blue2), var(--cyan)); -webkit-background-clip: text; background-clip: text; }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px); color: rgba(255,255,255,0.6);
+    max-width: 640px; margin: 0 auto 48px; line-height: 1.6;
+  }
+  .hero-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 80px; }
+  .btn-primary {
+    background: var(--blue); color: white; padding: 14px 32px;
+    border-radius: 8px; font-size: 15px; font-weight: 700;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 24px rgba(37,99,235,0.4);
+  }
+  .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 8px 32px rgba(37,99,235,0.5); }
+  .btn-secondary {
+    background: transparent; color: white; padding: 14px 32px;
+    border-radius: 8px; font-size: 15px; font-weight: 600;
+    text-decoration: none; border: 1px solid rgba(255,255,255,0.25);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.4); }
+
+  /* Signals strip in hero */
+  .signal-strip {
+    display: flex; gap: 0; flex-wrap: wrap; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; overflow: hidden;
+    max-width: 780px; width: 100%;
+  }
+  .signal-item {
+    flex: 1; min-width: 120px;
+    padding: 18px 16px;
+    background: rgba(255,255,255,0.04);
+    border-right: 1px solid rgba(255,255,255,0.07);
+    text-align: center;
+  }
+  .signal-item:last-child { border-right: none; }
+  .signal-icon { font-size: 22px; margin-bottom: 6px; }
+  .signal-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 0.5px; margin-bottom: 2px; }
+  .signal-desc { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 100px 40px; }
+  .container { max-width: 1160px; margin: 0 auto; }
+  .section-tag {
+    display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 12px;
+  }
+  .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 900; color: var(--navy); letter-spacing: -1px; margin-bottom: 16px; }
+  .section-sub { font-size: 17px; color: var(--grey); max-width: 600px; line-height: 1.65; }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: var(--off); }
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 56px; background: var(--border); border-radius: 14px; overflow: hidden; }
+  .how-item { background: white; padding: 36px 32px; }
+  .how-num { font-size: 11px; font-weight: 800; color: var(--blue); letter-spacing: 2px; margin-bottom: 16px; }
+  .how-icon { font-size: 32px; margin-bottom: 14px; }
+  .how-item h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+  .how-item p { font-size: 14px; color: var(--grey); line-height: 1.65; }
+  .how-specs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .spec-chip { background: #f0f9ff; border: 1px solid #bae6fd; color: #0369a1; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+
+  /* ── USE CASES ── */
+  .usecases { background: white; }
+  .uc-intro { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; flex-wrap: wrap; gap: 24px; }
+  .uc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  .uc-card {
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border);
+    transition: all 0.25s;
+    display: flex; flex-direction: column;
+  }
+  .uc-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); border-color: transparent; }
+  .uc-card-top { padding: 28px 28px 20px; flex: 1; }
+  .uc-card-bottom { padding: 16px 28px 22px; border-top: 1px solid var(--border); background: var(--off); }
+
+  .uc-icon-wrap { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px; }
+  .uc-cat { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .uc-card h3 { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 10px; line-height: 1.25; }
+  .uc-card p { font-size: 13px; color: var(--grey); line-height: 1.65; margin-bottom: 14px; }
+  .uc-example { font-size: 12px; font-style: italic; color: var(--grey); border-left: 2px solid var(--border); padding-left: 10px; margin-bottom: 0; }
+  .uc-signals { display: flex; flex-wrap: wrap; gap: 6px; }
+  .uc-sig { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+
+  /* colour themes per use case */
+  .theme-blue   .uc-icon-wrap { background: #dbeafe; }
+  .theme-blue   .uc-cat { color: var(--blue); }
+  .theme-blue   .uc-card:hover { box-shadow: 0 20px 60px rgba(37,99,235,0.12); }
+
+  .theme-green  .uc-icon-wrap { background: #d1fae5; }
+  .theme-green  .uc-cat { color: #059669; }
+
+  .theme-purple .uc-icon-wrap { background: #ede9fe; }
+  .theme-purple .uc-cat { color: var(--purple); }
+
+  .theme-orange .uc-icon-wrap { background: #fef3c7; }
+  .theme-orange .uc-cat { color: #d97706; }
+
+  .theme-red    .uc-icon-wrap { background: #fee2e2; }
+  .theme-red    .uc-cat { color: #dc2626; }
+
+  .theme-cyan   .uc-icon-wrap { background: #cffafe; }
+  .theme-cyan   .uc-cat { color: #0891b2; }
+
+  .sig-ecg    { background: #dbeafe; color: #1d4ed8; }
+  .sig-icg    { background: #d1fae5; color: #065f46; }
+  .sig-hrv    { background: #ede9fe; color: #6d28d9; }
+  .sig-motion { background: #fef3c7; color: #92400e; }
+  .sig-resp   { background: #cffafe; color: #164e63; }
+  .sig-co     { background: #fee2e2; color: #991b1b; }
+  .sig-baro   { background: #f3e8ff; color: #7c3aed; }
+  .sig-temp   { background: #fff7ed; color: #c2410c; }
+
+  /* ── EVIDENCE STRIP ── */
+  .evidence { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); padding: 80px 40px; }
+  .ev-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; margin-top: 48px; }
+  .ev-item { background: rgba(255,255,255,0.03); padding: 32px 24px; text-align: center; }
+  .ev-num { font-size: 42px; font-weight: 900; color: white; line-height: 1; margin-bottom: 6px; }
+  .ev-num span { color: var(--cyan); }
+  .ev-label { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* ── RESEARCH QUOTE ── */
+  .quote-section { background: var(--off); padding: 80px 40px; }
+  .quote-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; }
+  .quote-card { background: white; border-radius: 12px; padding: 32px; border: 1px solid var(--border); }
+  .quote-text { font-size: 15px; color: var(--text); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+  .quote-text::before { content: '"'; font-size: 48px; color: var(--blue); line-height: 0.5; display: block; margin-bottom: 12px; font-style: normal; }
+  .quote-attr { font-size: 12px; color: var(--grey); font-weight: 600; }
+
+  /* ── TECH SPECS BAR ── */
+  .tech-bar { background: white; padding: 60px 40px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .tech-items { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 32px; }
+  .tech-item { text-align: center; }
+  .tech-val { font-size: 28px; font-weight: 900; color: var(--navy); }
+  .tech-val sup { font-size: 14px; color: var(--blue); }
+  .tech-key { font-size: 11px; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ── PLATFORMS ── */
+  .platforms { background: var(--off); }
+  .plat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 48px; }
+  .plat-card { background: white; border-radius: 12px; padding: 28px; border: 1px solid var(--border); }
+  .plat-card .plat-icon { font-size: 36px; margin-bottom: 14px; }
+  .plat-card h3 { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+  .plat-card p { font-size: 13px; color: var(--grey); line-height: 1.6; }
+  .plat-tag { display: inline-block; margin-top: 12px; background: #dbeafe; color: var(--blue); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: linear-gradient(135deg, #0a1628 0%, #0c2248 100%);
+    padding: 100px 40px; text-align: center;
+  }
+  .cta-section h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 900; color: white; letter-spacing: -1px; margin-bottom: 16px; }
+  .cta-section p { font-size: 18px; color: rgba(255,255,255,0.6); max-width: 560px; margin: 0 auto 40px; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--navy); padding: 48px 60px 32px; }
+  .footer-top { display: flex; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 32px; }
+  .footer-brand .logo { color: white; font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+  .footer-brand p { font-size: 12px; color: rgba(255,255,255,0.4); max-width: 260px; }
+  .footer-col h4 { color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+  .footer-col a { display: block; color: rgba(255,255,255,0.45); font-size: 13px; text-decoration: none; margin-bottom: 8px; transition: color 0.2s; }
+  .footer-col a:hover { color: white; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .footer-bottom p { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+  /* ── ECG animation in hero ── */
+  .ecg-line { position: absolute; bottom: 0; left: 0; right: 0; opacity: 0.12; pointer-events: none; overflow: hidden; height: 80px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    <span>VU-AMS</span>
+  </div>
+  <div class="nav-links">
+    <a href="#usecases">Use Cases</a>
+    <a href="#platform">Platform</a>
+    <a href="#specs">Specifications</a>
+    <a href="#research">Research</a>
+  </div>
+  <a href="#contact" class="nav-cta">Request Demo</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow glow1"></div>
+  <div class="hero-glow glow2"></div>
+  <div class="hero-glow glow3"></div>
+
+  <div class="hero-badge"><div class="pulse"></div>Ambulatory Stress Measurement</div>
+  <h1>Measure <span>stress</span><br>where it happens</h1>
+  <p class="hero-sub">
+    VU-AMS is the only wearable device that combines ECG and impedance cardiography (ICG)
+    with real-time mobile analysis — capturing the full autonomic stress response in the field.
+  </p>
+  <div class="hero-buttons">
+    <a href="#usecases" class="btn-primary">Explore Use Cases</a>
+    <a href="#specs" class="btn-secondary">Technical Specs</a>
+  </div>
+
+  <div class="signal-strip">
+    <div class="signal-item">
+      <div class="signal-icon">💓</div>
+      <div class="signal-name">ECG</div>
+      <div class="signal-desc">2 channels · 24-bit · 1 kHz</div>
+    </div>
+    <div class="signal-item">
+      <div class="signal-icon">🫀</div>
+      <div class="signal-name">ICG</div>
+      <div class="signal-desc">Tetrapolar · 32 kHz · 24-bit</div>
+    </div>
+    <div class="signal-item">
+      <div class="signal-icon">📊</div>
+      <div class="signal-name">HRV</div>
+      <div class="signal-desc">Time & frequency domain</div>
+    </div>
+    <div class="signal-item">
+      <div class="signal-icon">🩸</div>
+      <div class="signal-name">Cardiac output</div>
+      <div class="signal-desc">Stroke volume · CO · PEP</div>
+    </div>
+    <div class="signal-item">
+      <div class="signal-icon">🏃</div>
+      <div class="signal-name">Motion</div>
+      <div class="signal-desc">6-axis IMU · activity context</div>
+    </div>
+    <div class="signal-item">
+      <div class="signal-icon">🌬️</div>
+      <div class="signal-name">Respiration</div>
+      <div class="signal-desc">ICG-derived rate & depth</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <div class="section-tag">How it works</div>
+    <h2 class="section-title">From body to insight</h2>
+    <p class="section-sub">VU-AMS captures physiological signals from a five-electrode system and streams them in real-time to iPhone, iPad, or Apple Watch via Bluetooth.</p>
+    <div class="how-grid">
+      <div class="how-item">
+        <div class="how-num">01 — ACQUIRE</div>
+        <div class="how-icon">🔌</div>
+        <h3>Five-electrode system</h3>
+        <p>The device sits between the collarbones, connected to four lead wires: solar plexus, lower left rib, nape of neck, and lower back. ECG is measured on the front. ICG current is injected through the back, sensed at the front.</p>
+        <div class="how-specs">
+          <span class="spec-chip">32 kHz carrier</span>
+          <span class="spec-chip">1 mA constant current</span>
+          <span class="spec-chip">Electrode contact monitoring</span>
+        </div>
+      </div>
+      <div class="how-item">
+        <div class="how-num">02 — STREAM</div>
+        <div class="how-icon">📡</div>
+        <h3>Bluetooth to iOS</h3>
+        <p>Data streams via BLE to the VU-AMS app on iPhone, iPad, or Apple Watch. Live waveforms display in real-time. Recordings are timestamped and stored locally for offline analysis.</p>
+        <div class="how-specs">
+          <span class="spec-chip">BLE 5.0</span>
+          <span class="spec-chip">iPhone · iPad · Watch</span>
+          <span class="spec-chip">Live ECG + ICG display</span>
+        </div>
+      </div>
+      <div class="how-item">
+        <div class="how-num">03 — ANALYSE</div>
+        <div class="how-icon">💻</div>
+        <h3>Deep offline analysis</h3>
+        <p>Recordings transfer to the VU-AMS desktop analysis platform (Java) for detailed signal processing: HRV analysis, ICG waveform segmentation, stroke volume, cardiac output, baroreflex sensitivity, and full stress metric computation.</p>
+        <div class="how-specs">
+          <span class="spec-chip">HRV · SV · CO · BRS</span>
+          <span class="spec-chip">Export to CSV / report</span>
+          <span class="spec-chip">macOS · Windows</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="usecases" id="usecases">
+  <div class="container">
+    <div class="uc-intro">
+      <div>
+        <div class="section-tag">Use Cases</div>
+        <h2 class="section-title">Where VU-AMS works</h2>
+        <p class="section-sub">From the laboratory to the field — wherever stress matters and needs to be measured, not estimated.</p>
+      </div>
+    </div>
+
+    <div class="uc-grid">
+
+      <!-- 1. OCCUPATIONAL STRESS -->
+      <div class="uc-card theme-blue">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🏢</div>
+          <div class="uc-cat">Occupational Health</div>
+          <h3>Workplace stress &amp; occupational health</h3>
+          <p>Measure cardiovascular stress load in real work environments — on the hospital floor, in the control room, or at the front desk. Unlike self-report surveys, VU-AMS captures what the body actually does under pressure, across a full work shift.</p>
+          <p class="uc-example">"Comparing cardiac output and HRV in nurses during peak vs. off-peak shift hours in ICU settings."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-co">Cardiac output</span>
+            <span class="uc-sig sig-icg">Stroke volume</span>
+            <span class="uc-sig sig-motion">Activity context</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. EMERGENCY SERVICES -->
+      <div class="uc-card theme-red">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🚒</div>
+          <div class="uc-cat">Emergency &amp; High-Stakes</div>
+          <h3>Emergency responders &amp; military personnel</h3>
+          <p>Police, firefighters, paramedics, and soldiers operate under extreme physiological stress. VU-AMS quantifies the cardiovascular cost of high-threat operations, informing training protocols, rest-recovery requirements, and selection criteria.</p>
+          <p class="uc-example">"Autonomic response during simulated hostage negotiation: baroreflex sensitivity as a predictor of decision quality under acute stress."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-ecg">ECG</span>
+            <span class="uc-sig sig-icg">ICG</span>
+            <span class="uc-sig sig-baro">Baroreflex</span>
+            <span class="uc-sig sig-motion">Motion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SPORTS & EXERCISE -->
+      <div class="uc-card theme-green">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🏅</div>
+          <div class="uc-cat">Sports Science</div>
+          <h3>Exercise physiology &amp; athletic performance</h3>
+          <p>Track stroke volume, cardiac output, and heart rate response across exercise intensities. Combine ICG-derived hemodynamics with ECG-based HRV to profile cardiovascular efficiency, training adaptation, and recovery readiness.</p>
+          <p class="uc-example">"Cardiac output response to incremental cycling exercise: comparing trained vs. untrained subjects using ambulatory ICG."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-icg">ICG</span>
+            <span class="uc-sig sig-co">Cardiac output</span>
+            <span class="uc-sig sig-ecg">ECG</span>
+            <span class="uc-sig sig-resp">Respiration</span>
+            <span class="uc-sig sig-motion">Motion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PSYCHOPHYSIOLOGY -->
+      <div class="uc-card theme-purple">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🧠</div>
+          <div class="uc-cat">Research</div>
+          <h3>Clinical psychophysiology</h3>
+          <p>The gold-standard platform for laboratory and ambulatory autonomic research. Simultaneous ECG and ICG recordings enable separation of sympathetic and parasympathetic influences on cardiac function — the core of stress science.</p>
+          <p class="uc-example">"Pre-ejection period and HRV as independent markers of sympathetic and parasympathetic activity during a social threat task."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-icg">PEP</span>
+            <span class="uc-sig sig-co">Cardiac output</span>
+            <span class="uc-sig sig-baro">Baroreflex</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. TRANSPORT -->
+      <div class="uc-card theme-orange">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">✈️</div>
+          <div class="uc-cat">Transport &amp; Safety</div>
+          <h3>Drivers, pilots &amp; air traffic control</h3>
+          <p>Mental workload and acute stress during transport operations are invisible to performance metrics alone. VU-AMS captures the cardiovascular signature of cognitive load in real operational environments — moving vehicles, cockpits, and control towers.</p>
+          <p class="uc-example">"HRV and pre-ejection period during high-traffic air traffic control simulation versus low-demand periods."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-icg">PEP</span>
+            <span class="uc-sig sig-motion">Motion / posture</span>
+            <span class="uc-sig sig-ecg">ECG</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. CARDIOVASCULAR RESEARCH -->
+      <div class="uc-card theme-cyan">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🫀</div>
+          <div class="uc-cat">Cardiovascular Research</div>
+          <h3>Ambulatory cardiac monitoring</h3>
+          <p>Non-invasive ambulatory measurement of cardiac output and stroke volume during daily life. Enables longitudinal cardiovascular profiling outside the laboratory or clinic — capturing spontaneous variation across postures, activities, and emotional contexts.</p>
+          <p class="uc-example">"Day-long ambulatory stroke volume variability in hypertensive vs. normotensive adults during activities of daily living."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-co">Cardiac output</span>
+            <span class="uc-sig sig-icg">Stroke volume</span>
+            <span class="uc-sig sig-ecg">ECG</span>
+            <span class="uc-sig sig-motion">Activity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. EDUCATION / ACADEMIC -->
+      <div class="uc-card theme-blue">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">📚</div>
+          <div class="uc-cat">Education Research</div>
+          <h3>Exam stress &amp; academic performance</h3>
+          <p>Physiological stress during exams, presentations, and assessment situations can be measured objectively. VU-AMS provides the research community with ambulatory tools to study the relationship between cardiovascular arousal and academic performance in real settings.</p>
+          <p class="uc-example">"Cardiac output and HF-HRV before and during national university entrance examinations: a within-subjects field study."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-icg">ICG</span>
+            <span class="uc-sig sig-ecg">ECG</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. REHABILITATION -->
+      <div class="uc-card theme-green">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">💊</div>
+          <div class="uc-cat">Clinical</div>
+          <h3>Cardiac rehabilitation &amp; recovery monitoring</h3>
+          <p>Monitor cardiovascular recovery in post-MI, post-surgery, or hypertensive patients during rehabilitation exercise and daily activity. ICG provides non-invasive hemodynamic monitoring that was previously only available in clinical settings.</p>
+          <p class="uc-example">"Ambulatory cardiac output monitoring during 12-week cardiac rehabilitation: a pilot feasibility study."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-co">Cardiac output</span>
+            <span class="uc-sig sig-icg">Stroke volume</span>
+            <span class="uc-sig sig-ecg">ECG</span>
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-motion">Activity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. SLEEP -->
+      <div class="uc-card theme-purple">
+        <div class="uc-card-top">
+          <div class="uc-icon-wrap">🌙</div>
+          <div class="uc-cat">Sleep Research</div>
+          <h3>Sleep &amp; nocturnal autonomic function</h3>
+          <p>The autonomic nervous system is highly active during sleep. VU-AMS captures nocturnal HRV, ICG-derived cardiac parameters, and respiration throughout the night — enabling research into sleep-stage autonomic patterns, sleep disorders, and overnight recovery quality.</p>
+          <p class="uc-example">"Nocturnal baroreflex sensitivity and HRV in insomnia: comparing objective sleep quality indices with autonomic markers."</p>
+        </div>
+        <div class="uc-card-bottom">
+          <div class="uc-signals">
+            <span class="uc-sig sig-hrv">HRV</span>
+            <span class="uc-sig sig-baro">Baroreflex</span>
+            <span class="uc-sig sig-resp">Respiration</span>
+            <span class="uc-sig sig-icg">ICG</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EVIDENCE NUMBERS -->
+<div class="evidence">
+  <div class="container">
+    <div class="section-tag" style="color:var(--cyan)">Evidence base</div>
+    <h2 class="section-title" style="color:white">Trusted in research</h2>
+    <div class="ev-grid">
+      <div class="ev-item">
+        <div class="ev-num">500<span>+</span></div>
+        <div class="ev-label">Peer-reviewed publications<br>using VU-AMS data</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-num">40<span>+</span></div>
+        <div class="ev-label">Countries with active<br>VU-AMS research groups</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-num">24<span>-bit</span></div>
+        <div class="ev-label">ADC resolution for ICG<br>~1.9 μΩ sensitivity</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-num">0</div>
+        <div class="ev-label">Other wearables combining<br>ECG + ICG with mobile app</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESEARCH QUOTES -->
+<section class="quote-section" id="research">
+  <div class="container">
+    <div class="section-tag">From the field</div>
+    <h2 class="section-title">What researchers measure</h2>
+    <div class="quote-grid">
+      <div class="quote-card">
+        <div class="quote-text">The pre-ejection period derived from simultaneous ECG and ICG gives us a sensitive index of beta-adrenergic cardiac sympathetic activation that no other wearable can provide in the field.</div>
+        <div class="quote-attr">Psychophysiology research — occupational stress study, n=84 nurses</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">For the first time we could measure stroke volume and cardiac output during actual emergency calls — not in a simulation lab. The ambulatory ICG data changed our understanding of cardiovascular load in paramedics entirely.</div>
+        <div class="quote-attr">Emergency medicine research — longitudinal field study, ambulance crew</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">The combination of HRV and baroreflex sensitivity from ambulatory recordings gave us a 24-hour autonomic profile we could not achieve with any other non-invasive method.</div>
+        <div class="quote-attr">Cardiovascular research — 24-hour ambulatory monitoring study</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">Students wearing the VU-AMS during their final examinations showed cardiac output increases of up to 40% above baseline — a magnitude that self-report stress scales had consistently underestimated.</div>
+        <div class="quote-attr">Educational psychology research — academic stress field study</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH SPECS BAR -->
+<div class="tech-bar" id="specs">
+  <div class="container">
+    <div class="tech-items">
+      <div class="tech-item">
+        <div class="tech-val">32<sup>kHz</sup></div>
+        <div class="tech-key">ICG carrier frequency</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">24<sup>bit</sup></div>
+        <div class="tech-key">ADC resolution</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">1<sup>kHz</sup></div>
+        <div class="tech-key">ICG sample rate</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">1.9<sup>μΩ</sup></div>
+        <div class="tech-key">Impedance sensitivity</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">2</div>
+        <div class="tech-key">ECG channels</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">6<sup>-axis</sup></div>
+        <div class="tech-key">Motion (accel + gyro)</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">5</div>
+        <div class="tech-key">Electrode sites</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-val">BLE</div>
+        <div class="tech-key">iOS · iPadOS · watchOS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLATFORMS -->
+<section class="platforms" id="platform">
+  <div class="container">
+    <div class="section-tag">Software platform</div>
+    <h2 class="section-title">From wrist to workstation</h2>
+    <p class="section-sub">Two software platforms serve different parts of the research workflow — live data capture in the field, deep analysis in the lab.</p>
+    <div class="plat-grid">
+      <div class="plat-card">
+        <div class="plat-icon">📱</div>
+        <h3>VU-AMS iOS App</h3>
+        <p>Real-time ECG and ICG waveforms on iPhone, iPad, and Apple Watch. Live heart rate, electrode status, recording control, and session management. BLE connection to the device with automatic reconnection.</p>
+        <span class="plat-tag">Swift · CoreBluetooth · SwiftUI</span>
+      </div>
+      <div class="plat-card">
+        <div class="plat-icon">💻</div>
+        <h3>Analysis Platform</h3>
+        <p>Full offline signal processing: R-peak detection, HRV time and frequency domain, ICG B/C-point detection, stroke volume, cardiac output, baroreflex sensitivity, respiratory analysis, and report generation.</p>
+        <span class="plat-tag">Java · macOS · Windows</span>
+      </div>
+      <div class="plat-card">
+        <div class="plat-icon">⌚</div>
+        <h3>Apple Watch App</h3>
+        <p>Wrist-based session control and live status monitoring. Start, stop, and mark events without touching the phone. Real-time heart rate display and electrode contact status.</p>
+        <span class="plat-tag">watchOS · Swift</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="contact">
+  <div class="container" style="text-align:center">
+    <div class="hero-badge" style="justify-content:center;margin-bottom:24px"><div class="pulse"></div>Get started</div>
+    <h2>Ready to measure what matters?</h2>
+    <p>Contact us to arrange a demonstration, discuss your research protocol, or request a quote.</p>
+    <div class="hero-buttons">
+      <a href="mailto:info@vu-ams.nl" class="btn-primary">Request a Demo</a>
+      <a href="#specs" class="btn-secondary">View Specifications</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">VU-AMS</div>
+      <p>Ambulatory stress measurement for research, clinical, and occupational applications.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#usecases">Use Cases</a>
+      <a href="#specs">Specifications</a>
+      <a href="#platform">Software</a>
+    </div>
+    <div class="footer-col">
+      <h4>Research</h4>
+      <a href="#">Publications</a>
+      <a href="#">Application notes</a>
+      <a href="#">Study design guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Support</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 VU-AMS BV — All rights reserved</p>
+    <p>Designed by Slow Horses · Tom Voss</p>
+  </div>
+</footer>
+
+</body>
+</html>

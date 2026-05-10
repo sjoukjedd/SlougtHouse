@@ -1,0 +1,313 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4AA81CC424148D32D4E31BAA /* SimPeripheralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840EE0843C7D661DB49D5E1F /* SimPeripheralManager.swift */; };
+		5A332B26B154D3D5EA0AC1B7 /* SignalGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF3A1BD81E0FBF2ED499BB7 /* SignalGenerator.swift */; };
+		5D935CF4C16197837350F8EF /* VUAMSSimApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3A44D38CC2299399972009 /* VUAMSSimApp.swift */; };
+		61F0A3B2A73E3B31C84BABAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80644981205E03231FBECA02 /* ContentView.swift */; };
+		E1E05DBC709AEC6125B49AC4 /* GATTProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBAE843800D3B75FCAFDA00B /* GATTProfile.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		59809D5AD21BDB3248283800 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5B3A44D38CC2299399972009 /* VUAMSSimApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSSimApp.swift; sourceTree = "<group>"; };
+		7DF3A1BD81E0FBF2ED499BB7 /* SignalGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalGenerator.swift; sourceTree = "<group>"; };
+		7ED7F4E39FE7C53CE65982A4 /* VUAMSSim.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VUAMSSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		80644981205E03231FBECA02 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		840EE0843C7D661DB49D5E1F /* SimPeripheralManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimPeripheralManager.swift; sourceTree = "<group>"; };
+		EBAE843800D3B75FCAFDA00B /* GATTProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GATTProfile.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1B8B94B1DE82855F0070613F /* ios_simulator */ = {
+			isa = PBXGroup;
+			children = (
+				80644981205E03231FBECA02 /* ContentView.swift */,
+				EBAE843800D3B75FCAFDA00B /* GATTProfile.swift */,
+				7DF3A1BD81E0FBF2ED499BB7 /* SignalGenerator.swift */,
+				840EE0843C7D661DB49D5E1F /* SimPeripheralManager.swift */,
+				5B3A44D38CC2299399972009 /* VUAMSSimApp.swift */,
+				DC792D87E994A74C09BE3FFC /* VUAMSSim */,
+			);
+			name = ios_simulator;
+			path = .;
+			sourceTree = "<group>";
+		};
+		896CC25DF275AD73A6F8B163 = {
+			isa = PBXGroup;
+			children = (
+				1B8B94B1DE82855F0070613F /* ios_simulator */,
+				DC792D87E994A74C09BE3FFC /* VUAMSSim */,
+				92F0BE6994C64C707B6D29A1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		92F0BE6994C64C707B6D29A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7ED7F4E39FE7C53CE65982A4 /* VUAMSSim.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DC792D87E994A74C09BE3FFC /* VUAMSSim */ = {
+			isa = PBXGroup;
+			children = (
+				59809D5AD21BDB3248283800 /* Info.plist */,
+			);
+			path = VUAMSSim;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		12F5BB74E61B1E71E9E03F6F /* VUAMSSim */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D62036CA9EF71D462DB0B39A /* Build configuration list for PBXNativeTarget "VUAMSSim" */;
+			buildPhases = (
+				E6EA2C3A4CCEF463CBD258C0 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VUAMSSim;
+			packageProductDependencies = (
+			);
+			productName = VUAMSSim;
+			productReference = 7ED7F4E39FE7C53CE65982A4 /* VUAMSSim.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		23DF9B294EDF44CBFAF5EAF1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					12F5BB74E61B1E71E9E03F6F = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = D37D89127E8A3DC828D6FCB0 /* Build configuration list for PBXProject "VUAMSSim" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 896CC25DF275AD73A6F8B163;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 92F0BE6994C64C707B6D29A1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				12F5BB74E61B1E71E9E03F6F /* VUAMSSim */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E6EA2C3A4CCEF463CBD258C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61F0A3B2A73E3B31C84BABAE /* ContentView.swift in Sources */,
+				E1E05DBC709AEC6125B49AC4 /* GATTProfile.swift in Sources */,
+				5A332B26B154D3D5EA0AC1B7 /* SignalGenerator.swift in Sources */,
+				4AA81CC424148D32D4E31BAA /* SimPeripheralManager.swift in Sources */,
+				5D935CF4C16197837350F8EF /* VUAMSSimApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0D01BCBED9DC5EC8DAA81C0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VUAMSSim/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.simulator";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		61FBCB85F19A7A65F485E012 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		98DE935551759C4A7CF721D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		A9BDCD034F4AA09FA14BF757 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VUAMSSim/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.simulator";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D37D89127E8A3DC828D6FCB0 /* Build configuration list for PBXProject "VUAMSSim" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98DE935551759C4A7CF721D1 /* Debug */,
+				61FBCB85F19A7A65F485E012 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D62036CA9EF71D462DB0B39A /* Build configuration list for PBXNativeTarget "VUAMSSim" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D01BCBED9DC5EC8DAA81C0D /* Debug */,
+				A9BDCD034F4AA09FA14BF757 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 23DF9B294EDF44CBFAF5EAF1 /* Project object */;
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>VU-AMS — Product Flyer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#fff;color:#101430;width:210mm;min-height:297mm;margin:0 auto;}
+  .page{width:210mm;min-height:297mm;display:flex;flex-direction:column;}
+
+  /* Header bar */
+  .header{background:#101430;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
+  .logo-text{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+  .logo-text span{color:#00b6cb;}
+  .header-tag{font-size:10px;color:#00b6cb;letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+
+  /* Gradient accent line */
+  .accent-bar{height:4px;background:linear-gradient(90deg,#00b6cb,#0078A8,#101430);}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#101430 60%,#0078A8);padding:36px 28px 28px;color:#fff;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;border:2px solid rgba(0,182,203,0.2);pointer-events:none;}
+  .hero::before{content:'';position:absolute;right:20px;top:20px;width:120px;height:120px;border-radius:50%;border:1px solid rgba(0,182,203,0.15);pointer-events:none;}
+  .hero h1{font-size:30px;font-weight:800;line-height:1.15;margin-bottom:8px;}
+  .hero h1 span{color:#00b6cb;}
+  .hero p{font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6;max-width:420px;margin-bottom:16px;}
+  .badge{display:inline-block;background:rgba(0,182,203,0.2);border:1px solid #00b6cb;color:#00b6cb;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-right:6px;}
+
+  /* Signal grid */
+  .section{padding:22px 28px;}
+  .section-title{font-size:11px;font-weight:700;color:#00b6cb;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e5e7eb,transparent);}
+
+  .signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .signal-card{background:#f5f5f5;border-radius:8px;padding:10px 10px 8px;border-top:3px solid #00b6cb;}
+  .signal-card.ecg{border-top-color:#0078A8;}
+  .signal-card.icg{border-top-color:#00b6cb;}
+  .signal-card.eda{border-top-color:#29c66d;}
+  .signal-card.ppg{border-top-color:#e05c1a;}
+  .signal-card.temp{border-top-color:#e0a81a;}
+  .signal-card.imu{border-top-color:#7c3aed;}
+  .signal-card.baro{border-top-color:#475569;}
+  .signal-card .sig-name{font-size:10px;font-weight:700;color:#101430;margin-bottom:2px;}
+  .signal-card .sig-detail{font-size:8.5px;color:#6b7280;line-height:1.4;}
+  .signal-card .sig-new{font-size:7px;background:#00b6cb;color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;display:inline-block;margin-top:3px;}
+
+  /* USP row */
+  .usp-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 28px 18px;}
+  .usp-card{background:#101430;color:#fff;border-radius:10px;padding:14px 12px;text-align:center;}
+  .usp-card .usp-icon{font-size:18px;margin-bottom:6px;}
+  .usp-card .usp-title{font-size:11px;font-weight:700;color:#00b6cb;margin-bottom:4px;}
+  .usp-card .usp-text{font-size:9px;color:rgba(255,255,255,0.7);line-height:1.5;}
+
+  /* Platform row */
+  .platform{padding:14px 28px;display:flex;gap:10px;align-items:stretch;}
+  .plat-item{flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px;}
+  .plat-label{font-size:9px;font-weight:700;color:#00b6cb;text-transform:uppercase;letter-spacing:1.5px;}
+  .plat-title{font-size:12px;font-weight:700;color:#101430;}
+  .plat-text{font-size:9px;color:#6b7280;line-height:1.5;}
+
+  /* Specs bar */
+  .specs-bar{background:#f5f5f5;padding:12px 28px;display:flex;gap:20px;flex-wrap:wrap;}
+  .spec{display:flex;flex-direction:column;}
+  .spec-val{font-size:13px;font-weight:800;color:#101430;}
+  .spec-label{font-size:8px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;}
+
+  /* Footer */
+  .footer{margin-top:auto;background:#101430;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+  .footer-logo{font-size:14px;font-weight:800;color:#fff;}
+  .footer-logo span{color:#00b6cb;}
+  .footer-contact{font-size:9px;color:rgba(255,255,255,0.6);text-align:right;line-height:1.6;}
+  .footer-contact a{color:#00b6cb;text-decoration:none;}
+  .footer-disclaimer{font-size:7.5px;color:rgba(255,255,255,0.35);text-align:center;padding:6px 28px 8px;background:#101430;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo-text">VU<span>-AMS</span></div>
+    <div class="header-tag">Next-Generation Ambulatory Monitoring</div>
+  </div>
+  <div class="accent-bar"></div>
+
+  <div class="hero">
+    <div class="badge">Research Grade</div>
+    <div class="badge">Ambulatory</div>
+    <div class="badge" style="border-color:#29c66d;color:#29c66d;background:rgba(41,198,109,0.1);">New Generation</div>
+    <br/><br/>
+    <h1>The only wearable that measures<br/><span>cardiac output in the field.</span></h1>
+    <p>The next-generation VU-AMS combines ECG, Impedance Cardiography (ICG), PPG, skin conductance, body temperature, and 9-DOF motion in a single 55 × 55 mm chest-worn device — with live iOS streaming and detailed offline analysis.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Signal Portfolio</div>
+    <div class="signal-grid">
+      <div class="signal-card icg">
+        <div class="sig-name">ICG</div>
+        <div class="sig-detail">Impedance Cardiography<br/>Cardiac output · Stroke volume<br/>Baroreflex sensitivity<br/>0–32 Ω · 1 kHz · 24-bit</div>
+      </div>
+      <div class="signal-card ecg">
+        <div class="sig-name">ECG</div>
+        <div class="sig-detail">2-lead ambulatory ECG<br/>HRV · R-peak detection<br/>IEC 60601-2-47<br/>0.05–150 Hz</div>
+      </div>
+      <div class="signal-card eda">
+        <div class="sig-name">SCL / EDA</div>
+        <div class="sig-detail">Skin conductance level<br/>Tonic + phasic SCR<br/>Sympathetic NS activity<br/>Ag/AgCl electrodes</div>
+        <div class="sig-new">NEW</div>
+      </div>
+      <div class="signal-card ppg">
+        <div class="sig-name">PPG / SpO₂</div>
+        <div class="sig-detail">Photoplethysmography<br/>Heart rate · SpO₂<br/>660nm + 940nm LEDs<br/>MAX30101 AFE</div>
+        <div class="sig-new">NEW</div>
+      </div>
+      <div class="signal-card temp">
+        <div class="sig-name">Body Temp</div>
+        <div class="sig-detail">Skin temperature<br/>TMP117 · ±0.1°C<br/>0.0078°C resolution<br/>Continuous</div>
+        <div class="sig-new">NEW</div>
+      </div>
+      <div class="signal-card imu">
+        <div class="sig-name">9-DOF Motion</div>
+        <div class="sig-detail">Accel · Gyro · Mag<br/>ICM-20948<br/>Activity · posture<br/>100 Hz</div>
+        <div class="sig-new">NEW</div>
+      </div>
+      <div class="signal-card baro">
+        <div class="sig-name">Barometric</div>
+        <div class="sig-detail">Pressure · Altitude<br/>BMP390<br/>Environmental context</div>
+      </div>
+      <div class="signal-card" style="border-top-color:#101430;background:#101430;">
+        <div class="sig-name" style="color:#00b6cb;">Derived</div>
+        <div class="sig-detail" style="color:rgba(255,255,255,0.7);">dZ/dt · PEP · LVET<br/>CO · SV · SVR<br/>BRS · HRV indices<br/>SCR amplitude/latency</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="usp-row">
+    <div class="usp-card">
+      <div class="usp-icon">🫀</div>
+      <div class="usp-title">The ICG Advantage</div>
+      <div class="usp-text">Only ambulatory wearable with simultaneous ECG + ICG. Stroke volume and cardiac output in the field — not derivable from any other wearable signal set.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-icon">📱</div>
+      <div class="usp-title">Mobile-First Platform</div>
+      <div class="usp-text">Live data streaming via BLE 5.0 to iPhone, iPad and Apple Watch. Real-time signal quality feedback. Unique among research-grade ICG systems.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-icon">🔬</div>
+      <div class="usp-title">Research Depth</div>
+      <div class="usp-text">VU-DAMS offline analysis platform for full signal processing, artefact rejection, ensemble averaging and export to SPSS, MATLAB and R.</div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0;">
+    <div class="section-title">Software Platform</div>
+  </div>
+  <div class="platform">
+    <div class="plat-item">
+      <div class="plat-label">iOS / iPadOS / watchOS</div>
+      <div class="plat-title">Live Acquisition App</div>
+      <div class="plat-text">BLE 5.0 streaming · Real-time ECG/ICG/SCL display · Online HRV analysis · Electrode contact monitoring · Recording management</div>
+    </div>
+    <div class="plat-item">
+      <div class="plat-label">Java Desktop</div>
+      <div class="plat-title">VU-DAMS Analysis</div>
+      <div class="plat-text">Offline processing · Artefact rejection · Ensemble averaging · Full derived parameter suite · SPSS / MATLAB / R export</div>
+    </div>
+    <div class="plat-item">
+      <div class="plat-label">Firmware</div>
+      <div class="plat-title">ESP32-S3 Platform</div>
+      <div class="plat-text">FreeRTOS · 240 MHz · 8 MB PSRAM buffer · SD logging · OTA updates · BF-classified patient safety</div>
+    </div>
+  </div>
+
+  <div class="specs-bar">
+    <div class="spec"><span class="spec-val">55 × 55 mm</span><span class="spec-label">Housing</span></div>
+    <div class="spec"><span class="spec-val">22 mm</span><span class="spec-label">Thickness</span></div>
+    <div class="spec"><span class="spec-val">28 h</span><span class="spec-label">Battery life</span></div>
+    <div class="spec"><span class="spec-val">24-bit</span><span class="spec-label">ADC resolution</span></div>
+    <div class="spec"><span class="spec-val">1 kHz</span><span class="spec-label">Sample rate</span></div>
+    <div class="spec"><span class="spec-val">BLE 5.0</span><span class="spec-label">Wireless</span></div>
+    <div class="spec"><span class="spec-val">BF</span><span class="spec-label">IEC 60601-1</span></div>
+    <div class="spec"><span class="spec-val">7</span><span class="spec-label">Electrodes</span></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo">VU<span>-AMS</span></div>
+    <div class="footer-contact">
+      <a href="https://www.vu-ams.nl">www.vu-ams.nl</a><br/>
+      Vrije Universiteit Amsterdam<br/>
+      De Boelelaan 1105, 1081 HV Amsterdam
+    </div>
+  </div>
+  <div class="footer-disclaimer">For research use only. Not intended for clinical diagnosis. · © VU-AMS · vu-ams.nl</div>
+
+</div>
+</body>
+</html>

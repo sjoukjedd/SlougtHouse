@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="nl.vuams.vudam.ui.MainController"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- ===== Top: Menu bar ===== -->
+    <top>
+        <VBox>
+            <MenuBar fx:id="menuBar">
+                <Menu text="_File">
+                    <MenuItem fx:id="menuOpen" text="_Open .vua file…" onAction="#handleOpen"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem fx:id="menuExportCsv" text="_Export to CSV…" onAction="#handleExportCsv"
+                              disable="true"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="E_xit" onAction="#handleExit"/>
+                </Menu>
+                <Menu text="_View">
+                    <MenuItem text="Zoom _In"  onAction="#handleZoomIn"/>
+                    <MenuItem text="Zoom _Out" onAction="#handleZoomOut"/>
+                    <MenuItem text="_Reset Zoom" onAction="#handleZoomReset"/>
+                </Menu>
+                <Menu text="_Analysis">
+                    <MenuItem fx:id="menuDetectRpeaks" text="Detect _R-peaks"
+                              onAction="#handleDetectRpeaks" disable="true"/>
+                    <MenuItem fx:id="menuComputeHrv"   text="Compute _HRV metrics"
+                              onAction="#handleComputeHrv" disable="true"/>
+                    <MenuItem fx:id="menuDetectBpoints" text="Detect _B-points (ICG)"
+                              onAction="#handleDetectBpoints" disable="true"/>
+                </Menu>
+                <Menu text="_Help">
+                    <MenuItem text="_About VU-DAMS" onAction="#handleAbout"/>
+                </Menu>
+            </MenuBar>
+
+            <!-- Status bar -->
+            <HBox fx:id="statusBar" style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;
+                                           -fx-border-width: 1 0 0 0; -fx-padding: 2 8 2 8;">
+                <Label fx:id="statusLabel" text="No file loaded.">
+                    <font>
+                        <Font size="11"/>
+                    </font>
+                </Label>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ===== Centre: Waveforms (top) + Metrics (bottom) via SplitPane ===== -->
+    <center>
+        <SplitPane orientation="VERTICAL" dividerPositions="0.65">
+
+            <!-- ---- Waveform panel (top half) ---- -->
+            <ScrollPane fitToWidth="true" fitToHeight="false"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <VBox fx:id="waveformBox" spacing="4">
+                    <padding>
+                        <Insets top="6" right="8" bottom="6" left="8"/>
+                    </padding>
+
+                    <!-- ECG Chart -->
+                    <Label text="ECG" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                    <LineChart fx:id="ecgChart" prefHeight="180" createSymbols="false"
+                               animated="false" legendVisible="false">
+                        <xAxis>
+                            <NumberAxis fx:id="ecgXAxis" label="Time (s)" autoRanging="false"
+                                        lowerBound="0" upperBound="10" tickUnit="1"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="mV" autoRanging="true"/>
+                        </yAxis>
+                    </LineChart>
+
+                    <!-- ICG Chart -->
+                    <Label text="ICG" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                    <LineChart fx:id="icgChart" prefHeight="180" createSymbols="false"
+                               animated="false" legendVisible="false">
+                        <xAxis>
+                            <NumberAxis fx:id="icgXAxis" label="Time (s)" autoRanging="false"
+                                        lowerBound="0" upperBound="10" tickUnit="1"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="Ohm/s" autoRanging="true"/>
+                        </yAxis>
+                    </LineChart>
+
+                    <!-- IMU Accelerometer Chart -->
+                    <Label text="IMU — Accelerometer" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                    <LineChart fx:id="imuAccChart" prefHeight="160" createSymbols="false"
+                               animated="false" legendVisible="true">
+                        <xAxis>
+                            <NumberAxis fx:id="imuXAxis" label="Time (s)" autoRanging="false"
+                                        lowerBound="0" upperBound="10" tickUnit="1"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="LSB" autoRanging="true"/>
+                        </yAxis>
+                    </LineChart>
+                </VBox>
+            </ScrollPane>
+
+            <!-- ---- Metrics panel (bottom half) ---- -->
+            <TabPane fx:id="metricsTabPane" tabClosingPolicy="UNAVAILABLE">
+
+                <!-- HRV tab -->
+                <Tab text="HRV Metrics">
+                    <TableView fx:id="hrvTable" tableMenuButtonVisible="false">
+                        <columns>
+                            <TableColumn fx:id="hrvMetricCol" text="Metric"  prefWidth="200"/>
+                            <TableColumn fx:id="hrvValueCol"  text="Value"   prefWidth="120"/>
+                            <TableColumn fx:id="hrvUnitCol"   text="Unit"    prefWidth="100"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Run Analysis > Detect R-peaks to populate HRV metrics."/>
+                        </placeholder>
+                    </TableView>
+                </Tab>
+
+                <!-- ICG / PEP tab -->
+                <Tab text="ICG / Haemodynamics">
+                    <TableView fx:id="icgTable" tableMenuButtonVisible="false">
+                        <columns>
+                            <TableColumn fx:id="icgBeatCol"  text="Beat #"       prefWidth="80"/>
+                            <TableColumn fx:id="icgPepCol"   text="PEP (ms)"     prefWidth="100"/>
+                            <TableColumn fx:id="icgLvetCol"  text="LVET (ms)"    prefWidth="100"/>
+                            <TableColumn fx:id="icgSvCol"    text="SV (mL)"      prefWidth="100"/>
+                            <TableColumn fx:id="icgCoCol"    text="CO (L/min)"   prefWidth="100"/>
+                            <TableColumn fx:id="icgZ0Col"    text="Z0 (Ohm)"     prefWidth="100"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Run Analysis > Detect B-points to populate ICG metrics."/>
+                        </placeholder>
+                    </TableView>
+                </Tab>
+
+                <!-- RRI tab -->
+                <Tab text="RR Intervals">
+                    <LineChart fx:id="rriChart" createSymbols="true" animated="false">
+                        <xAxis>
+                            <NumberAxis label="Beat #" autoRanging="true"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="RRI (ms)" autoRanging="true"/>
+                        </yAxis>
+                    </LineChart>
+                </Tab>
+            </TabPane>
+        </SplitPane>
+    </center>
+</BorderPane>

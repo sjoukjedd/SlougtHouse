@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VU-AMS Competitor Analysis — Slow Horses</title>
+<style>
+  :root {
+    --navy: #0f172a;
+    --navy-mid: #1e3a5f;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --orange: #ea580c;
+    --orange-light: #ffedd5;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --grey: #64748b;
+    --grey-light: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-light: #475569;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: #f8fafc;
+    line-height: 1.5;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: white;
+    padding: 64px 80px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: rgba(37,99,235,0.15);
+    border-radius: 50%;
+  }
+  .cover-badge {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .cover h1 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .cover h2 { font-size: 20px; font-weight: 400; opacity: 0.75; margin-bottom: 40px; }
+  .cover-meta { display: flex; gap: 48px; }
+  .cover-meta div { }
+  .cover-meta .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.55; margin-bottom: 4px; }
+  .cover-meta .value { font-size: 15px; font-weight: 600; }
+
+  /* ── Layout ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 40px 80px; }
+
+  /* ── Sections ── */
+  .section { margin-top: 56px; }
+  .section-title {
+    font-size: 22px; font-weight: 800; color: var(--navy);
+    border-left: 4px solid var(--blue);
+    padding-left: 14px;
+    margin-bottom: 24px;
+  }
+  .section-subtitle {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin: 28px 0 12px;
+  }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .callout-body p { color: var(--text-light); font-size: 13px; }
+  .callout.blue { background: var(--blue-light); border: 1px solid #93c5fd; }
+  .callout.green { background: var(--green-light); border: 1px solid #86efac; }
+  .callout.orange { background: var(--orange-light); border: 1px solid #fdba74; }
+  .callout.red { background: var(--red-light); border: 1px solid #fca5a5; }
+
+  /* ── KPI row ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 20px 16px;
+  }
+  .kpi .kpi-num { font-size: 34px; font-weight: 800; color: var(--blue); line-height: 1; }
+  .kpi .kpi-label { font-size: 12px; color: var(--grey); margin-top: 6px; }
+  .kpi .kpi-note { font-size: 11px; color: var(--grey); margin-top: 4px; font-style: italic; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 32px; background: white; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--navy); color: white; }
+  thead th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody td { padding: 11px 14px; vertical-align: middle; }
+  .vuams-row { background: #eff6ff !important; }
+  .vuams-row td { font-weight: 600; }
+  .vuams-row td:first-child { border-left: 3px solid var(--blue); }
+
+  /* ── Cell badges ── */
+  .tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .tag.yes { background: var(--green-light); color: var(--green); }
+  .tag.no { background: var(--red-light); color: var(--red); }
+  .tag.partial { background: var(--orange-light); color: var(--orange); }
+  .tag.na { background: var(--grey-light); color: var(--grey); }
+
+  /* ── Star/dot quality ratings ── */
+  .rating { white-space: nowrap; letter-spacing: 1px; }
+  .dot-full { color: #2563eb; }
+  .dot-empty { color: #cbd5e1; }
+  .rating-5 .dot-full { color: #16a34a; }
+  .rating-4 .dot-full { color: #2563eb; }
+  .rating-3 .dot-full { color: #ea580c; }
+  .rating-2 .dot-full { color: #dc2626; }
+  .rating-1 .dot-full { color: #dc2626; }
+
+  /* ── Competitor cards ── */
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .card-name { font-size: 15px; font-weight: 700; }
+  .card-product { font-size: 12px; color: var(--grey); }
+  .card-tier { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .tier-direct { background: #fef3c7; color: #b45309; }
+  .tier-research { background: var(--blue-light); color: var(--blue); }
+  .tier-clinical { background: #f3e8ff; color: #7c3aed; }
+  .tier-consumer { background: var(--green-light); color: var(--green); }
+  .card-signals { font-size: 12px; color: var(--text-light); margin-bottom: 10px; }
+  .card-vs { font-size: 12px; }
+  .card-vs .pro { color: var(--green); }
+  .card-vs .con { color: var(--red); }
+
+  /* ── Positioning matrix ── */
+  .matrix-wrap {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    height: 360px;
+  }
+  .matrix-cell {
+    background: white;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--grey);
+    position: relative;
+  }
+  .matrix-cell .cell-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--grey);
+    margin-bottom: 10px;
+  }
+  .matrix-cell .product-tag {
+    display: inline-block;
+    margin: 3px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .matrix-axes {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--grey);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 80px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--grey);
+  }
+
+  /* ── Print ── */
+  @media print {
+    .cover { print-color-adjust: exact; }
+    .section { page-break-inside: avoid; }
+  }
+
+  /* ── Highlight cells ── */
+  td.best { background: #f0fdf4; color: #15803d; font-weight: 700; }
+  td.good { background: #f0f9ff; color: #0369a1; }
+  td.weak { background: #fff7ed; color: #c2410c; }
+  td.none { background: #fef2f2; color: #b91c1c; }
+  td.center { text-align: center; }
+
+  .sep { height: 1px; background: var(--border); margin: 32px 0; }
+
+  p.body { color: var(--text-light); line-height: 1.7; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  COVER                                           -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Slow Horses — Confidential Intelligence</div>
+  <h1>Competitor Analysis</h1>
+  <h2>VU-AMS Wearable Stress Measurement Device</h2>
+  <div class="cover-meta">
+    <div><div class="label">Issued by</div><div class="value">Jackson Lamb</div></div>
+    <div><div class="label">Date</div><div class="value">8 May 2026</div></div>
+    <div><div class="label">Competitors mapped</div><div class="value">15 products</div></div>
+    <div><div class="label">Market</div><div class="value">Research · Clinical · Consumer</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  EXECUTIVE SUMMARY                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Executive Summary</div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-num">1</div>
+      <div class="kpi-label">Direct competitor with wearable ICG+ECG</div>
+      <div class="kpi-note">MindWare Mobile ICG — lab device, not field-grade</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">0</div>
+      <div class="kpi-label">Competitors with ICG + mobile app + BLE</div>
+      <div class="kpi-note">The gap VU-AMS occupies uniquely</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">15</div>
+      <div class="kpi-label">Products assessed across 5 market segments</div>
+      <div class="kpi-note">Research, clinical, hemodynamic, consumer, ECG patch</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">2</div>
+      <div class="kpi-label">Regulatory gaps vs. competitors</div>
+      <div class="kpi-note">Hexoskin and Vivalink hold FDA clearance — VU-AMS does not</div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-icon">🏆</div>
+    <div class="callout-body">
+      <strong>Unique position confirmed</strong>
+      <p>No other wearable on the market combines ECG and ICG simultaneously in an ambulatory form factor with a mobile app interface. The VU-AMS occupies this space alone. ICG-derived cardiac output, stroke volume, and baroreflex sensitivity are unavailable from any consumer or research wearable competitor.</p>
+    </div>
+  </div>
+  <div class="callout orange">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      <strong>Primary risk: signal quality perception, not signal capability</strong>
+      <p>If the research community accepts PPG-derived cardiac output estimates (pulse transit time methods) as a substitute for ICG, the moat erodes. This is a literature-watch priority for Vasquez.</p>
+    </div>
+  </div>
+  <div class="callout red">
+    <div class="callout-icon">🔴</div>
+    <div class="callout-body">
+      <strong>Regulatory gap</strong>
+      <p>Hexoskin (FDA-cleared) and Vivalink (FDA-cleared) have cleared regulatory hurdles VU-AMS has not. For US clinical research contracts this is a material disadvantage.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  SIGNAL CAPABILITY MATRIX                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Signal Capability Matrix</div>
+  <p class="body">Which physiological signals each device can measure. Capability only — signal quality is assessed separately below.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>ECG</th>
+          <th>ICG / Impedance</th>
+          <th>PPG</th>
+          <th>HRV</th>
+          <th>Respiration</th>
+          <th>EDA / GSR</th>
+          <th>SpO₂</th>
+          <th>Accel.</th>
+          <th>Gyro</th>
+          <th>Temp.</th>
+          <th>Blood pressure proxy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="vuams-row">
+          <td><strong>VU-AMS</strong><br><span style="font-size:11px;color:var(--blue);font-weight:400">Slow Horses</span></td>
+          <td class="center best">2-lead</td>
+          <td class="center best">Tetrapolar</td>
+          <td class="center none">—</td>
+          <td class="center best">ECG-derived</td>
+          <td class="center good">ICG-derived</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center best">3-axis</td>
+          <td class="center best">3-axis</td>
+          <td class="center good">Yes</td>
+          <td class="center good">ICG-derived CO/SV</td>
+        </tr>
+        <tr>
+          <td><strong>MindWare Mobile ICG</strong><br><span style="font-size:11px;color:var(--grey)">MindWare Technologies</span></td>
+          <td class="center best">2-lead</td>
+          <td class="center best">Tetrapolar</td>
+          <td class="center none">—</td>
+          <td class="center best">ECG-derived</td>
+          <td class="center good">ICG-derived</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">ICG-derived</td>
+        </tr>
+        <tr>
+          <td><strong>Zephyr BioHarness 3.0</strong><br><span style="font-size:11px;color:var(--grey)">Medtronic / Zephyr</span></td>
+          <td class="center good">1-lead</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">ECG-derived</td>
+          <td class="center good">Impedance resp.</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center good">Skin + core est.</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>BIOPAC BioNomadix</strong><br><span style="font-size:11px;color:var(--grey)">BIOPAC Systems</span></td>
+          <td class="center best">Multi</td>
+          <td class="center good">Optional module</td>
+          <td class="center good">Yes</td>
+          <td class="center best">ECG-derived</td>
+          <td class="center best">Multiple methods</td>
+          <td class="center best">Yes</td>
+          <td class="center good">Optional</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Hexoskin Medical</strong><br><span style="font-size:11px;color:var(--grey)">Hexoskin</span></td>
+          <td class="center good">1-lead</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">ECG-derived</td>
+          <td class="center best">Dual RIP</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Empatica E4</strong><br><span style="font-size:11px;color:var(--grey)">Empatica</span></td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center weak">PPG-derived</td>
+          <td class="center none">—</td>
+          <td class="center best">Yes (4 Hz)</td>
+          <td class="center none">—</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Vivalink ECG Patch</strong><br><span style="font-size:11px;color:var(--grey)">Vivalink</span></td>
+          <td class="center good">1-lead</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">ECG-derived</td>
+          <td class="center good">Derived</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>WHOOP Strap</strong><br><span style="font-size:11px;color:var(--grey)">WHOOP</span></td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center weak">PPG-derived</td>
+          <td class="center good">PPG-derived</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Oura Ring Gen 3</strong><br><span style="font-size:11px;color:var(--grey)">Oura Health</span></td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center best">3-wavelength</td>
+          <td class="center good">PPG-derived</td>
+          <td class="center good">PPG-derived</td>
+          <td class="center none">—</td>
+          <td class="center good">SpO₂</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center best">NTC skin</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Garmin Fenix (ECG)</strong><br><span style="font-size:11px;color:var(--grey)">Garmin</span></td>
+          <td class="center good">1-lead</td>
+          <td class="center none">—</td>
+          <td class="center good">Yes</td>
+          <td class="center weak">PPG-derived</td>
+          <td class="center good">PPG-derived</td>
+          <td class="center none">—</td>
+          <td class="center good">SpO₂</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center good">Wrist skin</td>
+          <td class="center none">—</td>
+        </tr>
+        <tr>
+          <td><strong>Polar H10</strong><br><span style="font-size:11px;color:var(--grey)">Polar</span></td>
+          <td class="center good">1-lead</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">ECG-derived</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center good">3-axis</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+          <td class="center none">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--grey);margin-top:-24px;margin-bottom:0">
+    <span style="display:inline-block;background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:1px 7px;border-radius:3px;font-weight:700;font-size:10px">Best / Full</span>&nbsp;
+    <span style="display:inline-block;background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;padding:1px 7px;border-radius:3px;font-weight:700;font-size:10px">Good / Partial</span>&nbsp;
+    <span style="display:inline-block;background:#fff7ed;border:1px solid #fdba74;color:#c2410c;padding:1px 7px;border-radius:3px;font-weight:700;font-size:10px">Limited / Derived</span>&nbsp;
+    <span style="display:inline-block;background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:1px 7px;border-radius:3px;font-weight:700;font-size:10px">Not available</span>
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  ECG SIGNAL QUALITY COMPARISON                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">ECG Signal Quality Comparison</div>
+  <p class="body">Detailed technical comparison of ECG acquisition quality. Bandwidth, channel count, resolution, and sampling rate determine diagnostic utility and algorithmic accuracy for HRV, R-peak detection, and arrhythmia screening.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>ECG Channels</th>
+          <th>Bandwidth (Hz)</th>
+          <th>Sample Rate (Hz)</th>
+          <th>ADC Resolution</th>
+          <th>Electrode config.</th>
+          <th>Placement</th>
+          <th>Signal quality</th>
+          <th>Clinical validation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="vuams-row">
+          <td><strong>VU-AMS</strong></td>
+          <td class="best">2 channels</td>
+          <td class="best">0.05 – 150 Hz</td>
+          <td class="best">1,000 Hz</td>
+          <td class="best">24-bit</td>
+          <td>3 electrodes (front)</td>
+          <td>Chest (optimal)</td>
+          <td class="center">
+            <span class="rating rating-5">
+              <span class="dot-full">●●●●●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">Research</span></td>
+        </tr>
+        <tr>
+          <td><strong>MindWare Mobile ICG</strong></td>
+          <td class="best">2 channels</td>
+          <td class="good">0.05 – 100 Hz</td>
+          <td class="best">1,000 Hz</td>
+          <td class="good">16-bit</td>
+          <td>4-electrode</td>
+          <td>Chest</td>
+          <td class="center">
+            <span class="rating rating-4">
+              <span class="dot-full">●●●●</span><span class="dot-empty">●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">Research</span></td>
+        </tr>
+        <tr>
+          <td><strong>BIOPAC BioNomadix</strong></td>
+          <td class="best">Up to 16</td>
+          <td class="best">0.05 – 150 Hz</td>
+          <td class="best">2,000 Hz</td>
+          <td class="best">24-bit</td>
+          <td>Flexible</td>
+          <td>Lab-optimised</td>
+          <td class="center">
+            <span class="rating rating-5">
+              <span class="dot-full">●●●●●</span>
+            </span>
+          </td>
+          <td><span class="tag yes">Research gold std.</span></td>
+        </tr>
+        <tr>
+          <td><strong>Zephyr BioHarness 3.0</strong></td>
+          <td class="good">1 channel</td>
+          <td class="weak">0.5 – 40 Hz</td>
+          <td class="good">250 Hz</td>
+          <td class="weak">12-bit</td>
+          <td>Chest strap</td>
+          <td>Chest</td>
+          <td class="center">
+            <span class="rating rating-3">
+              <span class="dot-full">●●●</span><span class="dot-empty">●●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">Military validated</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hexoskin Medical</strong></td>
+          <td class="good">1 channel</td>
+          <td class="good">0.5 – 100 Hz</td>
+          <td class="good">256 Hz</td>
+          <td class="good">16-bit</td>
+          <td>Textile electrodes</td>
+          <td>Chest (garment)</td>
+          <td class="center">
+            <span class="rating rating-3">
+              <span class="dot-full">●●●</span><span class="dot-empty">●●</span>
+            </span>
+          </td>
+          <td><span class="tag yes">FDA cleared</span></td>
+        </tr>
+        <tr>
+          <td><strong>Vivalink ECG Patch</strong></td>
+          <td class="good">1 channel</td>
+          <td class="good">0.5 – 150 Hz</td>
+          <td class="good">250 Hz</td>
+          <td class="weak">12-bit</td>
+          <td>Adhesive patch</td>
+          <td>Chest</td>
+          <td class="center">
+            <span class="rating rating-3">
+              <span class="dot-full">●●●</span><span class="dot-empty">●●</span>
+            </span>
+          </td>
+          <td><span class="tag yes">FDA cleared · ICC 0.97</span></td>
+        </tr>
+        <tr>
+          <td><strong>Garmin Fenix (ECG)</strong></td>
+          <td class="good">1 channel</td>
+          <td class="weak">0.5 – 40 Hz</td>
+          <td class="good">512 Hz</td>
+          <td class="weak">12-bit</td>
+          <td>Watch electrodes</td>
+          <td>Wrist (suboptimal)</td>
+          <td class="center">
+            <span class="rating rating-2">
+              <span class="dot-full">●●</span><span class="dot-empty">●●●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">FDA (AFib only)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Polar H10</strong></td>
+          <td class="good">1 channel</td>
+          <td class="good">0.5 – 100 Hz</td>
+          <td class="good">130–1000 Hz</td>
+          <td class="weak">12-bit</td>
+          <td>Chest strap</td>
+          <td>Chest</td>
+          <td class="center">
+            <span class="rating rating-4">
+              <span class="dot-full">●●●●</span><span class="dot-empty">●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">r=0.95 vs clinical ECG</span></td>
+        </tr>
+        <tr>
+          <td><strong>WHOOP / Oura / Garmin PPG</strong></td>
+          <td class="none">No ECG</td>
+          <td class="none">PPG only</td>
+          <td class="weak">64–250 Hz</td>
+          <td class="weak">12-bit</td>
+          <td>PPG optical</td>
+          <td>Wrist / finger</td>
+          <td class="center">
+            <span class="rating rating-1">
+              <span class="dot-full">●</span><span class="dot-empty">●●●●</span>
+            </span>
+          </td>
+          <td><span class="tag partial">HRV only, limited</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  ICG SIGNAL QUALITY COMPARISON                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">ICG Signal Quality Comparison</div>
+  <p class="body">ICG (impedance cardiography) enables measurement of stroke volume, cardiac output, and baroreflex sensitivity — signals unavailable from ECG or PPG alone. Only systems with true ICG capability are included. Systems listed as "derived" estimate cardiac output algorithmically from blood pressure waveforms, not from impedance.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>ICG method</th>
+          <th>Configuration</th>
+          <th>Carrier freq.</th>
+          <th>Current</th>
+          <th>Z₀ range</th>
+          <th>Sample rate</th>
+          <th>ADC res.</th>
+          <th>Wearable</th>
+          <th>Signal quality</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="vuams-row">
+          <td><strong>VU-AMS</strong></td>
+          <td class="best">True tetrapolar ICG</td>
+          <td class="best">Back injection / front sense</td>
+          <td class="best">32 kHz</td>
+          <td class="good">1 mA</td>
+          <td class="best">0 – 32 Ω</td>
+          <td class="best">1,000 Hz</td>
+          <td class="best">24-bit</td>
+          <td class="center"><span class="tag yes">Yes</span></td>
+          <td class="center">
+            <span class="rating rating-5"><span class="dot-full">●●●●●</span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>MindWare Mobile ICG</strong></td>
+          <td class="best">True tetrapolar ICG</td>
+          <td class="good">Front electrodes</td>
+          <td class="good">~50–100 kHz</td>
+          <td class="good">1–4 mA</td>
+          <td class="good">0 – 50 Ω</td>
+          <td class="good">500–1,000 Hz</td>
+          <td class="good">16-bit</td>
+          <td class="center"><span class="tag partial">Partial</span></td>
+          <td class="center">
+            <span class="rating rating-4"><span class="dot-full">●●●●</span><span class="dot-empty">●</span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>BIOPAC BioNomadix</strong></td>
+          <td class="best">True tetrapolar ICG</td>
+          <td class="best">Flexible (lab)</td>
+          <td class="best">50–100 kHz</td>
+          <td class="best">1–4 mA</td>
+          <td class="best">Full range</td>
+          <td class="best">2,000 Hz</td>
+          <td class="best">24-bit</td>
+          <td class="center"><span class="tag no">Lab only</span></td>
+          <td class="center">
+            <span class="rating rating-5"><span class="dot-full">●●●●●</span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Caretaker VitalStream</strong></td>
+          <td class="weak">Pulse decomposition (no ICG)</td>
+          <td class="weak">Finger sensor</td>
+          <td class="na">N/A</td>
+          <td class="na">N/A</td>
+          <td class="na">N/A</td>
+          <td class="good">Beat-to-beat</td>
+          <td class="na">N/A</td>
+          <td class="center"><span class="tag no">Clinical only</span></td>
+          <td class="center">
+            <span class="rating rating-4"><span class="dot-full">●●●●</span><span class="dot-empty">●</span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>All others (Zephyr, Hexoskin, WHOOP, Oura, Garmin, Polar, Vivalink, Empatica)</strong></td>
+          <td class="none" colspan="8">No ICG capability — cardiac output and stroke volume not measurable</td>
+          <td class="center"><span class="tag no">N/A</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  MOTION & ADDITIONAL SIGNALS                     -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Motion &amp; Additional Signal Quality</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Accelerometer</th>
+          <th>Gyroscope</th>
+          <th>Barometric pressure</th>
+          <th>EDA / GSR</th>
+          <th>Temperature</th>
+          <th>SpO₂</th>
+          <th>Respiration method</th>
+          <th>Battery life</th>
+          <th>Connectivity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="vuams-row">
+          <td><strong>VU-AMS</strong></td>
+          <td class="best">3-axis, IMU</td>
+          <td class="best">3-axis</td>
+          <td class="best">Yes (altitude)</td>
+          <td class="none">—</td>
+          <td class="good">On-device</td>
+          <td class="none">—</td>
+          <td class="good">ICG-derived Z₀</td>
+          <td class="good">~24 h (est.)</td>
+          <td class="best">BLE → iOS app</td>
+        </tr>
+        <tr>
+          <td><strong>MindWare Mobile ICG</strong></td>
+          <td class="good">Yes</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="good">ICG-derived</td>
+          <td class="weak">~8 h</td>
+          <td class="weak">Proprietary RF</td>
+        </tr>
+        <tr>
+          <td><strong>Zephyr BioHarness 3.0</strong></td>
+          <td class="best">3-axis, 100 Hz</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="best">Skin + core est.</td>
+          <td class="none">—</td>
+          <td class="good">Impedance pneumo.</td>
+          <td class="best">~26 h</td>
+          <td class="good">BLE + ANT+</td>
+        </tr>
+        <tr>
+          <td><strong>Hexoskin Medical</strong></td>
+          <td class="best">3-axis</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="best">Dual RIP (thorax + abdomen)</td>
+          <td class="best">~30 h</td>
+          <td class="good">BLE</td>
+        </tr>
+        <tr>
+          <td><strong>Empatica E4</strong></td>
+          <td class="good">3-axis, 32 Hz</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="best">4 Hz dedicated</td>
+          <td class="best">High-res NTC</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="good">~36 h</td>
+          <td class="good">BLE</td>
+        </tr>
+        <tr>
+          <td><strong>Vivalink ECG Patch</strong></td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="good">Yes</td>
+          <td class="none">—</td>
+          <td class="weak">Single-channel derived</td>
+          <td class="best">14 days</td>
+          <td class="good">BLE</td>
+        </tr>
+        <tr>
+          <td><strong>WHOOP Strap</strong></td>
+          <td class="good">3-axis</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="good">Yes</td>
+          <td class="none">—</td>
+          <td class="weak">PPG-derived</td>
+          <td class="good">~4 days</td>
+          <td class="good">BLE</td>
+        </tr>
+        <tr>
+          <td><strong>Oura Ring Gen 3</strong></td>
+          <td class="good">3-axis</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="best">NTC (accurate)</td>
+          <td class="good">Yes</td>
+          <td class="weak">PPG-derived</td>
+          <td class="best">6–8 days</td>
+          <td class="good">BLE</td>
+        </tr>
+        <tr>
+          <td><strong>Polar H10</strong></td>
+          <td class="good">3-axis</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="best">~400 h</td>
+          <td class="good">BLE + ANT+</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  OVERALL COMPETITIVE SCORE                       -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Overall Competitive Score</div>
+  <p class="body">Composite scores across six dimensions relevant to the VU-AMS target use case: ambulatory stress research. Rated 1–5 per dimension. Not a general product quality score — weighted toward research utility.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>ECG quality</th>
+          <th>ICG / hemodynamics</th>
+          <th>Motion &amp; context</th>
+          <th>Software ecosystem</th>
+          <th>Wearability</th>
+          <th>Regulatory</th>
+          <th>Price / accessibility</th>
+          <th style="background:#1e3a5f">Overall</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="vuams-row">
+          <td><strong>VU-AMS</strong></td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center weak">2 / 5</td>
+          <td class="center weak">2 / 5</td>
+          <td class="center best" style="font-size:16px;font-weight:800">27</td>
+        </tr>
+        <tr>
+          <td><strong>BIOPAC BioNomadix</strong></td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center none">1 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center none">1 / 5</td>
+          <td class="center good" style="font-weight:700">24</td>
+        </tr>
+        <tr>
+          <td><strong>MindWare Mobile ICG</strong></td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center weak">2 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center none">1 / 5</td>
+          <td class="center good" style="font-weight:700">21</td>
+        </tr>
+        <tr>
+          <td><strong>Zephyr BioHarness 3.0</strong></td>
+          <td class="center good">3 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center" style="font-weight:700">21</td>
+        </tr>
+        <tr>
+          <td><strong>Hexoskin Medical</strong></td>
+          <td class="center good">3 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center" style="font-weight:700">23</td>
+        </tr>
+        <tr>
+          <td><strong>Empatica E4</strong></td>
+          <td class="center none">0 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center weak" style="font-weight:700">19</td>
+        </tr>
+        <tr>
+          <td><strong>Vivalink ECG Patch</strong></td>
+          <td class="center good">3 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center none">1 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center weak" style="font-weight:700">21</td>
+        </tr>
+        <tr>
+          <td><strong>Polar H10</strong></td>
+          <td class="center good">4 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center weak">2 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center weak" style="font-weight:700">21</td>
+        </tr>
+        <tr>
+          <td><strong>WHOOP / Oura (consumer)</strong></td>
+          <td class="center none">0 / 5</td>
+          <td class="center none">0 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center good">4 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center good">3 / 5</td>
+          <td class="center best">5 / 5</td>
+          <td class="center weak" style="font-weight:700">20</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--grey);margin-top:-24px">Scoring is relative to ambulatory stress research requirements. VU-AMS is penalised on wearability, regulatory status, and price. Its ICG capability cannot be scored by any other wearable competitor.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  KEY FINDINGS                                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Key Findings &amp; Recommendations</div>
+
+  <div class="callout green">
+    <div class="callout-icon">🔬</div>
+    <div class="callout-body">
+      <strong>Finding 1 — ICG moat is real and currently uncontested in wearables</strong>
+      <p>No wearable competitor measures ICG. MindWare Mobile ICG is the only comparable system and is not field-grade. VU-AMS uniquely enables ambulatory cardiac output, stroke volume, and baroreflex sensitivity — the key hemodynamic stress markers.</p>
+    </div>
+  </div>
+
+  <div class="callout blue">
+    <div class="callout-icon">📱</div>
+    <div class="callout-body">
+      <strong>Finding 2 — Mobile iOS app is a genuine differentiator in the research segment</strong>
+      <p>No research competitor (MindWare, BIOPAC) has a mobile-first interface. Consumer competitors have apps but no clinical depth. The combination of research-grade signal quality with a modern iOS interface is unique to VU-AMS.</p>
+    </div>
+  </div>
+
+  <div class="callout orange">
+    <div class="callout-icon">⚡</div>
+    <div class="callout-body">
+      <strong>Finding 3 — EDA is the highest-value sensor gap</strong>
+      <p>Empatica's EDA measurement captures sympathetic nervous system activity — the other half of the autonomic stress response. Adding EDA to VU-AMS would make it the only device covering both parasympathetic (HRV via ECG) and sympathetic (EDA) branches simultaneously. Study 001 (Vasquez) should evaluate chest-EDA feasibility as priority 1.</p>
+    </div>
+  </div>
+
+  <div class="callout red">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      <strong>Finding 4 — Regulatory gap is a commercial risk</strong>
+      <p>Hexoskin and Vivalink hold FDA clearance. VU-AMS does not. For US-market clinical research contracts, hospital partnerships, and insurance reimbursement, this is a material gap. A regulatory strategy should be defined before the next hardware generation is finalised.</p>
+    </div>
+  </div>
+
+  <div class="callout red">
+    <div class="callout-icon">🔭</div>
+    <div class="callout-body">
+      <strong>Finding 5 — Watch pulse transit time literature (medium-term threat)</strong>
+      <p>Several consumer and clinical companies are developing PPG + ECG based cardiac output estimation via pulse transit time (PTT). If this approach gains research acceptance as a substitute for ICG, the moat narrows significantly. Vasquez to monitor: Caretaker VitalStream PTT validation studies, SOMNOtouch PTT publications, and any meta-analyses comparing PTT-CO vs ICG-CO in ambulatory settings.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="section-subtitle">Priority actions</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Action</th><th>Owner</th><th>Priority</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Evaluate chest-EDA sensor feasibility for next-gen device</td>
+          <td>Vasquez + Nair</td>
+          <td><span class="tag yes">High</span></td>
+          <td>Empatica holds this signal exclusively in research wearables. Adding it closes the autonomic coverage gap.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Define regulatory strategy (CE / FDA pathway)</td>
+          <td>Principal + Lam</td>
+          <td><span class="tag yes">High</span></td>
+          <td>Competitors are pulling ahead on clearance. US clinical contracts require it.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Commission PTT-CO vs ICG-CO literature review</td>
+          <td>Vasquez</td>
+          <td><span class="tag partial">Medium</span></td>
+          <td>Understand how close the threat is before it affects positioning.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Benchmark wearability against Zephyr and Hexoskin</td>
+          <td>Voss</td>
+          <td><span class="tag partial">Medium</span></td>
+          <td>Lowest score dimension. Comfort and compliance affect publication rates.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Track Vivalink and Hexoskin product roadmaps for ICG module announcements</td>
+          <td>Lam</td>
+          <td><span class="tag partial">Medium</span></td>
+          <td>If either adds ICG, the landscape changes materially.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="container">
+  <div class="footer">
+    <div>Slow Horses — Confidential Intelligence · VU-AMS Competitor Analysis · 8 May 2026</div>
+    <div>Issued by Jackson Lamb · Research: Vasquez · Filed: intel/reports/competitor_analysis_report.html</div>
+  </div>
+</div>
+
+</body>
+</html>

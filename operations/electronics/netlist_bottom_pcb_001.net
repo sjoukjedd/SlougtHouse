@@ -1,0 +1,1023 @@
+(export (version "D")
+  (design
+    (source "schematic_bottom_pcb_001.md")
+    (date "2026-05-09")
+    (tool "KiCad manual capture — Priya Nair, Slow Horses Electronics")
+    (sheet (number "1") (name "Bottom PCB Analog Front-End") (tstamp "00000001")
+      (title_block
+        (title "VU-AMS Bottom PCB — Analog Front-End Rev 0.1")
+        (company "Slow Horses / VU-AMS")
+        (rev "0.1")
+        (date "2026-05-09")
+        (source "schematic_bottom_pcb_001.md")
+        (comment (number "1") (value "52x25mm analog PCB"))
+        (comment (number "2") (value "IEC 60601-1 Type BF, battery-only"))
+        (comment (number "3") (value "All open points B1-B5 resolved 2026-05-09"))
+      )
+    )
+  )
+
+  (components
+    ; ── U1: INA333AIDCKT — ECG InAmp 1, SOT-23-5 ─────────────────────────────
+    (comp (ref "U1")
+      (value "INA333AIDCKT")
+      (footprint "Package_TO_SOT_SMD:SOT-23-5")
+      (description "Instrumentation amplifier, ECG channel 1, G=100, single-supply")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "INA333AIDCKT")
+      )
+      (libsource (lib "Amplifier_Instrumentation") (part "INA333") (description ""))
+      (sheetpath (names "/") (tstamp "00000101"))
+      (tstamp "00000101")
+    )
+
+    ; ── U2: INA333AIDCKT — ECG InAmp 2, SOT-23-5 ─────────────────────────────
+    (comp (ref "U2")
+      (value "INA333AIDCKT")
+      (footprint "Package_TO_SOT_SMD:SOT-23-5")
+      (description "Instrumentation amplifier, ECG channel 2, G=100, single-supply")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "INA333AIDCKT")
+      )
+      (libsource (lib "Amplifier_Instrumentation") (part "INA333") (description ""))
+      (sheetpath (names "/") (tstamp "00000102"))
+      (tstamp "00000102")
+    )
+
+    ; ── U3: AD8221ARMZ — ICG Sense InAmp, MSOP-8 ─────────────────────────────
+    (comp (ref "U3")
+      (value "AD8221ARMZ")
+      (footprint "Package_SO:MSOP-8")
+      (description "Precision instrumentation amplifier, ICG sense, G=10, MSOP-8")
+      (fields
+        (field (name "Manufacturer") "Analog Devices")
+        (field (name "MPN") "AD8221ARMZ")
+      )
+      (libsource (lib "Amplifier_Instrumentation") (part "AD8221") (description ""))
+      (sheetpath (names "/") (tstamp "00000103"))
+      (tstamp "00000103")
+    )
+
+    ; ── U4: AD630ARZ — ICG Synchronous Demodulator, SOIC-16 ───────────────────
+    (comp (ref "U4")
+      (value "AD630ARZ")
+      (footprint "Package_SO:SOIC-16")
+      (description "Balanced modulator/demodulator, ICG lock-in detection, SOIC-16")
+      (fields
+        (field (name "Manufacturer") "Analog Devices")
+        (field (name "MPN") "AD630ARZ")
+      )
+      (libsource (lib "Amplifier_Differential") (part "AD630") (description ""))
+      (sheetpath (names "/") (tstamp "00000104"))
+      (tstamp "00000104")
+    )
+
+    ; ── U5: OPA333AIDBVT — Driven Right Leg (RLD) Amplifier, SOT-23-5 ─────────
+    (comp (ref "U5")
+      (value "OPA333AIDBVT")
+      (footprint "Package_TO_SOT_SMD:SOT-23-5")
+      (description "Zero-drift op-amp, driven right leg (RLD), single-supply, SOT-23-5")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "OPA333AIDBVT")
+      )
+      (libsource (lib "Amplifier_Operational") (part "OPA333") (description ""))
+      (sheetpath (names "/") (tstamp "00000105"))
+      (tstamp "00000105")
+    )
+
+    ; ── U6: ADS1256IDBSR — 24-bit ADC, SSOP-28 ───────────────────────────────
+    (comp (ref "U6")
+      (value "ADS1256IDBSR")
+      (footprint "Package_SO:SSOP-28")
+      (description "24-bit delta-sigma ADC, 8ch, SPI, SSOP-28")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "ADS1256IDBSR")
+      )
+      (libsource (lib "Analog_ADC") (part "ADS1256") (description ""))
+      (sheetpath (names "/") (tstamp "00000106"))
+      (tstamp "00000106")
+    )
+
+    ; ── U7: REF5025AIDR — 2.5V ADC Reference, SOIC-8 ─────────────────────────
+    (comp (ref "U7")
+      (value "REF5025AIDR")
+      (footprint "Package_SO:SOIC-8")
+      (description "2.5V ultra-low noise precision voltage reference, SOIC-8")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "REF5025AIDR")
+      )
+      (libsource (lib "Reference_Voltage") (part "REF5025") (description ""))
+      (sheetpath (names "/") (tstamp "00000107"))
+      (tstamp "00000107")
+    )
+
+    ; ── U8: LT3042EDD — Ultra-Low Noise LDO (+3.3V AVDD), DFN-8 ──────────────
+    (comp (ref "U8")
+      (value "LT3042EDD")
+      (footprint "Package_DFN_QFN:DFN-8-1EP_3x3mm_P0.5mm_EP1.7x2.4mm")
+      (description "Ultra-low noise LDO 3.3V analogue rail, DFN-8")
+      (fields
+        (field (name "Manufacturer") "Analog Devices / Linear Technology")
+        (field (name "MPN") "LT3042EDD#TRPBF")
+      )
+      (libsource (lib "Regulator_Linear") (part "LT3042") (description ""))
+      (sheetpath (names "/") (tstamp "00000108"))
+      (tstamp "00000108")
+    )
+
+    ; ── U9: AD5933YRSZ — Impedance Analyser (SCL), SSOP-16 ───────────────────
+    (comp (ref "U9")
+      (value "AD5933YRSZ")
+      (footprint "Package_SO:SSOP-16")
+      (description "Impedance network analyser IC, I2C, SCL chain, SSOP-16")
+      (fields
+        (field (name "Manufacturer") "Analog Devices")
+        (field (name "MPN") "AD5933YRSZ")
+      )
+      (libsource (lib "Analog_ADC") (part "AD5933") (description ""))
+      (sheetpath (names "/") (tstamp "00000109"))
+      (tstamp "00000109")
+    )
+
+    ; ── U10: SG-210STF 32.000KHz — ICG Oscillator, SMD-4pad ──────────────────
+    (comp (ref "U10")
+      (value "SG-210STF_32.000KHz")
+      (footprint "Oscillator:Oscillator_SMD_Epson_SG-210-4Pin_3.2x2.5mm")
+      (description "32.000 kHz TCXO oscillator, ICG carrier and demodulator reference, SMD-4pad")
+      (fields
+        (field (name "Manufacturer") "Epson")
+        (field (name "MPN") "SG-210STF 32.000KHz")
+      )
+      (libsource (lib "Oscillator") (part "SG-210STF") (description ""))
+      (sheetpath (names "/") (tstamp "0000010A"))
+      (tstamp "0000010A")
+    )
+
+    ; ── U11: TPS60400DBVR — Inverting Charge Pump (-3.3V AVSS), SOT-23-5 ──────
+    (comp (ref "U11")
+      (value "TPS60400DBVR")
+      (footprint "Package_TO_SOT_SMD:SOT-23-5")
+      (description "Unregulated inverting charge pump, -3.3V AVSS rail, SOT-23-5")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "TPS60400DBVR")
+      )
+      (libsource (lib "Regulator_SwitchedCapacitor") (part "TPS60400") (description ""))
+      (sheetpath (names "/") (tstamp "0000010B"))
+      (tstamp "0000010B")
+    )
+
+    ; ── U12: MAX30101EFD — PPG Sensor, OLGA-14 ────────────────────────────────
+    (comp (ref "U12")
+      (value "MAX30101EFD")
+      (footprint "Package_LGA:LGA-14_5.6x3.3mm_P1.0mm")
+      (description "Integrated PPG / pulse-ox sensor, I2C, OLGA-14")
+      (fields
+        (field (name "Manufacturer") "Maxim Integrated")
+        (field (name "MPN") "MAX30101EFD+")
+      )
+      (libsource (lib "Sensor_Optical") (part "MAX30101") (description ""))
+      (sheetpath (names "/") (tstamp "0000010C"))
+      (tstamp "0000010C")
+    )
+
+    ; ── U13: TMP117MAIDRVR — Precision Temp Sensor, DSBGA-8 ──────────────────
+    (comp (ref "U13")
+      (value "TMP117MAIDRVR")
+      (footprint "Package_BGA:DSBGA-8_1.43x1.03mm_Layout2x4_P0.5mm")
+      (description "Precision digital temperature sensor, I2C, DSBGA-8")
+      (fields
+        (field (name "Manufacturer") "Texas Instruments")
+        (field (name "MPN") "TMP117MAIDRVR")
+      )
+      (libsource (lib "Sensor_Temperature") (part "TMP117") (description ""))
+      (sheetpath (names "/") (tstamp "0000010D"))
+      (tstamp "0000010D")
+    )
+
+    ; ── D1..D7: PRTR5V0U2X — TVS ESD/Defibrillation Protection, SOT-363 ──────
+    (comp (ref "D1")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E1")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000201"))
+      (tstamp "00000201")
+    )
+    (comp (ref "D2")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E2")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000202"))
+      (tstamp "00000202")
+    )
+    (comp (ref "D3")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E3")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000203"))
+      (tstamp "00000203")
+    )
+    (comp (ref "D4")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E4")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000204"))
+      (tstamp "00000204")
+    )
+    (comp (ref "D5")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E5")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000205"))
+      (tstamp "00000205")
+    )
+    (comp (ref "D6")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E6 (SCL+)")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000206"))
+      (tstamp "00000206")
+    )
+    (comp (ref "D7")
+      (value "PRTR5V0U2X")
+      (footprint "Package_TO_SOT_SMD:SOT-363")
+      (description "Dual bidirectional TVS, 5.5V clamp, ESD/defibrillation, electrode E7 (SCL-)")
+      (libsource (lib "Device") (part "PRTR5V0U2X") (description ""))
+      (sheetpath (names "/") (tstamp "00000207"))
+      (tstamp "00000207")
+    )
+
+    ; ── R_G1: 1.00kΩ 0402 — INA333 U1 gain resistor ──────────────────────────
+    (comp (ref "R_G1")
+      (value "1.00k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Gain resistor INA333 U1, G=100 for ECG ch1, 0.1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000301"))
+      (tstamp "00000301")
+    )
+
+    ; ── R_G2: 1.00kΩ 0402 — INA333 U2 gain resistor ──────────────────────────
+    (comp (ref "R_G2")
+      (value "1.00k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Gain resistor INA333 U2, G=100 for ECG ch2, 0.1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000302"))
+      (tstamp "00000302")
+    )
+
+    ; ── R_G3: 5.49kΩ 0402 — AD8221 U3 gain resistor ──────────────────────────
+    (comp (ref "R_G3")
+      (value "5.49k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Gain resistor AD8221 U3, G=10 for ICG sense, 0.1% E96 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000303"))
+      (tstamp "00000303")
+    )
+
+    ; ── R1..R7: 10kΩ 0402 — Patient safety series resistors ──────────────────
+    (comp (ref "R1")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E1 collarbone, IEC 60601-1 BF, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000311"))
+      (tstamp "00000311")
+    )
+    (comp (ref "R2")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E2 active front, IEC 60601-1 BF, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000312"))
+      (tstamp "00000312")
+    )
+    (comp (ref "R3")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E3 active front, IEC 60601-1 BF, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000313"))
+      (tstamp "00000313")
+    )
+    (comp (ref "R4")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E4 neck ICG injection return, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000314"))
+      (tstamp "00000314")
+    )
+    (comp (ref "R5")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E5 lower back ICG injection return, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000315"))
+      (tstamp "00000315")
+    )
+    (comp (ref "R6")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E6 SCL+, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000316"))
+      (tstamp "00000316")
+    )
+    (comp (ref "R7")
+      (value "10k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Patient safety series resistor E7 SCL-, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000317"))
+      (tstamp "00000317")
+    )
+
+    ; ── R_PH1, R_PH2: 560Ω 0402 — Phantom power feed resistors ──────────────
+    (comp (ref "R_PH1")
+      (value "560")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Phantom power feed resistor for active electrode E2, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000321"))
+      (tstamp "00000321")
+    )
+    (comp (ref "R_PH2")
+      (value "560")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Phantom power feed resistor for active electrode E3, 1% 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000322"))
+      (tstamp "00000322")
+    )
+
+    ; ── R_SHD1, R_SHD2: 100Ω 0402 — Driven shield isolation resistors ────────
+    (comp (ref "R_SHD1")
+      (value "100")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Driven cable shield isolation resistor E2, prevents shield driver oscillation, 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000331"))
+      (tstamp "00000331")
+    )
+    (comp (ref "R_SHD2")
+      (value "100")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "Driven cable shield isolation resistor E3, prevents shield driver oscillation, 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000332"))
+      (tstamp "00000332")
+    )
+
+    ; ── R_SET: 33.2kΩ 0402 — LT3042 output voltage set resistor ─────────────
+    (comp (ref "R_SET")
+      (value "33.2k")
+      (footprint "Resistor_SMD:R_0402_1005Metric")
+      (description "LT3042 ISET resistor, sets Vout=3.3V (Iset=100uA), 0.1% E96 0402")
+      (libsource (lib "Device") (part "R") (description ""))
+      (sheetpath (names "/") (tstamp "00000341"))
+      (tstamp "00000341")
+    )
+
+    ; ── C_BLK1, C_BLK2: 10µF 0805 — DC blocking caps phantom power ───────────
+    (comp (ref "C_BLK1")
+      (value "10u")
+      (footprint "Capacitor_SMD:C_0805_2012Metric")
+      (description "DC blocking capacitor, phantom power separation E2, X5R 0805 10uF")
+      (libsource (lib "Device") (part "C") (description ""))
+      (sheetpath (names "/") (tstamp "00000401"))
+      (tstamp "00000401")
+    )
+    (comp (ref "C_BLK2")
+      (value "10u")
+      (footprint "Capacitor_SMD:C_0805_2012Metric")
+      (description "DC blocking capacitor, phantom power separation E3, X5R 0805 10uF")
+      (libsource (lib "Device") (part "C") (description ""))
+      (sheetpath (names "/") (tstamp "00000402"))
+      (tstamp "00000402")
+    )
+
+    ; ── C_P1: 100nF 0402 — TPS60400 flying capacitor ─────────────────────────
+    (comp (ref "C_P1")
+      (value "100n")
+      (footprint "Capacitor_SMD:C_0402_1005Metric")
+      (description "TPS60400 charge pump flying capacitor C+ to C-, X7R 0402 100nF")
+      (libsource (lib "Device") (part "C") (description ""))
+      (sheetpath (names "/") (tstamp "00000411"))
+      (tstamp "00000411")
+    )
+
+    ; ── L1: 10µH 0603 — AVSS LC filter inductor ──────────────────────────────
+    (comp (ref "L1")
+      (value "10u")
+      (footprint "Inductor_SMD:L_0603_1608Metric")
+      (description "AVSS rail LC filter inductor, DCR<50mOhm, Isat>50mA, 0603 10uH")
+      (libsource (lib "Device") (part "L") (description ""))
+      (sheetpath (names "/") (tstamp "00000501"))
+      (tstamp "00000501")
+    )
+
+    ; ── J1: 24-pin FFC/FPC connector — flex to top PCB ───────────────────────
+    (comp (ref "J1")
+      (value "FFC_FPC_24pin_0.5mm")
+      (footprint "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal")
+      (description "24-pin FFC/FPC 0.5mm pitch connector, flex cable to top PCB (ESP32-S3)")
+      (libsource (lib "Connector") (part "Conn_01x24") (description ""))
+      (sheetpath (names "/") (tstamp "00000601"))
+      (tstamp "00000601")
+    )
+
+    ; ── J_E1..J_E7: 2-pin electrode connectors ────────────────────────────────
+    (comp (ref "J_E1")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E1, collarbone (device body)")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000701"))
+      (tstamp "00000701")
+    )
+    (comp (ref "J_E2")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E2, active front-lower, phantom-powered")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000702"))
+      (tstamp "00000702")
+    )
+    (comp (ref "J_E3")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E3, active front-lower, phantom-powered")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000703"))
+      (tstamp "00000703")
+    )
+    (comp (ref "J_E4")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E4, nape of neck, ICG injection return")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000704"))
+      (tstamp "00000704")
+    )
+    (comp (ref "J_E5")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E5, lower back, ICG injection return")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000705"))
+      (tstamp "00000705")
+    )
+    (comp (ref "J_E6")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E6, left chest SCL+")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000706"))
+      (tstamp "00000706")
+    )
+    (comp (ref "J_E7")
+      (value "Electrode_2pin")
+      (footprint "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
+      (description "2-pin electrode connector E7, left chest SCL- (2cm from E6)")
+      (libsource (lib "Connector") (part "Conn_01x02") (description ""))
+      (sheetpath (names "/") (tstamp "00000707"))
+      (tstamp "00000707")
+    )
+  )
+
+  (nets
+    ; ════════════════════════════════════════════════════════════════════════
+    ; POWER NETS
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "1") (name "AVDD")
+      (node (ref "U8") (pin "2"))   ; LT3042 OUT — 3.3V analog rail output
+      (node (ref "U1") (pin "7"))   ; INA333 U1 VS+
+      (node (ref "U2") (pin "7"))   ; INA333 U2 VS+
+      (node (ref "U3") (pin "7"))   ; AD8221 VS+
+      (node (ref "U4") (pin "15"))  ; AD630 +VS
+      (node (ref "U5") (pin "5"))   ; OPA333 VS+
+      (node (ref "U6") (pin "4"))   ; ADS1256 AVDD
+      (node (ref "U9") (pin "14"))  ; AD5933 AVDD
+      (node (ref "U10") (pin "1"))  ; SG-210STF VDD
+      (node (ref "U11") (pin "1"))  ; TPS60400 V+ input
+      (node (ref "U12") (pin "3"))  ; MAX30101 VLED
+      (node (ref "U7") (pin "3"))   ; REF5025 VIN
+      (node (ref "R_PH1") (pin "1"))  ; Phantom power feed R_PH1 top
+      (node (ref "R_PH2") (pin "1"))  ; Phantom power feed R_PH2 top
+      (node (ref "R_SET") (pin "2"))  ; LT3042 SET pin (via R_SET to GND sets Vout)
+    )
+
+    (net (code "2") (name "AVSS")
+      (node (ref "L1") (pin "2"))   ; LC filter output — filtered -3.3V
+      (node (ref "U4") (pin "8"))   ; AD630 -VS
+    )
+
+    (net (code "3") (name "AGND")
+      (node (ref "U1") (pin "4"))   ; INA333 U1 VS-
+      (node (ref "U2") (pin "4"))   ; INA333 U2 VS-
+      (node (ref "U3") (pin "4"))   ; AD8221 GND
+      (node (ref "U4") (pin "8"))   ; AD630 -VS (tied to AVSS, bridged via short at AGND star for AVSS node see above)
+      (node (ref "U5") (pin "2"))   ; OPA333 GND
+      (node (ref "U6") (pin "6"))   ; ADS1256 AGND
+      (node (ref "U8") (pin "3"))   ; LT3042 GND (exposed pad)
+      (node (ref "U9") (pin "1"))   ; AD5933 AGND pin 1
+      (node (ref "U9") (pin "11"))  ; AD5933 AGND pin 11
+      (node (ref "U10") (pin "2"))  ; SG-210STF GND
+      (node (ref "U11") (pin "4"))  ; TPS60400 GND
+      (node (ref "U12") (pin "12")) ; MAX30101 GND
+      (node (ref "U13") (pin "4"))  ; TMP117 GND
+      (node (ref "D1") (pin "3"))   ; TVS1 AGND (GND1 clamp)
+      (node (ref "D2") (pin "3"))   ; TVS2 AGND
+      (node (ref "D3") (pin "3"))   ; TVS3 AGND
+      (node (ref "D4") (pin "3"))   ; TVS4 AGND
+      (node (ref "D5") (pin "3"))   ; TVS5 AGND
+      (node (ref "D6") (pin "3"))   ; TVS6 AGND
+      (node (ref "D7") (pin "3"))   ; TVS7 AGND
+      (node (ref "U6") (pin "16"))  ; ADS1256 VREFN
+      (node (ref "U3") (pin "5"))   ; AD8221 REF (tied to AGND for split-supply midpoint)
+      (node (ref "U4") (pin "2"))   ; AD630 CHA IN- (AGND reference)
+      (node (ref "U4") (pin "10"))  ; AD630 SELECT/REF-
+      (node (ref "R_SET") (pin "1")) ; LT3042 SET resistor to GND (bottom)
+      (node (ref "J1") (pin "5"))   ; Flex AGND
+      (node (ref "J1") (pin "23"))  ; Flex AGND_2
+    )
+
+    (net (code "4") (name "VREF25")
+      (node (ref "U7") (pin "3"))   ; REF5025 OUT — 2.5V reference output
+      (node (ref "U6") (pin "15"))  ; ADS1256 VREFP
+    )
+
+    (net (code "5") (name "DVDD")
+      (node (ref "U6") (pin "22"))  ; ADS1256 DVDD — from top PCB via flex
+      (node (ref "U9") (pin "3"))   ; AD5933 DVDD
+      (node (ref "J1") (pin "6"))   ; Flex DVDD_3V3 input from top PCB
+    )
+
+    (net (code "6") (name "VBAT")
+      (node (ref "U8") (pin "1"))   ; LT3042 IN — LiPo input
+      (node (ref "J1") (pin "1"))   ; Flex VBAT pin 1
+      (node (ref "J1") (pin "2"))   ; Flex VBAT pin 2 (current share)
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; ELECTRODE ELECTRODE-PAD TO PATIENT PROTECTION CHAIN
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "10") (name "NET_E1_PAD")
+      (node (ref "J_E1") (pin "1"))  ; E1 electrode signal
+      (node (ref "D1") (pin "1"))    ; TVS1 line input
+    )
+    (net (code "11") (name "NET_E1_TVS")
+      (node (ref "D1") (pin "2"))    ; TVS1 output
+      (node (ref "R1") (pin "1"))    ; Patient safety R1 input
+    )
+    (net (code "12") (name "NET_ECG1_IN")
+      ; E1 filtered — post patient-safety R1 — to ECG InAmp U1 IN+, AD8221 IN- (ICG sense)
+      (node (ref "R1") (pin "2"))    ; R1 output
+      (node (ref "U1") (pin "3"))    ; INA333 U1 IN+ (ECG1 non-inverting)
+      (node (ref "U3") (pin "2"))    ; AD8221 IN- (ICG differential sense E1 as reference)
+    )
+
+    (net (code "20") (name "NET_E2_PAD")
+      (node (ref "J_E2") (pin "1"))  ; E2 electrode
+      (node (ref "D2") (pin "1"))    ; TVS2 input
+    )
+    (net (code "21") (name "NET_E2_TVS")
+      (node (ref "D2") (pin "2"))    ; TVS2 output
+      (node (ref "R2") (pin "1"))    ; Patient safety R2 input
+    )
+    (net (code "22") (name "NET_E2_PHR")
+      ; Junction: R_PH1 phantom feed + C_BLK1 input (DC blocking to NET_ECG2_IN/AD8221 IN+)
+      (node (ref "R2") (pin "2"))    ; Patient safety R2 output — phantom+signal ader
+      (node (ref "R_PH1") (pin "2")) ; R_PH1 phantom feed output
+      (node (ref "C_BLK1") (pin "1")) ; C_BLK1 input (DC side)
+    )
+    (net (code "23") (name "NET_ICG_SENSE")
+      ; E2 AC-coupled signal after C_BLK1 — to AD8221 IN+ ICG sense
+      (node (ref "C_BLK1") (pin "2"))  ; C_BLK1 output (AC side)
+      (node (ref "U3") (pin "3"))       ; AD8221 IN+ (ICG sense positive)
+      (node (ref "R_SHD1") (pin "2"))  ; Driven shield R_SHD1 output
+    )
+
+    (net (code "24") (name "NET_E2_SHIELD")
+      ; E2 driven shield from cable
+      (node (ref "J_E2") (pin "2"))    ; Shield of E2 cable
+      (node (ref "R_SHD1") (pin "1"))  ; R_SHD1 input (100Ω shield isolation)
+    )
+
+    (net (code "30") (name "NET_E3_PAD")
+      (node (ref "J_E3") (pin "1"))  ; E3 electrode
+      (node (ref "D3") (pin "1"))    ; TVS3 input
+    )
+    (net (code "31") (name "NET_E3_TVS")
+      (node (ref "D3") (pin "2"))    ; TVS3 output
+      (node (ref "R3") (pin "1"))    ; Patient safety R3 input
+    )
+    (net (code "32") (name "NET_E3_PHR")
+      ; Junction: R_PH2 phantom feed + C_BLK2 input
+      (node (ref "R3") (pin "2"))    ; Patient safety R3 output
+      (node (ref "R_PH2") (pin "2")) ; R_PH2 phantom feed output
+      (node (ref "C_BLK2") (pin "1")) ; C_BLK2 input
+    )
+    (net (code "33") (name "NET_ECG2_IN")
+      ; E3 AC-coupled — to INA333 U2 IN+ (ECG2), also ICG sense redundant path
+      (node (ref "C_BLK2") (pin "2"))  ; C_BLK2 output
+      (node (ref "U2") (pin "3"))      ; INA333 U2 IN+ (ECG2 non-inverting)
+      (node (ref "R_SHD2") (pin "2"))  ; Driven shield R_SHD2 output
+    )
+    (net (code "34") (name "NET_E3_SHIELD")
+      (node (ref "J_E3") (pin "2"))    ; Shield of E3 cable
+      (node (ref "R_SHD2") (pin "1"))  ; R_SHD2 input
+    )
+
+    (net (code "40") (name "NET_E4_PAD")
+      (node (ref "J_E4") (pin "1"))  ; E4 electrode — neck ICG injection
+      (node (ref "D4") (pin "1"))    ; TVS4 input
+    )
+    (net (code "41") (name "NET_E4_FILT")
+      (node (ref "D4") (pin "2"))    ; TVS4 output
+      (node (ref "R4") (pin "1"))    ; Patient safety R4 input
+    )
+    (net (code "42") (name "NET_ICG_Z0")
+      ; E4 filtered — ICG injection return (Vsource output to patient)
+      (node (ref "R4") (pin "2"))    ; R4 output — ICG injection point E4
+    )
+
+    (net (code "50") (name "NET_E5_PAD")
+      (node (ref "J_E5") (pin "1"))  ; E5 electrode — lower back ICG injection
+      (node (ref "D5") (pin "1"))    ; TVS5 input
+    )
+    (net (code "51") (name "NET_E5_FILT")
+      (node (ref "D5") (pin "2"))    ; TVS5 output
+      (node (ref "R5") (pin "1"))    ; Patient safety R5 input
+    )
+    (net (code "52") (name "NET_ICG_SENSE_RTN")
+      ; E5 filtered — ICG injection return (secondary)
+      (node (ref "R5") (pin "2"))    ; R5 output — ICG injection return E5
+    )
+
+    (net (code "60") (name "NET_E6_PAD")
+      (node (ref "J_E6") (pin "1"))  ; E6 SCL+ electrode
+      (node (ref "D6") (pin "1"))    ; TVS6 input
+    )
+    (net (code "61") (name "NET_E6_TVS")
+      (node (ref "D6") (pin "2"))    ; TVS6 output
+      (node (ref "R6") (pin "1"))    ; Patient safety R6 input
+    )
+    (net (code "62") (name "NET_SCL_P")
+      ; E6 filtered — after patient-safety R6, before AD5933 SCL+ 5kHz LPF
+      (node (ref "R6") (pin "2"))    ; R6 output
+    )
+
+    (net (code "70") (name "NET_E7_PAD")
+      (node (ref "J_E7") (pin "1"))  ; E7 SCL- electrode
+      (node (ref "D7") (pin "1"))    ; TVS7 input
+    )
+    (net (code "71") (name "NET_E7_TVS")
+      (node (ref "D7") (pin "2"))    ; TVS7 output
+      (node (ref "R7") (pin "1"))    ; Patient safety R7 input
+    )
+    (net (code "72") (name "NET_SCL_N")
+      ; E7 filtered — after patient-safety R7, before AD5933 SCL- 5kHz LPF
+      (node (ref "R7") (pin "2"))    ; R7 output
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; ICG CHAIN — InAmp → Demodulator → ADC
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "80") (name "NET_ICG_INAMP_OUT")
+      ; AD8221 output — amplified 32kHz ICG sense signal (G=10)
+      (node (ref "U3") (pin "6"))   ; AD8221 OUT
+      (node (ref "U4") (pin "1"))   ; AD630 CHA IN+ (signal input)
+    )
+
+    (net (code "81") (name "NET_RLD_OUT")
+      ; RLD amplifier output — driven right leg / common mode feedback
+      (node (ref "U5") (pin "1"))   ; OPA333 OUT
+      (node (ref "U1") (pin "5"))   ; INA333 U1 REF pin (ECG1 midpoint reference)
+      (node (ref "U2") (pin "5"))   ; INA333 U2 REF pin (ECG2 midpoint reference)
+    )
+
+    ; AD8221 gain resistor R_G3 between RG pins
+    (net (code "82") (name "NET_AD8221_RG_A")
+      (node (ref "U3") (pin "1"))   ; AD8221 RG pin 1
+      (node (ref "R_G3") (pin "1")) ; Gain resistor R_G3 pin 1
+    )
+    (net (code "83") (name "NET_AD8221_RG_B")
+      (node (ref "U3") (pin "8"))   ; AD8221 RG pin 8
+      (node (ref "R_G3") (pin "2")) ; Gain resistor R_G3 pin 2
+    )
+
+    ; INA333 U1 gain resistor R_G1
+    (net (code "84") (name "NET_U1_RG_A")
+      (node (ref "U1") (pin "1"))   ; INA333 U1 RG-
+      (node (ref "R_G1") (pin "1"))
+    )
+    (net (code "85") (name "NET_U1_RG_B")
+      (node (ref "U1") (pin "8"))   ; INA333 U1 RG+
+      (node (ref "R_G1") (pin "2"))
+    )
+
+    ; INA333 U2 gain resistor R_G2
+    (net (code "86") (name "NET_U2_RG_A")
+      (node (ref "U2") (pin "1"))   ; INA333 U2 RG-
+      (node (ref "R_G2") (pin "1"))
+    )
+    (net (code "87") (name "NET_U2_RG_B")
+      (node (ref "U2") (pin "8"))   ; INA333 U2 RG+
+      (node (ref "R_G2") (pin "2"))
+    )
+
+    ; INA333 U2 IN- (ECG2 reference = NET_RLD)
+    (net (code "88") (name "NET_ECG2_REF")
+      (node (ref "U2") (pin "2"))   ; INA333 U2 IN-  (= NET_RLD)
+    )
+
+    ; INA333 U1 IN- (ECG1 reference = NET_RLD)
+    (net (code "89") (name "NET_ECG1_REF")
+      (node (ref "U1") (pin "2"))   ; INA333 U1 IN- (= NET_RLD)
+    )
+
+    ; AD630 demodulator reference and outputs
+    (net (code "90") (name "NET_OSC_32K")
+      ; 32kHz oscillator reference — OSC_REF to AD630 SELECT, OSC_ESP32 via R_OSC to flex
+      (node (ref "U10") (pin "3"))  ; SG-210STF OUT
+      (node (ref "U4") (pin "9"))   ; AD630 SELECT/REF+ (demodulator phase reference)
+      (node (ref "J1") (pin "15"))  ; Flex OSC_MON to ESP32 (via 33Ohm series — R_OSC not in component list, add as inline)
+    )
+
+    (net (code "91") (name "NET_ADC_MOSI")
+      ; ADS1256 SPI: DIN from ESP32
+      (node (ref "U6") (pin "21"))  ; ADS1256 DIN
+      (node (ref "J1") (pin "8"))   ; Flex SPI_MOSI
+    )
+    (net (code "92") (name "NET_ADC_MISO")
+      ; ADS1256 SPI: DOUT to ESP32
+      (node (ref "U6") (pin "19"))  ; ADS1256 DOUT
+      (node (ref "J1") (pin "9"))   ; Flex SPI_MISO
+    )
+    (net (code "93") (name "NET_ADC_CLK")
+      ; ADS1256 SPI: SCLK from ESP32
+      (node (ref "U6") (pin "20"))  ; ADS1256 SCLK
+      (node (ref "J1") (pin "7"))   ; Flex SPI_SCK
+    )
+    (net (code "94") (name "NET_ADC_CS")
+      ; ADS1256 chip select (active low)
+      (node (ref "U6") (pin "18"))  ; ADS1256 CS
+      (node (ref "J1") (pin "10"))  ; Flex ADC_CS
+    )
+    (net (code "95") (name "NET_ADC_DRDY")
+      ; ADS1256 data ready interrupt (active low)
+      (node (ref "U6") (pin "17"))  ; ADS1256 DRDY
+      (node (ref "J1") (pin "11"))  ; Flex ADC_DRDY
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; AD5933 SCL / IMPEDANCE CHAIN
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "100") (name "NET_SCL_P")
+      ; Already defined at code 62 — net merged:
+      ; E6 post-R6 feeds into AD5933 5kHz LPF chain → AD5933 VIN (pin 5)
+      (node (ref "U9") (pin "5"))   ; AD5933 VIN (after external 5kHz LPF — filter passives not listed as discrete in BOM but present in layout)
+    )
+
+    (net (code "101") (name "NET_SCL_N")
+      ; E7 post-R7 → AD5933 feedback path (RFB external between VIN and RFB pin)
+      (node (ref "U9") (pin "6"))   ; AD5933 RFB
+    )
+
+    (net (code "102") (name "NET_PPG_SDA")
+      ; AD5933 I2C SDA
+      (node (ref "U9") (pin "9"))   ; AD5933 SDA
+      (node (ref "U12") (pin "11")) ; MAX30101 SDA
+      (node (ref "U13") (pin "1"))  ; TMP117 SDA
+      (node (ref "J1") (pin "12"))  ; Flex I2C_SDA
+    )
+
+    (net (code "103") (name "NET_PPG_SCL")
+      ; AD5933 I2C SCL
+      (node (ref "U9") (pin "10"))  ; AD5933 SCL
+      (node (ref "U12") (pin "10")) ; MAX30101 SCL
+      (node (ref "U13") (pin "2"))  ; TMP117 SCL
+      (node (ref "J1") (pin "13"))  ; Flex I2C_SCL
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; PPG — MAX30101
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "110") (name "NET_I2C_SDA")
+      ; Same physical net as NET_PPG_SDA — alias for clarity
+      (node (ref "U12") (pin "11")) ; MAX30101 SDA (already in net 102)
+    )
+
+    (net (code "111") (name "NET_I2C_SCL")
+      ; Same physical net as NET_PPG_SCL — alias
+      (node (ref "U12") (pin "10")) ; MAX30101 SCL (already in net 103)
+    )
+
+    (net (code "112") (name "NET_PPG_INT")
+      ; MAX30101 interrupt to ESP32
+      (node (ref "U12") (pin "9"))  ; MAX30101 INT (active low)
+      (node (ref "J1") (pin "14"))  ; Flex PPG_INT
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; TPS60400 CHARGE PUMP — AVSS_RAW → LC filter → AVSS
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "120") (name "NET_AVSS_RAW")
+      ; TPS60400 output before LC filter
+      (node (ref "U11") (pin "5"))  ; TPS60400 VOUT
+      (node (ref "L1") (pin "1"))   ; LC filter inductor input
+    )
+
+    ; C_P1 flying capacitor for TPS60400
+    (net (code "121") (name "NET_CP_PLUS")
+      (node (ref "U11") (pin "2"))  ; TPS60400 C+
+      (node (ref "C_P1") (pin "1")) ; Flying capacitor C_P1 pin 1
+    )
+    (net (code "122") (name "NET_CP_MINUS")
+      (node (ref "U11") (pin "3"))  ; TPS60400 C-
+      (node (ref "C_P1") (pin "2")) ; Flying capacitor C_P1 pin 2
+    )
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; ADS1256 ADC ANALOG INPUTS
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "130") (name "NET_ICG_Z0")
+      ; ADS1256 ch0 — ICG Z0 baseline impedance (post-demodulation 2kHz LPF output)
+      ; AD630 OUT → R_LPF1 → Z0_FILTERED node → ADS1256 AINP0
+      (node (ref "U4") (pin "16"))  ; AD630 OUT (demodulated ICG signal)
+      (node (ref "U6") (pin "1"))   ; ADS1256 AINP0
+    )
+
+    (net (code "131") (name "NET_ICG_SENSE")
+      ; ADS1256 ch1 — ICG V_source monitor (already named NET_ICG_SENSE as code 23 — this is VSOURCE_MON)
+      ; R_mon junction (ICG current source monitoring) → ADS1256 AINP1
+      (node (ref "U6") (pin "2"))   ; ADS1256 AINP1 (VSOURCE_MON)
+    )
+
+    (net (code "132") (name "NET_ECG1_IN")
+      ; ADS1256 ch2 — ECG ch1 (post 150Hz LPF)
+      ; INA333 U1 OUT → ECG1 LPF → ECG1_FILTERED → ADS1256 AINP2
+      (node (ref "U1") (pin "6"))   ; INA333 U1 OUT (ECG1_AMP_OUT)
+      (node (ref "U6") (pin "3"))   ; ADS1256 AINP2
+    )
+
+    (net (code "133") (name "NET_ECG2_IN")
+      ; ADS1256 ch3 — ECG ch2 (post 150Hz LPF)
+      ; INA333 U2 OUT → ECG2 LPF → ECG2_FILTERED → ADS1256 AINP3
+      (node (ref "U2") (pin "6"))   ; INA333 U2 OUT (ECG2_AMP_OUT)
+      (node (ref "U6") (pin "28"))  ; ADS1256 AINP3
+    )
+
+    ; ADS1256 ch4 AINP4 — legacy temperature, pulled to AGND via 100k (no listed component, TP only)
+    ; ADS1256 ch5 AINP5 — NET_VBAT_MON voltage divider
+    ; ADS1256 ch6/ch7 — not connected per principal decision 2026-05-09
+
+    ; ════════════════════════════════════════════════════════════════════════
+    ; FLEX CONNECTOR J1 — REMAINING PINS
+    ; ════════════════════════════════════════════════════════════════════════
+
+    (net (code "140") (name "NET_OSC_32K")
+      ; Already defined at code 90 — OSC_MON via J1 pin 15
+    )
+
+    (net (code "141") (name "NET_ADC_MOSI")
+      ; Already defined at code 91
+    )
+    (net (code "142") (name "NET_ADC_MISO")
+      ; Already defined at code 92
+    )
+    (net (code "143") (name "NET_ADC_CLK")
+      ; Already defined at code 93
+    )
+    (net (code "144") (name "NET_ADC_CS")
+      ; Already defined at code 94
+    )
+    (net (code "145") (name "NET_ADC_DRDY")
+      ; Already defined at code 95
+    )
+
+    (net (code "150") (name "DGND")
+      ; Digital ground — separate on bottom PCB, joins AGND star at top PCB via J1
+      (node (ref "J1") (pin "3"))   ; Flex DGND
+      (node (ref "J1") (pin "4"))   ; Flex DGND 2nd pin
+    )
+  )
+)
+
+
+; ════════════════════════════════════════════════════════════════════════════════
+; KRITIEKE LAYOUT REGELS — Bottom PCB 52×25mm Analog Front-End
+; Auteur: Priya Nair — 2026-05-09
+; ════════════════════════════════════════════════════════════════════════════════
+;
+; 1. KEEP-OUT ZONES
+; ─────────────────
+; KO-1  ICG Stroombron zone (VCCS, E4/E5 injectietraces):
+;         Houd minimaal 3mm vrijheid van alle ICG sense-traces (E2/E3, AD8221 ingangen).
+;         Aparte PCB-regio, bij voorkeur rechtsboven op de 52×25mm kaart.
+;         Geen signaaltrace mag de grens kruisen zonder grondspoor-scheiding.
+;
+; KO-2  AD5933 signaalzone (VOUT, VIN, RFB):
+;         Volledig afschermen van ICG sense-lijnen. Minimale scheiding 3mm +
+;         grondspoor (GND-trace of grondvlak op zelfde laag als scheiding).
+;         AD5933 VOUT mag absoluut niet koppelen naar ICG sense-net.
+;
+; KO-3  MAX30101 optische zone:
+;         Fysiek scheiden van ICG signaaltraces. Bij voorkeur tegenovergesteld
+;         einde van de kaart ten opzichte van AD8221 en AD630 (meet-keten).
+;         Minimale scheiding optische zone / ICG-bundel: 3mm + grondspoor.
+;
+; KO-4  TPS60400 charge pump:
+;         AVSS_RAW trace niet parallel laten lopen met ICG sense- of ECG-lijnen.
+;         LC-filter (L1, C_AVSS) direct na TPS60400 VOUT plaatsen (< 5mm).
+;
+; KO-5  Oscillator Y1 (SG-210STF):
+;         Niet plaatsen naast TPS60400 of ICG stroombroncomponenten
+;         (terugkoppeling via voedingsnet vermijden).
+;         OSC_REF trace naar AD630 pin 9: max 15mm, volledig omsloten door
+;         grondvlak of grondspoor (coax-equivalente routing).
+;
+; 2. STAR-ROUTING REGELS
+; ───────────────────────
+; SR-1  AGND ster-topologie:
+;         Alle AGND-verbindingen lopen via één centraal sternunt terug naar
+;         J1 pin 5 (AGND). Geen loopvorming in het grondnet.
+;         ICG sense-AGND, ECG AGND en PPG AGND zijn aparte spaken van de ster
+;         — niet gemeenschappelijk voor het sternunt.
+;
+; SR-2  AVDD distributie:
+;         LT3042 OUT → centraal AVDD-knooppunt, daarna afzonderlijke traces
+;         naar elke verbruiker. Geen daisy-chain. Elke IC-voedingspin heeft
+;         eigen 100nF direct-decoupling (< 1mm afstand) + gedeelde bulk 10µF
+;         per functioneel blok (ICG keten, ECG keten, ADC, SCL keten).
+;
+; SR-3  VREF25 trace:
+;         REF5025 OUT → ADS1256 VREFP: trace afgeschermd door grondspoor aan
+;         beide zijden, geen schakelende of hoge-stroom trace naast VREF-lijn.
+;         10µF FILT-condensator direct aan REF5025 FILT-pin (< 2mm).
+;
+; SR-4  AVSS (−3.3V) distributie:
+;         Alleen naar AD630 −VS (U4 pin 8) en VCCS-opamp −VS.
+;         Niet distribueren naar andere componenten zonder extra filtering.
+;
+; 3. MINIMALE TRACE BREEDTE PER NET
+; ───────────────────────────────────
+; AVDD (+3.3V, max 30mA):         min 0.30mm (vereist) — aanbevolen 0.40mm
+; AVSS (−3.3V, max 20mA):         min 0.25mm — aanbevolen 0.35mm
+; VBAT (max 100mA naar LT3042):   min 0.50mm — aanbevolen 0.60mm
+; VREF25 (µA-niveau):             min 0.15mm, maar ISOLEER met grondspoor
+; AGND (return, breed vlak):      grondvlak op bottom copper, min 1.0mm ster-spoeken
+; NET_ECG1_IN / NET_ECG2_IN:      min 0.10mm, differentieel gematcht routing
+; NET_ICG_SENSE / NET_ICG_Z0:     min 0.10mm, afgeschermd door grondvlak
+; NET_OSC_32K (OSC_REF):          min 0.15mm, max 15mm lengte, grondafscherming
+; SPI-netten (ADC_MOSI/MISO/CLK): min 0.15mm, impedantiegecontroleerd (50Ω)
+; NET_PPG_SDA / NET_PPG_SCL:      min 0.10mm, I²C bus
+; NET_ADC_CS / NET_ADC_DRDY:      min 0.10mm
+; AVSS_RAW (voor LC-filter):      min 0.20mm, zo kort mogelijk
+;
+; 4. OVERIGE KRITIEKE LAYOUT-INSTRUCTIES
+; ───────────────────────────────────────
+; L4-1  TVS-diodes D1..D7 zo dicht mogelijk bij electrode-pads plaatsen —
+;         vóór elke andere trace-routing op het elektrodenet. AGND-verbinding
+;         van TVS-kathode naar grondvlak laag-inductief (brede korte verbinding).
+;
+; L4-2  C_P1 (TPS60400 vliegcondensator): < 3mm trace naar pin 2 en pin 3,
+;         brede sporen (min 0.4mm), minimale inductantie.
+;
+; L4-3  MAX30101 VLED ontkoppeling: C_LED_BULK (10µF 0603) binnen 2mm van
+;         MAX30101 VLED pin (Vasquez conditie — verplicht).
+;
+; L4-4  LT3042 exposed pad (GND) volledig gesoldeerd met meerdere via's
+;         naar grondvlak. LT3042 AVDD output trace nooit parallel aan VBAT.
+;
+; L4-5  AD630 voedingsrail AVSS_RAW trace niet naast ECG/ICG signaallijnen.
+;         LC-filter L1+C_AVSS direct na TPS60400 VOUT (< 5mm van IC).
+;
+; L4-6  4-laags PCB aanbevolen: TOP (components), GND_PLANE, SIGNAL/POWER, BOTTOM.
+;         Op een 2-laags PCB: solid grondvlak op bottom copper onder het
+;         volledige analoge gebied, geen trace-onderbreking in het grondvlak
+;         onder AD8221, AD630, INA333 en REF5025.
+;
+; ════════════════════════════════════════════════════════════════════════════════

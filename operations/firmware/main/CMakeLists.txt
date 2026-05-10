@@ -1,0 +1,32 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "psram_buffer.c"
+        "tasks/task_adc.c"
+        "tasks/task_imu.c"
+        "tasks/task_i2c_sensors.c"
+        "tasks/task_block_assembler.c"
+        "tasks/task_sd_writer.c"
+        "tasks/task_ble_stream.c"
+        "tasks/task_battery_monitor.c"
+        "tasks/task_watchdog.c"
+        "tasks/task_usb_guard.c"
+    INCLUDE_DIRS
+        "."
+        "tasks"
+    REQUIRES
+        driver
+        esp_timer
+        esp_psram
+        nvs_flash
+        bt
+        fatfs
+        sdmmc
+        freertos
+        log
+        esp_hw_support
+        esp_adc
+        esp_wifi
+        esp_event
+        esp_netif
+)

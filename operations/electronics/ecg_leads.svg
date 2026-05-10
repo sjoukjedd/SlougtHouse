@@ -1,0 +1,290 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 600" width="980" height="600" font-family="Arial, sans-serif">
+
+  <rect width="980" height="600" fill="#f7f8fa"/>
+
+  <!-- Title -->
+  <text x="490" y="32" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e293b">VU-AMS — Estimated ECG Lead Configuration</text>
+  <text x="490" y="52" text-anchor="middle" font-size="11" fill="#64748b">Three-electrode frontal plane leads · E1 collarbone · E2 solar plexus · E3 lower left rib</text>
+
+  <!-- ══════════════════════════ -->
+  <!-- TORSO + LEAD TRIANGLE     -->
+  <!-- ══════════════════════════ -->
+
+  <!-- Head -->
+  <ellipse cx="225" cy="110" rx="40" ry="48" fill="#f0d5b0" stroke="#b0a090" stroke-width="1.5"/>
+  <!-- Neck -->
+  <path d="M 210 155 L 240 155 L 244 188 L 206 188 Z" fill="#f0d5b0" stroke="#b0a090" stroke-width="1.5"/>
+  <!-- Torso -->
+  <path d="
+    M 206 188
+    Q 182 193 153 204
+    Q 115 221 107 280
+    L 107 478
+    Q 138 508 225 510
+    Q 312 508 343 478
+    L 343 280
+    Q 335 221 297 204
+    Q 268 193 244 188 Z
+  " fill="#f0d5b0" stroke="#b0a090" stroke-width="1.5"/>
+
+  <!-- Collarbones -->
+  <path d="M 225 197 Q 185 204 158 214" stroke="#c8b090" stroke-width="1" fill="none"/>
+  <path d="M 225 197 Q 265 204 292 214" stroke="#c8b090" stroke-width="1" fill="none"/>
+  <!-- Sternum dashed -->
+  <line x1="225" y1="197" x2="225" y2="485" stroke="#d5c3a0" stroke-width="0.8" stroke-dasharray="4,6"/>
+  <!-- Ribs subtle -->
+  <path d="M 143 242 Q 225 228 307 242" stroke="#d8c8a8" stroke-width="0.8" fill="none"/>
+  <path d="M 130 292 Q 225 276 320 292" stroke="#d8c8a8" stroke-width="0.8" fill="none"/>
+  <path d="M 120 345 Q 225 328 330 345" stroke="#d8c8a8" stroke-width="0.8" fill="none"/>
+  <path d="M 114 400 Q 225 382 336 400" stroke="#d8c8a8" stroke-width="0.8" fill="none"/>
+  <path d="M 110 450 Q 225 432 340 450" stroke="#d8c8a8" stroke-width="0.8" fill="none"/>
+
+  <!-- ─── LEAD TRIANGLE ─── -->
+  <!-- Lead I: E1 → E3  (blue, down-left) -->
+  <line x1="225" y1="208" x2="168" y2="408" stroke="#2563eb" stroke-width="2.2"/>
+  <!-- arrow at E3 end -->
+  <polygon points="168,408 162,392 176,396" fill="#2563eb"/>
+
+  <!-- Lead II: E1 → E2  (green, straight down) -->
+  <line x1="228" y1="208" x2="228" y2="352" stroke="#16a34a" stroke-width="2.2"/>
+  <!-- arrow at E2 end -->
+  <polygon points="228,356 222,342 234,342" fill="#16a34a"/>
+
+  <!-- Lead III: E2 → E3  (orange, down-left short) -->
+  <line x1="222" y1="365" x2="175" y2="407" stroke="#ea580c" stroke-width="2.2"/>
+  <!-- arrow at E3 end -->
+  <polygon points="172,410 174,394 185,403" fill="#ea580c"/>
+
+  <!-- ─── ELECTRODES ─── -->
+  <!-- E1 -->
+  <circle cx="225" cy="200" r="18" fill="#2563eb" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="225" y="196" text-anchor="middle" font-size="9" font-weight="bold" fill="white">E1</text>
+  <text x="225" y="207" text-anchor="middle" font-size="8" fill="white">collar</text>
+  <!-- E2 -->
+  <circle cx="225" cy="363" r="15" fill="#16a34a" stroke="#15803d" stroke-width="2.5"/>
+  <text x="225" y="359" text-anchor="middle" font-size="9" font-weight="bold" fill="white">E2</text>
+  <text x="225" y="369" text-anchor="middle" font-size="8" fill="white">solar</text>
+  <!-- E3 -->
+  <circle cx="163" cy="415" r="15" fill="#7c3aed" stroke="#6d28d9" stroke-width="2.5"/>
+  <text x="163" y="411" text-anchor="middle" font-size="9" font-weight="bold" fill="white">E3</text>
+  <text x="163" y="421" text-anchor="middle" font-size="8" fill="white">left rib</text>
+
+  <!-- Lead labels on torso -->
+  <!-- Lead I label -->
+  <rect x="60" y="290" width="64" height="18" rx="3" fill="#dbeafe" stroke="#93c5fd"/>
+  <text x="92" y="303" text-anchor="middle" font-size="10" font-weight="bold" fill="#1d4ed8">Lead I</text>
+  <line x1="124" y1="299" x2="190" y2="305" stroke="#2563eb" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+  <!-- Lead II label -->
+  <rect x="235" y="275" width="66" height="18" rx="3" fill="#dcfce7" stroke="#86efac"/>
+  <text x="268" y="288" text-anchor="middle" font-size="10" font-weight="bold" fill="#15803d">Lead II</text>
+  <line x1="235" y1="284" x2="232" y2="284" stroke="#16a34a" stroke-width="0.8"/>
+
+  <!-- Lead III label -->
+  <rect x="60" y="400" width="68" height="18" rx="3" fill="#ffedd5" stroke="#fdba74"/>
+  <text x="94" y="413" text-anchor="middle" font-size="10" font-weight="bold" fill="#c2410c">Lead III</text>
+  <line x1="128" y1="409" x2="155" y2="411" stroke="#ea580c" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+  <!-- Mean cardiac vector arrow -->
+  <line x1="225" y1="305" x2="198" y2="360" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <polygon points="196,362 193,347 205,352" fill="#94a3b8"/>
+  <text x="233" y="338" font-size="9" fill="#64748b">mean</text>
+  <text x="233" y="349" font-size="9" fill="#64748b">QRS axis</text>
+  <text x="233" y="360" font-size="9" fill="#64748b">(~+60°)</text>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- DIVIDER                           -->
+  <!-- ══════════════════════════════════ -->
+  <line x1="375" y1="68" x2="375" y2="560" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- LEAD PANELS (right side)          -->
+  <!-- ══════════════════════════════════ -->
+
+  <!-- ─── LEAD I panel (E1− → E3+) ─── -->
+  <rect x="385" y="75" width="580" height="148" rx="7" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Header -->
+  <rect x="385" y="75" width="580" height="30" rx="7" fill="#dbeafe"/>
+  <rect x="385" y="90" width="580" height="15" fill="#dbeafe"/>
+  <text x="400" y="95" font-size="13" font-weight="bold" fill="#1d4ed8">Lead I   E1(−) → E3(+)</text>
+  <text x="660" y="95" font-size="11" fill="#1d4ed8">upper centre → lower left rib</text>
+  <!-- Vector angle note -->
+  <text x="830" y="95" font-size="10" fill="#3b82f6">axis ~130°</text>
+
+  <!-- Lead vector mini diagram -->
+  <circle cx="415" cy="148" r="28" fill="#f8faff" stroke="#bfdbfe" stroke-width="1"/>
+  <!-- E1 dot top-right -->
+  <circle cx="428" cy="132" r="5" fill="#2563eb"/>
+  <text x="428" y="127" text-anchor="middle" font-size="8" fill="#1d4ed8">E1−</text>
+  <!-- E3 dot bottom-left -->
+  <circle cx="402" cy="164" r="5" fill="#7c3aed"/>
+  <text x="402" y="177" text-anchor="middle" font-size="8" fill="#6d28d9">E3+</text>
+  <!-- Arrow -->
+  <line x1="425" y1="135" x2="407" y2="159" stroke="#2563eb" stroke-width="1.5"/>
+  <polygon points="406,161 406,148 414,155" fill="#2563eb"/>
+
+  <!-- ECG waveform — Lead I: positive P, positive QRS (large R), positive T -->
+  <!-- axis: baseline y=155, waveform area x: 450 to 940 -->
+  <line x1="450" y1="155" x2="945" y2="155" stroke="#e2e8f0" stroke-width="0.8"/>
+  <!-- waveform path -->
+  <path d="
+    M 450,155
+    L 470,155
+    Q 476,148 482,155
+    L 500,155
+    L 502,158
+    L 510,108
+    L 517,162
+    L 524,155
+    L 545,155
+    Q 558,140 572,155
+    L 610,155
+    L 630,155
+    Q 636,148 642,155
+    L 660,155
+    L 662,158
+    L 670,108
+    L 677,162
+    L 684,155
+    L 705,155
+    Q 718,140 732,155
+    L 780,155
+    L 800,155
+    Q 806,148 812,155
+    L 830,155
+    L 832,158
+    L 840,108
+    L 847,162
+    L 854,155
+    L 875,155
+    Q 888,140 902,155
+    L 945,155
+  " stroke="#2563eb" stroke-width="2" fill="none"/>
+  <!-- Labels -->
+  <text x="488" y="100" text-anchor="middle" font-size="9" fill="#64748b">P</text>
+  <text x="510" y="100" text-anchor="middle" font-size="9" fill="#64748b">R</text>
+  <text x="568" y="135" text-anchor="middle" font-size="9" fill="#64748b">T</text>
+  <text x="450" y="174" font-size="10" fill="#475569">Expected: upright P · tall positive R · positive T  (lead well-aligned with cardiac vector)</text>
+
+  <!-- ─── LEAD II panel (E1− → E2+) ─── -->
+  <rect x="385" y="233" width="580" height="148" rx="7" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="385" y="233" width="580" height="30" rx="7" fill="#dcfce7"/>
+  <rect x="385" y="248" width="580" height="15" fill="#dcfce7"/>
+  <text x="400" y="253" font-size="13" font-weight="bold" fill="#15803d">Lead II   E1(−) → E2(+)</text>
+  <text x="660" y="253" font-size="11" fill="#15803d">upper centre → solar plexus</text>
+  <text x="830" y="253" font-size="10" fill="#16a34a">axis ~90°</text>
+
+  <!-- Mini vector diagram -->
+  <circle cx="415" cy="306" r="28" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <circle cx="415" cy="282" r="5" fill="#2563eb"/>
+  <text x="415" y="277" text-anchor="middle" font-size="8" fill="#1d4ed8">E1−</text>
+  <circle cx="415" cy="330" r="5" fill="#16a34a"/>
+  <text x="415" y="342" text-anchor="middle" font-size="8" fill="#15803d">E2+</text>
+  <line x1="415" y1="287" x2="415" y2="322" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="415,325 409,313 421,313" fill="#16a34a"/>
+
+  <!-- ECG waveform — Lead II: tallest R wave (most aligned), classic Lead II morphology -->
+  <line x1="450" y1="313" x2="945" y2="313" stroke="#e2e8f0" stroke-width="0.8"/>
+  <path d="
+    M 450,313
+    L 470,313
+    Q 477,303 483,313
+    L 500,313
+    L 502,317
+    L 510,260
+    L 517,320
+    L 524,313
+    L 548,313
+    Q 562,295 578,313
+    L 610,313
+    L 630,313
+    Q 637,303 643,313
+    L 660,313
+    L 662,317
+    L 670,260
+    L 677,320
+    L 684,313
+    L 708,313
+    Q 722,295 738,313
+    L 780,313
+    L 800,313
+    Q 807,303 813,313
+    L 830,313
+    L 832,317
+    L 840,260
+    L 847,320
+    L 854,313
+    L 878,313
+    Q 892,295 908,313
+    L 945,313
+  " stroke="#16a34a" stroke-width="2" fill="none"/>
+  <text x="450" y="333" font-size="10" fill="#475569">Expected: tall upright P · tallest R wave · prominent T  (most aligned with mean QRS vector)</text>
+
+  <!-- ─── LEAD III panel (E2− → E3+) ─── -->
+  <rect x="385" y="391" width="580" height="148" rx="7" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="385" y="391" width="580" height="30" rx="7" fill="#ffedd5"/>
+  <rect x="385" y="406" width="580" height="15" fill="#ffedd5"/>
+  <text x="400" y="411" font-size="13" font-weight="bold" fill="#c2410c">Lead III   E2(−) → E3(+)</text>
+  <text x="660" y="411" font-size="11" fill="#c2410c">solar plexus → lower left rib</text>
+  <text x="830" y="411" font-size="10" fill="#ea580c">axis ~200°</text>
+
+  <!-- Mini vector diagram -->
+  <circle cx="415" cy="464" r="28" fill="#fff7ed" stroke="#fed7aa" stroke-width="1"/>
+  <circle cx="432" cy="456" r="5" fill="#16a34a"/>
+  <text x="435" y="450" font-size="8" fill="#15803d">E2−</text>
+  <circle cx="400" cy="474" r="5" fill="#7c3aed"/>
+  <text x="396" y="486" font-size="8" fill="#6d28d9">E3+</text>
+  <line x1="429" y1="459" x2="404" y2="471" stroke="#ea580c" stroke-width="1.5"/>
+  <polygon points="402,473 407,461 413,470" fill="#ea580c"/>
+
+  <!-- ECG waveform — Lead III: smaller, may be biphasic/negative R (lead perpendicular/opposite to vector) -->
+  <!-- Lead axis ~200° means it's roughly opposite to QRS mean axis, expect small negative or biphasic QRS -->
+  <line x1="450" y1="464" x2="945" y2="464" stroke="#e2e8f0" stroke-width="0.8"/>
+  <path d="
+    M 450,464
+    L 470,464
+    Q 476,470 482,464
+    L 500,464
+    L 502,461
+    L 507,474
+    L 513,452
+    L 518,468
+    L 524,464
+    L 542,464
+    Q 550,470 558,464
+    L 610,464
+    L 630,464
+    Q 636,470 642,464
+    L 660,464
+    L 662,461
+    L 667,474
+    L 673,452
+    L 678,468
+    L 684,464
+    L 702,464
+    Q 710,470 718,464
+    L 780,464
+    L 800,464
+    Q 806,470 812,464
+    L 830,464
+    L 832,461
+    L 837,474
+    L 843,452
+    L 848,468
+    L 854,464
+    L 872,464
+    Q 880,470 888,464
+    L 945,464
+  " stroke="#ea580c" stroke-width="2" fill="none"/>
+  <text x="450" y="484" font-size="10" fill="#475569">Expected: inverted P · biphasic/small QRS · variable T  (lead near-perpendicular to cardiac vector)</text>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- FOOTER / NOTES                    -->
+  <!-- ══════════════════════════════════ -->
+  <rect x="20" y="555" width="940" height="35" rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="35" y="568" font-size="10" fill="#475569" font-weight="bold">Note:</text>
+  <text x="75" y="568" font-size="10" fill="#475569">Waveform shapes are estimates based on a normal mean QRS axis of ~+60°. Actual morphology varies per subject.</text>
+  <text x="35" y="582" font-size="10" fill="#475569">Lead II (E1→E2, vertical) will carry the strongest signal. Einthoven's law applies: Lead I + Lead III = Lead II.</text>
+
+</svg>

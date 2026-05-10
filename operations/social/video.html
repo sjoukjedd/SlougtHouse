@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/>
+<title>Slow Horses — A Night Off</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Inter',system-ui,sans-serif;}
+
+  /* ── PLAYER SHELL ── */
+  .player{width:900px;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.8);}
+
+  /* ── SCREEN ── */
+  .screen{width:900px;height:506px;position:relative;overflow:hidden;background:#000;cursor:pointer;}
+
+  /* ── SCENES ── */
+  .scene{position:absolute;inset:0;opacity:0;transition:opacity 0.8s ease;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+  .scene.active{opacity:1;pointer-events:auto;}
+
+  /* shared grain */
+  .scene::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");pointer-events:none;z-index:50;}
+
+  /* ── SCENE 0: TITLE ── */
+  #s0{background:#000;}
+  .title-logo{font-size:52px;font-weight:800;color:#fff;letter-spacing:-2px;text-align:center;}
+  .title-logo span{color:#00b6cb;}
+  .title-sub{font-size:13px;font-weight:400;color:rgba(255,255,255,0.4);letter-spacing:4px;text-transform:uppercase;text-align:center;margin-top:12px;}
+  .title-date{font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:6px;}
+  .title-line{width:60px;height:2px;background:linear-gradient(90deg,#00b6cb,#0078A8);margin:20px auto 0;}
+
+  /* ── SCENE 1: LEIDSEPLEIN ── */
+  #s1{background:radial-gradient(ellipse at 50% 100%, #1a0f00 0%, #000 70%);}
+  .street-light{position:absolute;width:4px;background:linear-gradient(to bottom,#e0a81a,transparent);top:0;}
+  .street-light::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:#e0a81a;filter:blur(18px);opacity:0.6;}
+  .figure{position:absolute;bottom:120px;width:12px;height:32px;border-radius:6px 6px 0 0;opacity:0;}
+  .scene-title-card{position:absolute;bottom:30px;left:40px;z-index:10;}
+  .stc-label{font-size:9px;font-weight:700;color:#00b6cb;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+  .stc-main{font-size:20px;font-weight:800;color:#fff;}
+  .stc-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px;}
+  .timestamp{position:absolute;top:20px;right:24px;font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;z-index:10;}
+
+  /* ── SCENE 2: EERSTE RONDE ── */
+  #s2{background:radial-gradient(ellipse at 30% 80%, #2a1200 0%, #0e0800 50%, #000 100%);}
+  .bar-counter{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,#1a0800,transparent);}
+  .glass{position:absolute;bottom:90px;width:20px;border-radius:2px 2px 4px 4px;opacity:0;}
+  .glass::before{content:'';position:absolute;top:4px;left:2px;right:2px;height:50%;background:rgba(200,230,255,0.15);border-radius:1px;}
+  .spotlight{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;}
+
+  /* ── SCENE 3: VASQUEZ ── */
+  #s3{background:radial-gradient(ellipse at 60% 40%, #0a0020 0%, #000 70%);}
+  .speech-bubble{position:absolute;background:rgba(16,20,48,0.95);border:1px solid rgba(0,182,203,0.4);border-radius:12px;padding:14px 18px;max-width:280px;opacity:0;transform:translateY(10px);}
+  .speech-bubble p{font-size:11px;color:rgba(255,255,255,0.8);line-height:1.7;}
+  .speech-bubble .speaker{font-size:9px;font-weight:700;color:#00b6cb;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;}
+  .avatar{position:absolute;width:48px;height:48px;border-radius:50%;border:2px solid rgba(0,182,203,0.5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;background:#101430;opacity:0;}
+
+  /* ── SCENE 4: VOSS SERVET ── */
+  #s4{background:radial-gradient(ellipse at 50% 60%, #0e0800 0%, #000 70%);}
+  .napkin{position:absolute;width:200px;height:140px;background:#f5f0e8;border-radius:4px;transform:rotate(-3deg);opacity:0;box-shadow:0 8px 30px rgba(0,0,0,0.5);}
+  .napkin-sketch{position:absolute;inset:12px;opacity:0;}
+  .napkin-label{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,0.4);white-space:nowrap;font-style:italic;}
+  .bell-tag{position:absolute;background:#101430;border:1px solid #00b6cb;color:#00b6cb;font-size:8px;font-weight:700;padding:3px 8px;border-radius:4px;opacity:0;}
+
+  /* ── SCENE 5: PARADISO GROEP ── */
+  #s5{background:radial-gradient(ellipse at 50% 30%, #0a0030 0%, #000 70%);}
+  .paradiso-name{font-size:11px;font-weight:700;color:rgba(255,255,255,0.08);letter-spacing:6px;text-transform:uppercase;position:absolute;top:60px;}
+  .crowd-figure{position:absolute;bottom:100px;border-radius:50% 50% 0 0;opacity:0;}
+  .photo-flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;}
+  .group-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;}
+  .group-caption .gc-main{font-size:16px;font-weight:800;color:#fff;}
+  .group-caption .gc-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;}
+
+  /* ── SCENE 6: GOLLEM ── */
+  #s6{background:radial-gradient(ellipse at 40% 70%, #0a0800 0%, #000 70%);}
+  .beer-row{position:absolute;bottom:100px;display:flex;gap:16px;opacity:0;}
+  .beer{width:18px;height:60px;background:linear-gradient(to bottom,rgba(255,220,100,0.8),rgba(200,140,0,0.6));border-radius:3px 3px 4px 4px;position:relative;}
+  .beer::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:22px;height:10px;background:rgba(255,255,255,0.7);border-radius:50% 50% 0 0;filter:blur(2px);}
+  .muller-note{position:absolute;top:80px;right:80px;background:rgba(41,198,109,0.15);border:1px solid rgba(41,198,109,0.4);border-radius:8px;padding:10px 16px;opacity:0;}
+  .muller-note p{font-size:11px;color:#29c66d;font-weight:600;}
+  .muller-note small{font-size:9px;color:rgba(255,255,255,0.4);display:block;margin-top:2px;}
+
+  /* ── SCENE 7: CREDITS ── */
+  #s7{background:#000;}
+  .credits{text-align:center;opacity:0;}
+  .credits .c-logo{font-size:36px;font-weight:800;color:#fff;margin-bottom:8px;}
+  .credits .c-logo span{color:#00b6cb;}
+  .credits .c-tagline{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:32px;}
+  .credits-list{display:flex;flex-direction:column;gap:6px;opacity:0;}
+  .credit-row{display:flex;justify-content:center;gap:16px;font-size:10px;}
+  .credit-role{color:rgba(255,255,255,0.3);text-align:right;width:140px;}
+  .credit-name{color:rgba(255,255,255,0.7);text-align:left;width:140px;font-weight:600;}
+
+  /* ── CONTROLS ── */
+  .controls{background:#111;padding:12px 16px 14px;}
+  .progress-wrap{margin-bottom:10px;cursor:pointer;}
+  .progress-bg{height:3px;background:rgba(255,255,255,0.1);border-radius:2px;position:relative;}
+  .progress-fill{height:3px;background:linear-gradient(90deg,#00b6cb,#0078A8);border-radius:2px;width:0%;transition:width 0.1s linear;}
+  .progress-dot{width:10px;height:10px;border-radius:50%;background:#00b6cb;position:absolute;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 6px #00b6cb;}
+  .ctrl-row{display:flex;align-items:center;gap:16px;}
+  .btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);font-size:16px;padding:4px;transition:color 0.15s;}
+  .btn:hover{color:#fff;}
+  .btn.play-pause{width:32px;height:32px;border-radius:50%;background:rgba(0,182,203,0.15);border:1px solid rgba(0,182,203,0.4);font-size:12px;display:flex;align-items:center;justify-content:center;color:#00b6cb;}
+  .btn.play-pause:hover{background:rgba(0,182,203,0.3);}
+  .time{font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;margin-left:auto;}
+  .scene-label{font-size:10px;color:rgba(255,255,255,0.3);margin-left:8px;}
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:0.8;}}
+  @keyframes walkIn{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes drawLine{from{stroke-dashoffset:200;}to{stroke-dashoffset:0;}}
+  @keyframes flash{0%{opacity:0;}20%{opacity:0.9;}100%{opacity:0;}}
+  @keyframes riseUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes beerSlide{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes rotate{from{transform:rotate(-3deg);}to{transform:rotate(-1deg);}}
+</style>
+</head>
+<body>
+
+<div class="player">
+  <div class="screen" id="screen" onclick="togglePlay()">
+
+    <!-- SCENE 0: TITLE -->
+    <div class="scene active" id="s0">
+      <div style="text-align:center;">
+        <div class="title-logo" id="s0-logo" style="opacity:0">Slow <span>Horses</span></div>
+        <div class="title-sub" id="s0-sub" style="opacity:0">A Night Off</div>
+        <div class="title-date" id="s0-date" style="opacity:0">Amsterdam · 8 mei 2026</div>
+        <div class="title-line" id="s0-line" style="opacity:0;transform:scaleX(0);transform-origin:left;"></div>
+      </div>
+    </div>
+
+    <!-- SCENE 1: LEIDSEPLEIN -->
+    <div class="scene" id="s1">
+      <div class="timestamp">20:14</div>
+      <div class="street-light" style="left:200px;height:506px;opacity:0.6;" id="sl1"></div>
+      <div class="street-light" style="left:600px;height:506px;opacity:0.5;" id="sl2"></div>
+      <div class="figure" id="f1" style="left:260px;background:#333;"></div>
+      <div class="figure" id="f2" style="left:310px;background:#2a2a2a;"></div>
+      <div class="figure" id="f3" style="left:350px;background:#303030;"></div>
+      <div class="figure" id="f4" style="left:390px;background:#2e2e2e;height:28px;"></div>
+      <div class="figure" id="f5" style="left:430px;background:#2a2a2a;height:36px;"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,#0a0500,transparent);"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:#1a1000;"></div>
+      <div class="scene-title-card">
+        <div class="stc-label" id="s1-label" style="opacity:0">Locatie 1</div>
+        <div class="stc-main" id="s1-main" style="opacity:0">Leidseplein</div>
+        <div class="stc-sub" id="s1-sub" style="opacity:0">Iedereen op tijd. Behalve Reyes.</div>
+      </div>
+    </div>
+
+    <!-- SCENE 2: EERSTE RONDE -->
+    <div class="scene" id="s2">
+      <div class="timestamp">20:47</div>
+      <div class="spotlight" style="width:300px;height:300px;background:#e0a81a;opacity:0.06;top:-80px;left:100px;"></div>
+      <div class="spotlight" style="width:200px;height:200px;background:#e05c1a;opacity:0.08;bottom:-40px;right:80px;"></div>
+      <div class="bar-counter"></div>
+      <div class="glass" id="g1" style="left:280px;height:50px;background:rgba(200,230,255,0.08);border:1px solid rgba(255,255,255,0.15);"></div>
+      <div class="glass" id="g2" style="left:320px;height:44px;background:rgba(255,200,100,0.1);border:1px solid rgba(255,200,100,0.2);"></div>
+      <div class="glass" id="g3" style="left:360px;height:52px;background:rgba(200,230,255,0.06);border:1px solid rgba(255,255,255,0.12);"></div>
+      <div class="glass" id="g4" style="left:400px;height:48px;background:rgba(200,230,255,0.08);border:1px solid rgba(255,255,255,0.15);"></div>
+      <div class="scene-title-card">
+        <div class="stc-label" id="s2-label" style="opacity:0">Scene</div>
+        <div class="stc-main" id="s2-main" style="opacity:0">Eerste ronde</div>
+        <div class="stc-sub" id="s2-sub" style="opacity:0">Wolff keurde het wijnglas af. Twee keer.</div>
+      </div>
+    </div>
+
+    <!-- SCENE 3: VASQUEZ -->
+    <div class="scene" id="s3">
+      <div class="timestamp">21:23</div>
+      <div class="spotlight" style="width:400px;height:400px;background:#7c3aed;opacity:0.05;top:-100px;right:-100px;"></div>
+      <div class="avatar" id="av1" style="left:120px;top:160px;background:#101430;color:#00b6cb;font-size:13px;font-weight:800;">V</div>
+      <div class="avatar" id="av2" style="left:90px;top:240px;width:38px;height:38px;background:#0a1a2e;color:#0078A8;font-size:11px;font-weight:800;">N</div>
+      <div class="speech-bubble" id="sb1" style="left:190px;top:130px;">
+        <div class="speaker">Vasquez</div>
+        <p>"Het probleem is niet het geluid zelf — het is de reflectie. Elk hard oppervlak voegt multipath toe aan het akoestisch signaal, precies zoals bij ICG de thoraxwand—"</p>
+      </div>
+      <div class="speech-bubble" id="sb2" style="left:200px;top:310px;max-width:200px;">
+        <div class="speaker">Nair</div>
+        <p>"Vasquez. We zijn op een feestje."</p>
+      </div>
+      <div class="scene-title-card">
+        <div class="stc-label" id="s3-label" style="opacity:0">Opgenomen</div>
+        <div class="stc-main" id="s3-main" style="opacity:0">Vasquez legt iets uit</div>
+        <div class="stc-sub" id="s3-sub" style="opacity:0">Akoestiek. Vervolgens ICG. Vervolgens akoestiek.</div>
+      </div>
+    </div>
+
+    <!-- SCENE 4: VOSS SERVET -->
+    <div class="scene" id="s4">
+      <div class="timestamp">22:05</div>
+      <div class="spotlight" style="width:200px;height:200px;background:#e0a81a;opacity:0.07;top:50px;left:300px;filter:blur(50px);"></div>
+      <div class="napkin" id="napkin" style="left:330px;top:160px;">
+        <svg class="napkin-sketch" id="ns" viewBox="0 0 176 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- PCB outline sketch -->
+          <rect x="10" y="10" width="156" height="96" rx="3" stroke="#555" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200" style="transition:stroke-dashoffset 1.5s ease 0.3s"/>
+          <!-- Battery left -->
+          <rect x="0" y="30" width="14" height="56" rx="3" stroke="#777" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200" style="transition:stroke-dashoffset 1.2s ease 0.8s"/>
+          <!-- Battery right -->
+          <rect x="162" y="30" width="14" height="56" rx="3" stroke="#777" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200" style="transition:stroke-dashoffset 1.2s ease 0.9s"/>
+          <!-- E1 circle -->
+          <circle cx="88" cy="25" r="10" stroke="#00b6cb" stroke-width="1.5" stroke-dasharray="100" stroke-dashoffset="100" style="transition:stroke-dashoffset 1s ease 1.2s"/>
+          <!-- label text -->
+          <text x="82" y="29" font-size="7" fill="#888" font-family="monospace" opacity="0" style="transition:opacity 0.5s ease 1.8s">E1</text>
+          <text x="30" y="60" font-size="6" fill="#888" font-family="monospace" opacity="0" style="transition:opacity 0.5s ease 2s">ANALOG</text>
+          <text x="96" y="60" font-size="6" fill="#888" font-family="monospace" opacity="0" style="transition:opacity 0.5s ease 2.1s">DIGITAL</text>
+          <!-- divider line -->
+          <line x1="88" y1="15" x2="88" y2="100" stroke="#aaa" stroke-width="0.5" stroke-dasharray="100" stroke-dashoffset="100" stroke-dasharray="4 3" style="transition:stroke-dashoffset 1s ease 1.5s"/>
+          <!-- annotation arrow -->
+          <line x1="88" y1="25" x2="70" y2="8" stroke="#00b6cb" stroke-width="0.75" stroke-dasharray="50" stroke-dashoffset="50" style="transition:stroke-dashoffset 0.8s ease 1.9s"/>
+          <text x="10" y="7" font-size="5.5" fill="#00b6cb" font-family="monospace" opacity="0" style="transition:opacity 0.5s ease 2.3s">bovenaan!</text>
+        </svg>
+        <div class="napkin-label">Voss — "dit is geen werk"</div>
+      </div>
+      <div class="bell-tag" id="bt" style="left:380px;top:310px;">📁 operations/qa/ — gearchiveerd door Bell</div>
+      <div class="scene-title-card">
+        <div class="stc-label" id="s4-label" style="opacity:0">Bewijs</div>
+        <div class="stc-main" id="s4-main" style="opacity:0">Servet — Rev 0.6</div>
+        <div class="stc-sub" id="s4-sub" style="opacity:0">"Het is geen werk." — Voss (het is werk)</div>
+      </div>
+    </div>
+
+    <!-- SCENE 5: PARADISO GROEP -->
+    <div class="scene" id="s5">
+      <div class="timestamp">22:31</div>
+      <div class="spotlight" style="width:500px;height:300px;background:#00b6cb;opacity:0.04;top:-80px;left:200px;filter:blur(80px);"></div>
+      <div class="spotlight" style="width:300px;height:300px;background:#7c3aed;opacity:0.05;bottom:-60px;left:80px;filter:blur(70px);"></div>
+      <div class="spotlight" style="width:300px;height:300px;background:#29c66d;opacity:0.04;bottom:-60px;right:80px;filter:blur(70px);"></div>
+      <div class="paradiso-name">Paradiso</div>
+      <!-- crowd figures -->
+      <div class="crowd-figure" id="cf1" style="left:80px;width:32px;height:80px;background:#222;border-radius:16px 16px 0 0;"></div>
+      <div class="crowd-figure" id="cf2" style="left:130px;width:28px;height:90px;background:#1e1e1e;border-radius:14px 14px 0 0;"></div>
+      <div class="crowd-figure" id="cf3" style="left:178px;width:30px;height:75px;background:#252525;border-radius:15px 15px 0 0;"></div>
+      <div class="crowd-figure" id="cf4" style="left:225px;width:34px;height:88px;background:#1a1a1a;border-radius:17px 17px 0 0;"></div>
+      <div class="crowd-figure" id="cf5" style="left:278px;width:28px;height:72px;background:#222;border-radius:14px 14px 0 0;"></div>
+      <div class="crowd-figure" id="cf6" style="left:320px;width:32px;height:85px;background:#1e1e1e;border-radius:16px 16px 0 0;"></div>
+      <div class="crowd-figure" id="cf7" style="left:368px;width:30px;height:78px;background:#252525;border-radius:15px 15px 0 0;"></div>
+      <div class="crowd-figure" id="cf8" style="left:414px;width:28px;height:82px;background:#1a1a1a;border-radius:14px 14px 0 0;"></div>
+      <div class="crowd-figure" id="cf9" style="left:456px;width:34px;height:70px;background:#222;border-radius:17px 17px 0 0;"></div>
+      <div class="crowd-figure" id="cf10" style="left:500px;width:30px;height:86px;background:#1e1e1e;border-radius:15px 15px 0 0;"></div>
+      <div class="crowd-figure" id="cf11" style="left:548px;width:28px;height:76px;background:#252525;border-radius:14px 14px 0 0;"></div>
+      <div class="crowd-figure" id="cf12" style="left:594px;width:32px;height:83px;background:#1a1a1a;border-radius:16px 16px 0 0;"></div>
+      <div class="crowd-figure" id="cf13" style="left:636px;width:30px;height:79px;background:#222;border-radius:15px 15px 0 0;"></div>
+      <div class="crowd-figure" id="cf14" style="left:680px;width:28px;height:88px;background:#1e1e1e;border-radius:14px 14px 0 0;"></div>
+      <div class="crowd-figure" id="cf15" style="left:720px;width:34px;height:74px;background:#252525;border-radius:17px 17px 0 0;"></div>
+      <!-- flash -->
+      <div class="photo-flash" id="flash"></div>
+      <div class="group-caption" id="gc">
+        <div class="gc-main">Groepsfoto — 15 personen</div>
+        <div class="gc-sub">Kim's timer werkte niet. Hart nam het over. Lam staat niet recht.</div>
+      </div>
+    </div>
+
+    <!-- SCENE 6: GOLLEM -->
+    <div class="scene" id="s6">
+      <div class="timestamp">00:14</div>
+      <div class="spotlight" style="width:200px;height:400px;background:#e0a81a;opacity:0.08;top:-80px;left:200px;filter:blur(50px);"></div>
+      <div class="spotlight" style="width:150px;height:200px;background:#e0a81a;opacity:0.06;top:-40px;right:250px;filter:blur(40px);"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(to top,#0a0800,transparent);"></div>
+      <div class="beer-row" id="beers">
+        <div class="beer"></div><div class="beer" style="height:52px;"></div>
+        <div class="beer" style="height:65px;"></div><div class="beer" style="height:58px;"></div>
+        <div class="beer" style="height:60px;"></div><div class="beer" style="height:55px;"></div>
+        <div class="beer" style="height:62px;"></div><div class="beer" style="height:50px;"></div>
+        <div class="beer" style="height:64px;"></div><div class="beer" style="height:57px;"></div>
+        <div class="beer" style="height:60px;"></div><div class="beer" style="height:53px;"></div>
+        <div class="beer" style="height:61px;"></div><div class="beer" style="height:56px;"></div>
+        <div class="beer" style="height:59px;"></div>
+      </div>
+      <div class="muller-note" id="mn">
+        <p>Müller betaalde een ronde.</p>
+        <small>Niemand had dit zien aankomen.</small>
+      </div>
+      <div class="scene-title-card">
+        <div class="stc-label" id="s6-label" style="opacity:0">Eindstation</div>
+        <div class="stc-main" id="s6-main" style="opacity:0">Café Gollem</div>
+        <div class="stc-sub" id="s6-sub" style="opacity:0">11 bieren van de tap. Reyes legde eindelijk zijn telefoon neer.</div>
+      </div>
+    </div>
+
+    <!-- SCENE 7: CREDITS -->
+    <div class="scene" id="s7">
+      <div class="credits" id="credits">
+        <div class="c-logo">Slow <span>Horses</span></div>
+        <div class="c-tagline">Amsterdam · 8 mei 2026</div>
+      </div>
+      <div class="credits-list" id="credits-list">
+        <div class="credit-row"><span class="credit-role">Organisatie</span><span class="credit-name">Standish</span></div>
+        <div class="credit-row"><span class="credit-role">Camera</span><span class="credit-name">Hart</span></div>
+        <div class="credit-row"><span class="credit-role">Montage</span><span class="credit-name">Kim</span></div>
+        <div class="credit-row"><span class="credit-role">Servetschets</span><span class="credit-name">Voss</span></div>
+        <div class="credit-row"><span class="credit-role">Archivering servet</span><span class="credit-name">Bell</span></div>
+        <div class="credit-row"><span class="credit-role">Akoestische analyse</span><span class="credit-name">Vasquez</span></div>
+        <div class="credit-row"><span class="credit-role">Notulen (ontkend)</span><span class="credit-name">Quinn</span></div>
+        <div class="credit-row"><span class="credit-role">Taxi's geregeld</span><span class="credit-name">Standish</span></div>
+        <div class="credit-row" style="margin-top:12px;"><span class="credit-role">Vertrouwenspersoon</span><span class="credit-name">De Vries — geen commentaar</span></div>
+      </div>
+    </div>
+
+  </div><!-- end screen -->
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="progress-wrap" onclick="seekTo(event)" id="prog-wrap">
+      <div class="progress-bg" id="prog-bg">
+        <div class="progress-fill" id="prog-fill">
+          <div class="progress-dot" id="prog-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctrl-row">
+      <button class="btn play-pause" id="pp-btn" onclick="togglePlay()">▶</button>
+      <div class="time" id="time-display">0:00 / 3:47</div>
+      <div class="scene-label" id="scene-label">Titel</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 227; // 3:47 in seconds
+
+const scenes = [
+  { id:'s0', start:0,   end:12,  label:'Titel',          init:initS0, tick:tickS0 },
+  { id:'s1', start:12,  end:40,  label:'Leidseplein',    init:initS1, tick:null },
+  { id:'s2', start:40,  end:68,  label:'Eerste ronde',   init:initS2, tick:null },
+  { id:'s3', start:68,  end:100, label:'Vasquez legt uit', init:initS3, tick:null },
+  { id:'s4', start:100, end:135, label:'Servet Rev 0.6', init:initS4, tick:null },
+  { id:'s5', start:135, end:170, label:'Groepsfoto',     init:initS5, tick:null },
+  { id:'s6', start:170, end:210, label:'Café Gollem',    init:initS6, tick:null },
+  { id:'s7', start:210, end:227, label:'Credits',        init:initS7, tick:null },
+];
+
+let playing = false;
+let currentTime = 0;
+let interval = null;
+let sceneInited = new Array(scenes.length).fill(false);
+let currentSceneIdx = -1;
+
+function fmt(s){ return Math.floor(s/60)+':'+(s%60<10?'0':'')+Math.floor(s%60); }
+
+function updateUI(){
+  document.getElementById('prog-fill').style.width = (currentTime/TOTAL*100)+'%';
+  document.getElementById('prog-dot').style.left = (currentTime/TOTAL*100)+'%';
+  document.getElementById('time-display').textContent = fmt(currentTime)+' / 3:47';
+
+  // which scene?
+  for(let i=0;i<scenes.length;i++){
+    const s = scenes[i];
+    const el = document.getElementById(s.id);
+    if(currentTime >= s.start && currentTime < s.end){
+      if(currentSceneIdx !== i){
+        if(currentSceneIdx >= 0) document.getElementById(scenes[currentSceneIdx].id).classList.remove('active');
+        el.classList.add('active');
+        currentSceneIdx = i;
+        document.getElementById('scene-label').textContent = s.label;
+        if(!sceneInited[i]){ s.init(); sceneInited[i]=true; }
+      }
+      if(s.tick) s.tick(currentTime - s.start);
+    }
+  }
+  if(currentTime >= TOTAL){ pause(); currentTime=0; }
+}
+
+function play(){
+  playing = true;
+  document.getElementById('pp-btn').textContent = '⏸';
+  interval = setInterval(()=>{ currentTime+=0.1; updateUI(); }, 100);
+}
+function pause(){
+  playing = false;
+  document.getElementById('pp-btn').textContent = '▶';
+  clearInterval(interval);
+}
+function togglePlay(){ playing ? pause() : play(); }
+
+function seekTo(e){
+  const rect = document.getElementById('prog-bg').getBoundingClientRect();
+  currentTime = Math.max(0, Math.min(TOTAL, (e.clientX - rect.left)/rect.width * TOTAL));
+  sceneInited = new Array(scenes.length).fill(false);
+  currentSceneIdx = -1;
+  // hide all scenes
+  scenes.forEach(s=>{ document.getElementById(s.id).classList.remove('active'); });
+  updateUI();
+}
+
+function anim(el, props, delay=0){
+  if(!el) return;
+  setTimeout(()=>{
+    Object.assign(el.style, props);
+    el.style.transition = el.style.transition || 'all 0.6s ease';
+  }, delay);
+}
+
+// ── SCENE INITS ──
+
+function initS0(){
+  anim(document.getElementById('s0-logo'), {opacity:'1', transform:'translateY(0)'}, 300);
+  anim(document.getElementById('s0-sub'),  {opacity:'1', transform:'translateY(0)'}, 800);
+  anim(document.getElementById('s0-date'), {opacity:'1'}, 1300);
+  const line = document.getElementById('s0-line');
+  setTimeout(()=>{ line.style.transition='opacity 0.5s, transform 0.8s ease'; line.style.opacity='1'; line.style.transform='scaleX(1)'; }, 1600);
+  // add fade-in to logo
+  document.getElementById('s0-logo').style.transition='all 0.8s ease';
+  document.getElementById('s0-sub').style.transition='all 0.7s ease';
+  document.getElementById('s0-sub').style.transform='translateY(8px)';
+  document.getElementById('s0-logo').style.transform='translateY(8px)';
+}
+function tickS0(){}
+
+function initS1(){
+  ['f1','f2','f3','f4','f5'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if(el){ setTimeout(()=>{ el.style.transition='all 0.5s ease'; el.style.opacity='1'; }, 400+i*200); }
+  });
+  setTimeout(()=>{
+    ['s1-label','s1-main','s1-sub'].forEach((id,i)=>{
+      const el = document.getElementById(id);
+      if(el){ el.style.transition='all 0.5s ease'; el.style.transitionDelay=(i*0.15)+'s'; el.style.opacity='1'; el.style.transform='translateY(0)'; el.style.transformOrigin='bottom'; }
+    });
+  }, 1200);
+}
+
+function initS2(){
+  ['g1','g2','g3','g4'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if(el){ setTimeout(()=>{ el.style.transition='all 0.4s ease'; el.style.opacity='1'; }, 300+i*150); }
+  });
+  setTimeout(()=>{
+    ['s2-label','s2-main','s2-sub'].forEach((id,i)=>{
+      const el = document.getElementById(id);
+      if(el){ el.style.transition='all 0.5s ease'; el.style.transitionDelay=(i*0.15)+'s'; el.style.opacity='1'; }
+    });
+  }, 1000);
+}
+
+function initS3(){
+  const av1=document.getElementById('av1'), av2=document.getElementById('av2');
+  const sb1=document.getElementById('sb1'), sb2=document.getElementById('sb2');
+  if(av1){ setTimeout(()=>{ av1.style.transition='all 0.5s ease'; av1.style.opacity='1'; },200); }
+  if(av2){ setTimeout(()=>{ av2.style.transition='all 0.5s ease'; av2.style.opacity='1'; },400); }
+  if(sb1){ setTimeout(()=>{ sb1.style.transition='all 0.6s ease'; sb1.style.opacity='1'; sb1.style.transform='translateY(0)'; },700); }
+  if(sb2){ setTimeout(()=>{ sb2.style.transition='all 0.6s ease'; sb2.style.opacity='1'; sb2.style.transform='translateY(0)'; },2200); }
+  setTimeout(()=>{
+    ['s3-label','s3-main','s3-sub'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      if(el){ el.style.transition='all 0.5s ease'; el.style.transitionDelay=(i*0.15)+'s'; el.style.opacity='1'; }
+    });
+  }, 1400);
+}
+
+function initS4(){
+  const nap=document.getElementById('napkin');
+  if(nap){ setTimeout(()=>{ nap.style.transition='all 0.7s ease'; nap.style.opacity='1'; },300); }
+  // trigger SVG paths
+  const ns=document.getElementById('ns');
+  if(ns){
+    setTimeout(()=>{
+      ns.style.transition='opacity 0.5s'; ns.style.opacity='1';
+      ns.querySelectorAll('rect,line,circle,path').forEach(el=>{
+        if(el.style.transition){ /* let inline style handle it */ }
+      });
+      ns.querySelectorAll('text').forEach(el=>{ /* let inline style handle */ });
+    }, 600);
+  }
+  const bt=document.getElementById('bt');
+  if(bt){ setTimeout(()=>{ bt.style.transition='all 0.5s ease'; bt.style.opacity='1'; },3000); }
+  setTimeout(()=>{
+    ['s4-label','s4-main','s4-sub'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      if(el){ el.style.transition='all 0.5s ease'; el.style.transitionDelay=(i*0.15)+'s'; el.style.opacity='1'; }
+    });
+  }, 1500);
+}
+
+function initS5(){
+  for(let i=1;i<=15;i++){
+    const el=document.getElementById('cf'+i);
+    if(el){ setTimeout(()=>{ el.style.transition='all 0.4s ease'; el.style.opacity='1'; }, 200+i*80); }
+  }
+  // flash
+  setTimeout(()=>{
+    const f=document.getElementById('flash');
+    if(f){ f.style.transition='opacity 0.1s'; f.style.opacity='0.9';
+      setTimeout(()=>{ f.style.transition='opacity 0.6s'; f.style.opacity='0'; },120); }
+  }, 2000);
+  // caption after flash
+  const gc=document.getElementById('gc');
+  if(gc){ setTimeout(()=>{ gc.style.transition='all 0.7s ease'; gc.style.opacity='1'; },2400); }
+}
+
+function initS6(){
+  const b=document.getElementById('beers');
+  if(b){ setTimeout(()=>{ b.style.transition='all 0.7s ease'; b.style.opacity='1'; b.style.transform='translateY(0)'; },400); }
+  const mn=document.getElementById('mn');
+  if(mn){ setTimeout(()=>{ mn.style.transition='all 0.6s ease'; mn.style.opacity='1'; },1800); }
+  setTimeout(()=>{
+    ['s6-label','s6-main','s6-sub'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      if(el){ el.style.transition='all 0.5s ease'; el.style.transitionDelay=(i*0.15)+'s'; el.style.opacity='1'; }
+    });
+  }, 1000);
+}
+
+function initS7(){
+  const c=document.getElementById('credits');
+  if(c){ setTimeout(()=>{ c.style.transition='all 0.8s ease'; c.style.opacity='1'; },400); }
+  const cl=document.getElementById('credits-list');
+  if(cl){ setTimeout(()=>{ cl.style.transition='all 0.8s ease'; cl.style.opacity='1'; },1200); }
+}
+
+// autoplay on load
+window.addEventListener('load', ()=>{ updateUI(); });
+</script>
+
+</body>
+</html>

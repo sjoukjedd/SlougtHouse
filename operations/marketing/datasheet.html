@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>VU-AMS — Product Datasheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#e8e8e8;color:#101430;}
+
+  /* Page geometry — A4 210 × 297 mm */
+  .page{
+    width:210mm;
+    height:297mm;
+    background:#ffffff;
+    margin:0 auto 20px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ── SHARED HEADER ── */
+  .pg-header{background:#101430;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .pg-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+  .pg-logo span{color:#00b6cb;}
+  .pg-header-right{text-align:right;}
+  .pg-doc-title{font-size:9px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1.5px;}
+  .pg-doc-rev{font-size:8px;color:rgba(255,255,255,0.35);margin-top:2px;}
+  .accent-bar{height:3px;background:linear-gradient(90deg,#00b6cb,#0078A8,#101430);flex-shrink:0;}
+
+  /* ── PAGE 1 HERO ── */
+  .hero{background:linear-gradient(135deg,#101430 55%,#082438);padding:26px 22px 22px;color:#fff;flex-shrink:0;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;right:-50px;top:-50px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(0,182,203,0.12);}
+  .hero::before{content:'';position:absolute;right:30px;top:30px;width:160px;height:160px;border-radius:50%;border:1px solid rgba(0,182,203,0.08);}
+  .hero-eyebrow{font-size:9px;font-weight:700;color:#00b6cb;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;}
+  .hero h1{font-size:22px;font-weight:800;line-height:1.2;margin-bottom:8px;}
+  .hero h1 span{color:#00b6cb;}
+  .hero-sub{font-size:10.5px;color:rgba(255,255,255,0.7);line-height:1.65;max-width:380px;margin-bottom:14px;}
+  .hero-badges{display:flex;gap:6px;flex-wrap:wrap;}
+  .badge{font-size:8px;font-weight:700;padding:3px 9px;border-radius:14px;letter-spacing:0.5px;}
+  .badge-cyan{background:rgba(0,182,203,0.2);border:1px solid rgba(0,182,203,0.5);color:#00b6cb;}
+  .badge-green{background:rgba(41,198,109,0.15);border:1px solid rgba(41,198,109,0.4);color:#29c66d;}
+
+  /* ── BODY CONTENT ── */
+  .body-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .two-col{display:flex;gap:0;flex:1;}
+  .col-left{width:55%;padding:14px 16px 14px 22px;display:flex;flex-direction:column;gap:14px;border-right:1px solid #e5e7eb;}
+  .col-right{width:45%;padding:14px 22px 14px 16px;display:flex;flex-direction:column;gap:14px;}
+
+  /* Section label */
+  .sec-label{font-size:8px;font-weight:700;color:#00b6cb;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e5e7eb;}
+
+  /* Signal table */
+  .sig-table{width:100%;border-collapse:collapse;font-size:9px;}
+  .sig-table th{background:#101430;color:rgba(255,255,255,0.7);font-weight:600;padding:5px 7px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.5px;}
+  .sig-table td{padding:5px 7px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top;line-height:1.4;}
+  .sig-table tr:last-child td{border-bottom:none;}
+  .sig-table tr:nth-child(even) td{background:#fafafa;}
+  .new-pill{background:#00b6cb;color:#fff;font-size:7px;font-weight:700;padding:1px 4px;border-radius:2px;white-space:nowrap;}
+  .sig-name-cell{font-weight:700;color:#101430;white-space:nowrap;}
+
+  /* Spec table (right col) */
+  .spec-table{width:100%;border-collapse:collapse;font-size:9px;}
+  .spec-table tr td:first-child{color:#6b7280;padding:4px 0;width:45%;font-size:8.5px;}
+  .spec-table tr td:last-child{color:#101430;font-weight:700;font-size:9px;text-align:right;}
+  .spec-table tr{border-bottom:1px solid #f3f4f6;}
+  .spec-table tr:last-child{border-bottom:none;}
+  .spec-group{font-size:8px;font-weight:700;color:#00b6cb;letter-spacing:1px;text-transform:uppercase;padding:6px 0 3px;border-bottom:1px solid #e5e7eb;margin-bottom:4px;}
+
+  /* Platform block */
+  .plat-block{background:#f8fafc;border-radius:6px;padding:9px 11px;border-left:2px solid #00b6cb;}
+  .plat-title{font-size:9.5px;font-weight:700;color:#101430;margin-bottom:3px;}
+  .plat-body{font-size:8.5px;color:#6b7280;line-height:1.5;}
+
+  /* ICG highlight */
+  .icg-highlight{background:#101430;border-radius:8px;padding:12px 14px;color:#fff;}
+  .icg-highlight .icg-hl-title{font-size:10px;font-weight:800;color:#00b6cb;margin-bottom:6px;}
+  .icg-highlight p{font-size:9px;color:rgba(255,255,255,0.7);line-height:1.55;}
+  .icg-params{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;}
+  .icg-param{background:rgba(0,182,203,0.1);border-radius:4px;padding:5px 8px;}
+  .icg-param-name{font-size:8.5px;font-weight:700;color:#00b6cb;}
+  .icg-param-desc{font-size:8px;color:rgba(255,255,255,0.55);}
+
+  /* ── PAGE 1 FOOTER ── */
+  .pg-footer{background:#101430;padding:9px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .pg-footer-logo{font-size:11px;font-weight:800;color:#fff;}
+  .pg-footer-logo span{color:#00b6cb;}
+  .pg-footer-url{font-size:9px;color:#00b6cb;}
+  .pg-footer-num{font-size:8px;color:rgba(255,255,255,0.3);}
+  .pg-disclaimer{font-size:7px;color:rgba(255,255,255,0.3);text-align:center;padding:4px 22px 6px;background:#101430;}
+
+  /* ── PAGE 2 ── */
+  /* Reuse pg-header, pg-footer, accent-bar; only body differs */
+  .p2-body{flex:1;padding:0;display:flex;flex-direction:column;}
+  .p2-section{padding:12px 22px;border-bottom:1px solid #e5e7eb;}
+  .p2-section:last-of-type{border-bottom:none;}
+  .p2-two-col{display:flex;gap:16px;}
+  .p2-col{flex:1;}
+
+  /* Ordering / application info */
+  .app-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .app-card{border:1px solid #e5e7eb;border-radius:7px;padding:10px 12px;}
+  .app-card-title{font-size:9.5px;font-weight:700;color:#101430;margin-bottom:4px;}
+  .app-card-body{font-size:8.5px;color:#6b7280;line-height:1.5;}
+
+  /* Ordering table */
+  .order-table{width:100%;border-collapse:collapse;font-size:9px;}
+  .order-table th{background:#f5f5f5;padding:5px 8px;text-align:left;font-size:8px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;}
+  .order-table td{padding:5px 8px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top;}
+  .order-table tr:last-child td{border-bottom:none;}
+  .pn{font-family:monospace;font-size:9px;font-weight:700;color:#101430;}
+
+  /* Citation / validation block */
+  .validation-row{display:flex;gap:10px;}
+  .val-item{flex:1;background:#f8fafc;border-radius:6px;padding:9px 11px;border-top:2px solid #00b6cb;}
+  .val-title{font-size:8.5px;font-weight:700;color:#101430;margin-bottom:3px;}
+  .val-body{font-size:8px;color:#6b7280;line-height:1.5;}
+
+  /* Electrical absolute maximum */
+  .abs-max-table{width:100%;border-collapse:collapse;font-size:8.5px;}
+  .abs-max-table th{background:#101430;color:rgba(255,255,255,0.65);padding:4px 8px;text-align:left;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+  .abs-max-table td{padding:4px 8px;border-bottom:1px solid #f3f4f6;color:#374151;}
+  .abs-max-table tr:nth-child(even) td{background:#fafafa;}
+
+  /* Compliance block */
+  .compliance-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .comp-item{background:#101430;border-radius:6px;padding:8px 10px;text-align:center;}
+  .comp-val{font-size:11px;font-weight:800;color:#00b6cb;}
+  .comp-label{font-size:7.5px;color:rgba(255,255,255,0.5);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;}
+
+  @media print {
+    body{background:#fff;}
+    .page{margin:0;border-radius:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ PAGE 1 ══════════════════ -->
+<div class="page">
+
+  <div class="pg-header">
+    <div class="pg-logo">VU<span>-AMS</span></div>
+    <div class="pg-header-right">
+      <div class="pg-doc-title">Product Datasheet</div>
+      <div class="pg-doc-rev">DS-001 · Rev 0.1 · 2026</div>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Next-Generation Ambulatory Monitoring System</div>
+    <h1>VU-AMS — Ambulatory Stress Monitor<br/><span>ECG + ICG + EDA + PPG + Motion</span></h1>
+    <p class="hero-sub">The VU-AMS is the world's only ambulatory wearable that simultaneously records Impedance Cardiography (ICG) and ECG in a chest-worn form factor, delivering cardiac output, stroke volume, and baroreflex sensitivity in daily-life conditions. The next generation adds skin conductance, PPG/SpO₂, body temperature, and 9-DOF inertial sensing in the same 55 × 55 mm device.</p>
+    <div class="hero-badges">
+      <span class="badge badge-cyan">Ambulatory ICG</span>
+      <span class="badge badge-cyan">Research Grade</span>
+      <span class="badge badge-cyan">IEC 60601-1 Type BF</span>
+      <span class="badge badge-green">New Generation · 2026</span>
+      <span class="badge badge-cyan">VU Amsterdam</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body-content">
+    <div class="two-col">
+
+      <!-- LEFT: signal table + ICG block -->
+      <div class="col-left">
+
+        <div>
+          <div class="sec-label">Signal Portfolio</div>
+          <table class="sig-table">
+            <thead>
+              <tr><th style="width:22%">Signal</th><th style="width:22%">Sensor / Method</th><th>Parameters</th><th style="width:12%">Rate</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sig-name-cell">ICG</td>
+                <td>4-electrode impedance</td>
+                <td>Cardiac output, stroke volume, PEP, LVET, dZ/dt, baroreflex sensitivity (BRS)</td>
+                <td>1 kHz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">ECG</td>
+                <td>2-lead ambulatory</td>
+                <td>R-peak, HRV (time &amp; frequency domain), IEC 60601-2-47 compliant, 0.05–150 Hz</td>
+                <td>1 kHz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">SCL / EDA <span class="new-pill">NEW</span></td>
+                <td>Skin conductance, Ag/AgCl</td>
+                <td>Tonic skin conductance level (SCL), phasic skin conductance response (SCR), sympathetic NS index</td>
+                <td>32 Hz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">PPG / SpO₂ <span class="new-pill">NEW</span></td>
+                <td>MAX30101 optical AFE</td>
+                <td>Heart rate (cross-validation), SpO₂ continuous, 660 nm + 940 nm dual-wavelength</td>
+                <td>100 Hz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">Body Temp <span class="new-pill">NEW</span></td>
+                <td>TMP117 digital sensor</td>
+                <td>Continuous skin temperature, ±0.1°C accuracy, 0.0078°C resolution, thermoregulatory context</td>
+                <td>4 Hz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">9-DOF IMU <span class="new-pill">NEW</span></td>
+                <td>ICM-20948 (InvenSense)</td>
+                <td>3-axis accelerometer, 3-axis gyroscope, 3-axis magnetometer (AK09916); posture &amp; activity classification, artefact rejection</td>
+                <td>100 Hz</td>
+              </tr>
+              <tr>
+                <td class="sig-name-cell">Barometric</td>
+                <td>BMP390</td>
+                <td>Atmospheric pressure, altitude, environmental context</td>
+                <td>10 Hz</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ICG highlight -->
+        <div class="icg-highlight">
+          <div class="icg-hl-title">ICG — The Unique Differentiator</div>
+          <p>Impedance Cardiography is the only non-invasive technique that provides direct haemodynamic parameters in ambulatory conditions. No other wearable device delivers these measurements outside a clinical or laboratory setting.</p>
+          <div class="icg-params">
+            <div class="icg-param"><div class="icg-param-name">Cardiac Output (CO)</div><div class="icg-param-desc">L/min · beat-to-beat</div></div>
+            <div class="icg-param"><div class="icg-param-name">Stroke Volume (SV)</div><div class="icg-param-desc">mL/beat · continuous</div></div>
+            <div class="icg-param"><div class="icg-param-name">Pre-ejection Period (PEP)</div><div class="icg-param-desc">Sympathetic contractility index</div></div>
+            <div class="icg-param"><div class="icg-param-name">Baroreflex Sensitivity (BRS)</div><div class="icg-param-desc">ms/mmHg · autonomic balance</div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: specs + platform -->
+      <div class="col-right">
+
+        <div>
+          <div class="sec-label">Electrical Specifications</div>
+          <div class="spec-group">Signal Acquisition</div>
+          <table class="spec-table">
+            <tr><td>ADC resolution</td><td>24-bit</td></tr>
+            <tr><td>Sample rate (ECG/ICG)</td><td>1 kHz</td></tr>
+            <tr><td>ICG carrier frequency</td><td>32 kHz</td></tr>
+            <tr><td>ICG excitation current</td><td>1 mA rms</td></tr>
+            <tr><td>ECG bandwidth</td><td>0.05 – 150 Hz</td></tr>
+            <tr><td>CMRR (ICG, transformer)</td><td>&gt; 120 dB</td></tr>
+            <tr><td>Input impedance (active)</td><td>&gt; 10¹² Ω</td></tr>
+          </table>
+          <div class="spec-group" style="margin-top:8px;">Platform</div>
+          <table class="spec-table">
+            <tr><td>Processor</td><td>ESP32-S3 · 240 MHz</td></tr>
+            <tr><td>Flash / PSRAM</td><td>8 MB / 8 MB</td></tr>
+            <tr><td>Wireless</td><td>BLE 5.0</td></tr>
+            <tr><td>USB</td><td>USB-C · OTG (capped)</td></tr>
+          </table>
+          <div class="spec-group" style="margin-top:8px;">Mechanical &amp; Power</div>
+          <table class="spec-table">
+            <tr><td>Housing dimensions</td><td>55 × 55 × 22 mm</td></tr>
+            <tr><td>Battery</td><td>2 × 1000 mAh Li-ion</td></tr>
+            <tr><td>Runtime</td><td>28 h typical</td></tr>
+            <tr><td>Electrode count</td><td>7 (E1–E7)</td></tr>
+            <tr><td>Patient safety</td><td>IEC 60601-1 Type BF</td></tr>
+          </table>
+        </div>
+
+        <div>
+          <div class="sec-label">Software Platform</div>
+          <div class="plat-block" style="margin-bottom:7px;">
+            <div class="plat-title">iOS / iPadOS / watchOS — Live Acquisition</div>
+            <div class="plat-body">BLE 5.0 streaming · Real-time ECG, ICG, SCL display · Online HRV analysis · Electrode contact quality monitoring · Recording session management</div>
+          </div>
+          <div class="plat-block" style="border-left-color:#0078A8;">
+            <div class="plat-title">VU-DAMS — Offline Analysis (Java desktop)</div>
+            <div class="plat-body">Artefact rejection · Ensemble averaging · Full derived parameter suite · SPSS / MATLAB / R export · Windows &amp; macOS</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <div class="pg-footer-logo">VU<span>-AMS</span></div>
+    <div class="pg-footer-url">vu-ams.nl</div>
+    <div class="pg-footer-num">DS-001 · Page 1 of 2</div>
+  </div>
+  <div class="pg-disclaimer">For research use only. Not intended for clinical diagnosis or therapeutic decisions. · © VU-AMS · Vrije Universiteit Amsterdam</div>
+
+</div><!-- end page 1 -->
+
+
+<!-- ══════════════════ PAGE 2 ══════════════════ -->
+<div class="page">
+
+  <div class="pg-header">
+    <div class="pg-logo">VU<span>-AMS</span></div>
+    <div class="pg-header-right">
+      <div class="pg-doc-title">Product Datasheet</div>
+      <div class="pg-doc-rev">DS-001 · Rev 0.1 · 2026</div>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+
+  <div class="p2-body">
+
+    <!-- Compliance + electrical safety -->
+    <div class="p2-section">
+      <div class="sec-label">Compliance &amp; Electrical Safety</div>
+      <div style="margin-bottom:10px;">
+        <div class="compliance-row">
+          <div class="comp-item"><div class="comp-val">BF</div><div class="comp-label">Patient connection type</div></div>
+          <div class="comp-item"><div class="comp-val">100 µA</div><div class="comp-label">Max patient leakage (normal)</div></div>
+          <div class="comp-item"><div class="comp-val">500 µA</div><div class="comp-label">Max leakage (single fault)</div></div>
+          <div class="comp-item"><div class="comp-val">IEC 60601-1</div><div class="comp-label">Safety standard</div></div>
+        </div>
+      </div>
+      <div style="font-size:8.5px;color:#6b7280;line-height:1.6;">
+        The VU-AMS is battery-operated exclusively during patient contact. The USB-C charging port is fitted with a mechanical protective cover that must be removed before connecting to mains power, ensuring no simultaneous patient connection and mains coupling. ICG patient circuitry is galvanically isolated from the signal conditioning chain via a 1:1 bifilar-wound transformer (MnZn ferrite, Faraday-shielded) achieving &gt;120 dB CMRR at 32 kHz. Protective earth is not applicable (battery-only, no mains connection during use).
+      </div>
+    </div>
+
+    <!-- Absolute maximum ratings -->
+    <div class="p2-section">
+      <div class="sec-label">Absolute Maximum Ratings (do not exceed)</div>
+      <table class="abs-max-table">
+        <thead>
+          <tr><th>Parameter</th><th>Min</th><th>Max</th><th>Unit</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Supply voltage (battery terminals)</td><td>2.7</td><td>4.25</td><td>V</td><td>Li-ion cell range; BQ25895 overvoltage protection</td></tr>
+          <tr><td>Electrode voltage (E1–E7 w.r.t. GND)</td><td>—</td><td>±15</td><td>V</td><td>TVS + 10 kΩ series protection on each lead</td></tr>
+          <tr><td>ICG injection current</td><td>—</td><td>1</td><td>mA rms</td><td>32 kHz, IEC 60601-1 BF compliant</td></tr>
+          <tr><td>Operating temperature</td><td>0</td><td>40</td><td>°C</td><td>Skin-worn; avoid extremes</td></tr>
+          <tr><td>Storage temperature</td><td>−20</td><td>60</td><td>°C</td><td>Without battery</td></tr>
+          <tr><td>USB-C charging input</td><td>—</td><td>5</td><td>V / 2A</td><td>Mechanical cover prevents charging during patient contact</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Research applications + ordering -->
+    <div class="p2-section">
+      <div class="p2-two-col">
+        <div class="p2-col">
+          <div class="sec-label">Research Applications</div>
+          <div class="app-grid">
+            <div class="app-card">
+              <div class="app-card-title">Occupational stress research</div>
+              <div class="app-card-body">Ambulatory cardiovascular and autonomic responses to workplace demands. CO, SV, PEP, HRV and SCL during naturalistic work conditions.</div>
+            </div>
+            <div class="app-card">
+              <div class="app-card-title">Psychophysiology &amp; emotion</div>
+              <div class="app-card-body">Full sympathetic–parasympathetic profiling. EDA/SCL for arousal, BRS for vagal tone, PEP for β-adrenergic activation.</div>
+            </div>
+            <div class="app-card">
+              <div class="app-card-title">Cardiac rehabilitation</div>
+              <div class="app-card-body">Post-event haemodynamic monitoring in daily life. CO and SV trajectories over weeks without clinic visits.</div>
+            </div>
+            <div class="app-card">
+              <div class="app-card-title">Sports &amp; exercise physiology</div>
+              <div class="app-card-body">Real-field cardiac output measurement during training. 9-DOF IMU for activity classification and movement artefact correction.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p2-col">
+          <div class="sec-label">Ordering Information</div>
+          <table class="order-table">
+            <thead>
+              <tr><th>Part number</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="pn">VU-AMS-NG-STD</td><td>VU-AMS next-gen device, standard electrode set (7 leads)</td></tr>
+              <tr><td class="pn">VU-AMS-NG-ACT</td><td>VU-AMS with active electrode clips (E2/E3, phantom-powered)</td></tr>
+              <tr><td class="pn">VU-DAMS-LIC</td><td>VU-DAMS offline analysis software licence (annual, per lab)</td></tr>
+              <tr><td class="pn">VU-AMS-EL-KIT</td><td>Electrode consumable kit (Ag/AgCl, 100 sets)</td></tr>
+              <tr><td class="pn">VU-AMS-CARRY</td><td>Carrying harness / chest strap accessory</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:8px;color:#9ca3af;margin-top:6px;line-height:1.5;">Contact <span style="color:#00b6cb;">vu-ams.nl</span> for pricing, volume discounts, and institutional licensing. For demonstration requests and technical enquiries, contact the Vrije Universiteit Amsterdam research group directly.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation / publications -->
+    <div class="p2-section">
+      <div class="sec-label">Validation &amp; Scientific Basis</div>
+      <div class="validation-row">
+        <div class="val-item">
+          <div class="val-title">ICG methodology</div>
+          <div class="val-body">VU-AMS ICG algorithms are validated against gold-standard thermodilution and Fick methods. Published in peer-reviewed journals since 1995. Signal processing follows Kubicek impedance model with Bernstein–Lemmens corrections.</div>
+        </div>
+        <div class="val-item" style="border-top-color:#0078A8;">
+          <div class="val-title">HRV standards</div>
+          <div class="val-body">HRV analysis complies with the 1996 Task Force guidelines (ESC/NASPE). Time-domain (SDNN, RMSSD), frequency-domain (LF, HF, LF/HF ratio) and non-linear indices (SD1/SD2, ApEn).</div>
+        </div>
+        <div class="val-item" style="border-top-color:#29c66d;">
+          <div class="val-title">EDA measurement</div>
+          <div class="val-body">Skin conductance electrodes follow LEDALAB and SCSR standards. Tonic/phasic decomposition uses established CDA and DDA methods. Sampling complies with the 32 Hz minimum for SCR detection.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="p2-section" style="border-bottom:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="sec-label" style="margin-bottom:4px;">Contact &amp; Further Information</div>
+          <div style="font-size:9px;color:#374151;line-height:1.7;">
+            <strong>Vrije Universiteit Amsterdam</strong> · Faculty of Behavioural and Movement Sciences<br/>
+            De Boelelaan 1105 · 1081 HV Amsterdam · Netherlands<br/>
+            <span style="color:#00b6cb;">www.vu-ams.nl</span>
+          </div>
+        </div>
+        <!-- QR placeholder -->
+        <div style="width:64px;height:64px;border:1px solid #e5e7eb;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#f9fafb;">
+          <div style="text-align:center;">
+            <div style="font-size:7px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">QR</div>
+            <div style="font-size:7px;color:#9ca3af;">vu-ams.nl</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end p2-body -->
+
+  <div class="pg-footer">
+    <div class="pg-footer-logo">VU<span>-AMS</span></div>
+    <div class="pg-footer-url">vu-ams.nl</div>
+    <div class="pg-footer-num">DS-001 · Page 2 of 2</div>
+  </div>
+  <div class="pg-disclaimer">For research use only. Not intended for clinical diagnosis or therapeutic decisions. · © VU-AMS · Vrije Universiteit Amsterdam</div>
+
+</div><!-- end page 2 -->
+
+</body>
+</html>

@@ -1,0 +1,430 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1020" width="1200" height="1020" font-family="Arial, sans-serif">
+  <rect width="1200" height="1020" fill="#0f1923"/>
+
+  <!-- Title -->
+  <text x="600" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#e2e8f0">VU-AMS — Functional Block Diagram</text>
+  <text x="600" y="44" text-anchor="middle" font-size="10" fill="#64748b">Rev 0.5 · 2026-05-08 · Nair (Electronics) · +Mag · ESP32-S3 · Buck dig. rail · 2200 mAh (24h) / ext. pack (50h) · Preliminary</text>
+
+  <!-- ═══════════════════════ LEGEND ════════════════════════ -->
+  <rect x="20" y="960" width="1160" height="48" rx="6" fill="#1a2535" stroke="#2d3f55" stroke-width="1"/>
+  <text x="34" y="978" font-size="10" font-weight="bold" fill="#94a3b8">Signal paths:</text>
+  <line x1="120" y1="974" x2="148" y2="974" stroke="#ef4444" stroke-width="2.5"/>
+  <text x="153" y="978" font-size="10" fill="#94a3b8">ICG current (32kHz/1mA)</text>
+  <line x1="300" y1="974" x2="328" y2="974" stroke="#3b82f6" stroke-width="2.5"/>
+  <text x="333" y="978" font-size="10" fill="#94a3b8">ICG/analogue sense</text>
+  <line x1="470" y1="974" x2="498" y2="974" stroke="#10b981" stroke-width="2.5"/>
+  <text x="503" y="978" font-size="10" fill="#94a3b8">ECG signal</text>
+  <line x1="590" y1="974" x2="618" y2="974" stroke="#f97316" stroke-width="2.5"/>
+  <text x="623" y="978" font-size="10" fill="#94a3b8">PPG / optical</text>
+  <line x1="720" y1="974" x2="748" y2="974" stroke="#ec4899" stroke-width="2.5"/>
+  <text x="753" y="978" font-size="10" fill="#94a3b8">SCL / EDA</text>
+  <line x1="840" y1="974" x2="868" y2="974" stroke="#a78bfa" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="873" y="978" font-size="10" fill="#94a3b8">RLD drive</text>
+  <line x1="960" y1="974" x2="988" y2="974" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="993" y="978" font-size="10" fill="#94a3b8">SPI/I²C</text>
+  <line x1="1060" y1="974" x2="1088" y2="974" stroke="#fbbf24" stroke-width="2.5"/>
+  <text x="1093" y="978" font-size="10" fill="#94a3b8">Power</text>
+
+  <text x="34" y="998" font-size="10" font-weight="bold" fill="#94a3b8">Blocks:</text>
+  <rect x="78" y="988" width="22" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="106" y="998" font-size="10" fill="#94a3b8">Analogue</text>
+  <rect x="190" y="988" width="22" height="12" rx="2" fill="#1a2e1a" stroke="#10b981" stroke-width="1"/>
+  <text x="218" y="998" font-size="10" fill="#94a3b8">Digital/MCU</text>
+  <rect x="320" y="988" width="22" height="12" rx="2" fill="#2d1a3a" stroke="#a78bfa" stroke-width="1"/>
+  <text x="348" y="998" font-size="10" fill="#94a3b8">ADC</text>
+  <rect x="410" y="988" width="22" height="12" rx="2" fill="#2d2000" stroke="#fbbf24" stroke-width="1"/>
+  <text x="438" y="998" font-size="10" fill="#94a3b8">Power</text>
+  <rect x="520" y="988" width="22" height="12" rx="2" fill="#2d1414" stroke="#ef4444" stroke-width="1"/>
+  <text x="548" y="998" font-size="10" fill="#94a3b8">Patient I/O</text>
+  <rect x="650" y="988" width="22" height="12" rx="2" fill="#2d1800" stroke="#f97316" stroke-width="1"/>
+  <text x="678" y="998" font-size="10" fill="#94a3b8">PPG/SpO₂</text>
+  <rect x="780" y="988" width="22" height="12" rx="2" fill="#2d0a1e" stroke="#ec4899" stroke-width="1"/>
+  <text x="808" y="998" font-size="10" fill="#94a3b8">SCL/EDA</text>
+  <rect x="900" y="988" width="22" height="12" rx="2" fill="#0a2020" stroke="#06b6d4" stroke-width="1"/>
+  <text x="928" y="998" font-size="10" fill="#94a3b8">Temperature</text>
+
+  <!-- ══════════════════ ELECTRODES ══════════════════ -->
+  <rect x="30" y="60" width="106" height="50" rx="5" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="83" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#fca5a5">E1 — DEVICE</text>
+  <text x="83" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">Between collarbones</text>
+  <text x="83" y="101" text-anchor="middle" font-size="8" fill="#64748b">Vsense⁺ · ECG ref</text>
+
+  <rect x="150" y="60" width="106" height="50" rx="5" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="203" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#fca5a5">E2 — SOLAR PLEXUS</text>
+  <text x="203" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">Front · centre</text>
+  <text x="203" y="101" text-anchor="middle" font-size="8" fill="#64748b">Vsense⁻ · ECG</text>
+
+  <rect x="270" y="60" width="106" height="50" rx="5" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="323" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#fca5a5">E3 — LEFT RIB</text>
+  <text x="323" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">Front · lower left</text>
+  <text x="323" y="101" text-anchor="middle" font-size="8" fill="#64748b">ECG only</text>
+
+  <rect x="390" y="60" width="106" height="50" rx="5" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="443" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#fca5a5">E4 — NECK (BACK)</text>
+  <text x="443" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">ICG I⁺ · RLD</text>
+  <text x="443" y="101" text-anchor="middle" font-size="8" fill="#64748b">Current injection</text>
+
+  <rect x="510" y="60" width="106" height="50" rx="5" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="563" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#fca5a5">E5 — LOWER BACK</text>
+  <text x="563" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">ICG I⁻ · RLD</text>
+  <text x="563" y="101" text-anchor="middle" font-size="8" fill="#64748b">Current injection</text>
+
+  <!-- NEW: SCL electrodes -->
+  <rect x="630" y="60" width="106" height="50" rx="5" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="683" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#f9a8d4">E6 — SCL+</text>
+  <text x="683" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">Skin conductance</text>
+  <text x="683" y="101" text-anchor="middle" font-size="8" fill="#64748b">On device or chest</text>
+
+  <rect x="750" y="60" width="106" height="50" rx="5" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="803" y="78" text-anchor="middle" font-size="9" font-weight="bold" fill="#f9a8d4">E7 — SCL−</text>
+  <text x="803" y="90" text-anchor="middle" font-size="8" fill="#94a3b8">Skin conductance</text>
+  <text x="803" y="101" text-anchor="middle" font-size="8" fill="#64748b">~2cm from E6</text>
+
+  <!-- Patient protection bar -->
+  <line x1="83" y1="110" x2="83" y2="128" stroke="#ef4444" stroke-width="1.2"/>
+  <line x1="203" y1="110" x2="203" y2="128" stroke="#ef4444" stroke-width="1.2"/>
+  <line x1="323" y1="110" x2="323" y2="128" stroke="#10b981" stroke-width="1.2"/>
+  <line x1="443" y1="110" x2="443" y2="128" stroke="#ef4444" stroke-width="1.2"/>
+  <line x1="563" y1="110" x2="563" y2="128" stroke="#ef4444" stroke-width="1.2"/>
+  <line x1="683" y1="110" x2="683" y2="128" stroke="#ec4899" stroke-width="1.2"/>
+  <line x1="803" y1="110" x2="803" y2="128" stroke="#ec4899" stroke-width="1.2"/>
+
+  <rect x="30" y="128" width="836" height="36" rx="5" fill="#2d1414" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="448" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#fca5a5">PATIENT PROTECTION — All electrode lines · Current-limiting resistors · TVS diodes · Defibrillation protection · IEC 60601-1</text>
+  <text x="448" y="156" text-anchor="middle" font-size="9" fill="#94a3b8">E1–E5: 10kΩ series + bidirectional TVS · E6–E7: 47kΩ series (SCL low current path)</text>
+
+  <!-- ══════════════════ ICG CHAIN ══════════════════ -->
+  <text x="20" y="194" font-size="10" font-weight="bold" fill="#3b82f6" letter-spacing="1">— ICG CHAIN —</text>
+
+  <rect x="20" y="198" width="136" height="42" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="88" y="215" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">32 kHz OSCILLATOR</text>
+  <text x="88" y="228" text-anchor="middle" font-size="9" fill="#94a3b8">DDS sine reference</text>
+  <text x="88" y="238" text-anchor="middle" font-size="9" fill="#64748b">Crystal-derived</text>
+  <line x1="88" y1="240" x2="88" y2="258" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="88,260 83,250 93,250" fill="#3b82f6"/>
+
+  <rect x="20" y="260" width="136" height="50" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="88" y="278" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">CURRENT SOURCE</text>
+  <text x="88" y="291" text-anchor="middle" font-size="9" fill="#94a3b8">1 mA · 32 kHz · V→I</text>
+  <text x="88" y="302" text-anchor="middle" font-size="9" fill="#64748b">High Zout → E4/E5</text>
+  <line x1="156" y1="282" x2="190" y2="282" stroke="#ef4444" stroke-width="2"/>
+  <text x="165" y="277" font-size="8" fill="#ef4444">→ E4,E5</text>
+  <line x1="88" y1="310" x2="88" y2="328" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="88,330 83,320 93,320" fill="#3b82f6"/>
+
+  <rect x="20" y="330" width="136" height="50" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="88" y="348" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">ICG INAMP</text>
+  <text x="88" y="361" text-anchor="middle" font-size="9" fill="#94a3b8">Diff · E1−E2 · CMRR &gt;80dB</text>
+  <text x="88" y="372" text-anchor="middle" font-size="9" fill="#64748b">Input ~25mV @ 32kHz</text>
+  <line x1="20" y1="355" x2="6" y2="355" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="4" y="351" font-size="8" fill="#3b82f6" text-anchor="end">E1,E2</text>
+  <line x1="88" y1="380" x2="88" y2="398" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="88,400 83,390 93,390" fill="#3b82f6"/>
+
+  <rect x="20" y="400" width="136" height="50" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="88" y="418" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">SYNC DEMODULATOR</text>
+  <text x="88" y="431" text-anchor="middle" font-size="9" fill="#94a3b8">Lock-in @ 32kHz</text>
+  <text x="88" y="442" text-anchor="middle" font-size="9" fill="#64748b">Output: Z(t) envelope</text>
+  <line x1="88" y1="450" x2="88" y2="468" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="88,470 83,460 93,460" fill="#3b82f6"/>
+
+  <rect x="20" y="470" width="136" height="42" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="88" y="488" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">LPF + BUFFER</text>
+  <text x="88" y="501" text-anchor="middle" font-size="9" fill="#94a3b8">Anti-alias · Fc &lt; 500Hz</text>
+  <text x="88" y="510" text-anchor="middle" font-size="9" fill="#64748b">→ ADC ch0</text>
+  <line x1="156" y1="490" x2="350" y2="490" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="352,490 342,485 342,495" fill="#3b82f6"/>
+  <text x="230" y="484" text-anchor="middle" font-size="9" fill="#3b82f6">Z(t)</text>
+  <!-- V_source ref dashed -->
+  <line x1="156" y1="218" x2="340" y2="218" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="340" y1="218" x2="340" y2="450" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="352,450 342,440 352,440" fill="#3b82f6"/>
+  <text x="190" y="213" font-size="8" fill="#3b82f6">V_src ref → ADC ch1</text>
+
+  <!-- ══════════════════ ECG CHAIN ══════════════════ -->
+  <text x="172" y="194" font-size="10" font-weight="bold" fill="#10b981" letter-spacing="1">— ECG CHAIN —</text>
+
+  <rect x="170" y="198" width="136" height="52" rx="5" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="238" y="216" text-anchor="middle" font-size="10" font-weight="bold" fill="#6ee7b7">RLD CIRCUIT</text>
+  <text x="238" y="229" text-anchor="middle" font-size="9" fill="#94a3b8">Driven right leg</text>
+  <text x="238" y="240" text-anchor="middle" font-size="9" fill="#94a3b8">CM rejection</text>
+  <text x="238" y="250" text-anchor="middle" font-size="9" fill="#64748b">Drive → E4, E5</text>
+  <line x1="306" y1="224" x2="330" y2="224" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="238" y1="250" x2="238" y2="268" stroke="#10b981" stroke-width="1.5"/>
+  <polygon points="238,270 233,260 243,260" fill="#10b981"/>
+
+  <rect x="170" y="270" width="136" height="62" rx="5" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="238" y="288" text-anchor="middle" font-size="10" font-weight="bold" fill="#6ee7b7">ECG INAMP × 2</text>
+  <text x="238" y="301" text-anchor="middle" font-size="9" fill="#94a3b8">Ch1: E1 − E2</text>
+  <text x="238" y="312" text-anchor="middle" font-size="9" fill="#94a3b8">Ch2: E1 − E3</text>
+  <text x="238" y="323" text-anchor="middle" font-size="9" fill="#64748b">Guarded · isolated</text>
+  <text x="238" y="332" text-anchor="middle" font-size="9" fill="#64748b">32kHz rejection</text>
+  <line x1="238" y1="332" x2="238" y2="350" stroke="#10b981" stroke-width="1.5"/>
+  <polygon points="238,352 233,342 243,342" fill="#10b981"/>
+
+  <rect x="170" y="352" width="136" height="62" rx="5" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="238" y="370" text-anchor="middle" font-size="10" font-weight="bold" fill="#6ee7b7">FILTER CHAIN</text>
+  <text x="238" y="383" text-anchor="middle" font-size="9" fill="#94a3b8">HPF: 0.05 Hz</text>
+  <text x="238" y="394" text-anchor="middle" font-size="9" fill="#94a3b8">LPF: 150 Hz</text>
+  <text x="238" y="405" text-anchor="middle" font-size="9" fill="#94a3b8">Notch: 32 kHz</text>
+  <text x="238" y="414" text-anchor="middle" font-size="9" fill="#64748b">IEC 60601-2-47</text>
+  <line x1="306" y1="382" x2="354" y2="382" stroke="#10b981" stroke-width="1.5"/>
+  <polygon points="356,382 346,377 346,387" fill="#10b981"/>
+  <text x="325" y="376" font-size="8" fill="#10b981">ECG1,2</text>
+
+  <!-- ══════════════════ NEW: PPG / SpO₂ ══════════════════ -->
+  <text x="172" y="442" font-size="10" font-weight="bold" fill="#f97316" letter-spacing="1">— PPG / SpO₂  [NEW] —</text>
+
+  <rect x="170" y="450" width="136" height="70" rx="5" fill="#2d1800" stroke="#f97316" stroke-width="1.8"/>
+  <text x="238" y="468" text-anchor="middle" font-size="10" font-weight="bold" fill="#fdba74">PPG AFE IC</text>
+  <text x="238" y="481" text-anchor="middle" font-size="9" fill="#94a3b8">e.g. MAX30101 / ADPD4100</text>
+  <text x="238" y="492" text-anchor="middle" font-size="9" fill="#94a3b8">Red LED 660nm + IR 940nm</text>
+  <text x="238" y="503" text-anchor="middle" font-size="9" fill="#94a3b8">Photodiode · ambient reject</text>
+  <text x="238" y="514" text-anchor="middle" font-size="9" fill="#64748b">I²C → ESP32</text>
+  <text x="238" y="520" text-anchor="middle" font-size="8" fill="#f97316">Chest placement (TBD Vasquez)</text>
+  <!-- I2C line to ESP32 -->
+  <line x1="306" y1="480" x2="590" y2="480" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="592,480 582,475 582,485" fill="#f97316"/>
+  <text x="430" y="474" text-anchor="middle" font-size="9" fill="#f97316">I²C · Red + IR raw</text>
+
+  <!-- ══════════════════ NEW: SCL / EDA ══════════════════ -->
+  <text x="172" y="546" font-size="10" font-weight="bold" fill="#ec4899" letter-spacing="1">— SCL / EDA  [NEW] —</text>
+
+  <rect x="170" y="554" width="136" height="62" rx="5" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.8"/>
+  <text x="238" y="572" text-anchor="middle" font-size="10" font-weight="bold" fill="#f9a8d4">SCL EXCITATION</text>
+  <text x="238" y="585" text-anchor="middle" font-size="9" fill="#94a3b8">AC source ~500Hz–1kHz</text>
+  <text x="238" y="596" text-anchor="middle" font-size="9" fill="#94a3b8">Low current → E6, E7</text>
+  <text x="238" y="607" text-anchor="middle" font-size="9" fill="#64748b">Avoids DC polarisation</text>
+  <text x="238" y="615" text-anchor="middle" font-size="8" fill="#64748b">Shared from digital rail</text>
+  <line x1="238" y1="616" x2="238" y2="634" stroke="#ec4899" stroke-width="1.5"/>
+  <polygon points="238,636 233,626 243,626" fill="#ec4899"/>
+
+  <rect x="170" y="636" width="136" height="52" rx="5" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.8"/>
+  <text x="238" y="654" text-anchor="middle" font-size="10" font-weight="bold" fill="#f9a8d4">SCL SENSE AMP</text>
+  <text x="238" y="667" text-anchor="middle" font-size="9" fill="#94a3b8">Transimpedance amp</text>
+  <text x="238" y="678" text-anchor="middle" font-size="9" fill="#94a3b8">Demodulate → SCL(t)</text>
+  <text x="238" y="688" text-anchor="middle" font-size="8" fill="#64748b">→ ADC ch6 (tonic) ch7 (phasic)</text>
+  <line x1="306" y1="660" x2="354" y2="660" stroke="#ec4899" stroke-width="1.5"/>
+  <polygon points="356,660 346,655 346,665" fill="#ec4899"/>
+  <text x="325" y="655" font-size="8" fill="#ec4899">SCL</text>
+
+  <!-- ══════════════════ NEW: BODY TEMPERATURE ══════════════════ -->
+  <text x="172" y="716" font-size="10" font-weight="bold" fill="#06b6d4" letter-spacing="1">— BODY TEMPERATURE  [NEW] —</text>
+
+  <rect x="170" y="724" width="136" height="62" rx="5" fill="#0a2020" stroke="#06b6d4" stroke-width="1.8"/>
+  <text x="238" y="742" text-anchor="middle" font-size="10" font-weight="bold" fill="#67e8f9">TEMP SENSOR IC</text>
+  <text x="238" y="755" text-anchor="middle" font-size="9" fill="#94a3b8">e.g. TMP117 / MAX30205</text>
+  <text x="238" y="766" text-anchor="middle" font-size="9" fill="#94a3b8">Resolution: 0.0078 °C</text>
+  <text x="238" y="777" text-anchor="middle" font-size="9" fill="#94a3b8">Accuracy: ±0.1 °C</text>
+  <text x="238" y="786" text-anchor="middle" font-size="8" fill="#64748b">I²C → ESP32 · on-skin probe</text>
+  <line x1="306" y1="755" x2="590" y2="755" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="592,755 582,750 582,760" fill="#06b6d4"/>
+  <text x="430" y="749" text-anchor="middle" font-size="9" fill="#06b6d4">I²C · 1Hz sample</text>
+
+  <!-- ══════════════════ 24-BIT ADC ══════════════════ -->
+  <rect x="354" y="355" width="148" height="340" rx="7" fill="#2d1a3a" stroke="#a78bfa" stroke-width="2"/>
+  <text x="428" y="374" text-anchor="middle" font-size="11" font-weight="bold" fill="#c4b5fd">24-BIT ADC</text>
+  <text x="428" y="387" text-anchor="middle" font-size="9" fill="#a78bfa">Sigma-delta · SPI</text>
+  <text x="428" y="400" text-anchor="middle" font-size="9" fill="#64748b">e.g. ADS1256 / AD7779</text>
+
+  <line x1="364" y1="412" x2="492" y2="412" stroke="#2d1a3a" stroke-width="0.5"/>
+
+  <text x="366" y="426" font-size="9" fill="#64748b">ch</text><text x="380" y="426" font-size="9" fill="#c4b5fd"> 0  Z(t) — ICG impedance</text>
+  <text x="366" y="440" font-size="9" fill="#64748b">ch</text><text x="380" y="440" font-size="9" fill="#c4b5fd"> 1  V_source — ICG ref</text>
+  <text x="366" y="454" font-size="9" fill="#64748b">ch</text><text x="380" y="454" font-size="9" fill="#c4b5fd"> 2  ECG1  (E1−E2)</text>
+  <text x="366" y="468" font-size="9" fill="#64748b">ch</text><text x="380" y="468" font-size="9" fill="#c4b5fd"> 3  ECG2  (E1−E3)</text>
+  <text x="366" y="482" font-size="9" fill="#64748b">ch</text><text x="380" y="482" font-size="9" fill="#94a3b8"> 4  Temp (on-device NTC)</text>
+  <text x="366" y="496" font-size="9" fill="#64748b">ch</text><text x="380" y="496" font-size="9" fill="#94a3b8"> 5  Battery voltage</text>
+  <text x="366" y="510" font-size="9" fill="#64748b">ch</text><text x="380" y="510" font-size="9" fill="#f9a8d4"> 6  SCL tonic  [NEW]</text>
+  <text x="366" y="524" font-size="9" fill="#64748b">ch</text><text x="380" y="524" font-size="9" fill="#f9a8d4"> 7  SCL phasic  [NEW]</text>
+
+  <line x1="364" y1="534" x2="492" y2="534" stroke="#2d1a3a" stroke-width="0.5"/>
+  <text x="428" y="548" text-anchor="middle" font-size="9" fill="#a78bfa">1 kHz output rate</text>
+  <text x="428" y="560" text-anchor="middle" font-size="9" fill="#64748b">VREF: precision 2.5V LDO</text>
+  <text x="428" y="572" text-anchor="middle" font-size="9" fill="#64748b">DRDY interrupt → ESP32</text>
+  <text x="428" y="590" text-anchor="middle" font-size="9" font-weight="bold" fill="#f9a8d4">NEW: ch6/ch7 now used</text>
+  <text x="428" y="602" text-anchor="middle" font-size="9" fill="#f9a8d4">for SCL tonic + phasic</text>
+  <text x="428" y="616" text-anchor="middle" font-size="8" fill="#64748b">SCL SR: 32 Hz sufficient</text>
+  <text x="428" y="632" text-anchor="middle" font-size="8" fill="#64748b">(oversampled from 1kHz)</text>
+  <text x="428" y="654" text-anchor="middle" font-size="9" fill="#64748b">VREF: precision 2.5V LDO</text>
+  <text x="428" y="668" text-anchor="middle" font-size="9" fill="#64748b">SPI → ESP32</text>
+
+  <!-- ADC → ESP32 -->
+  <line x1="502" y1="490" x2="590" y2="490" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4,3"/>
+  <polygon points="592,490 582,485 582,495" fill="#94a3b8"/>
+  <text x="542" y="484" font-size="9" fill="#94a3b8">SPI</text>
+
+  <!-- ECG to ADC -->
+  <line x1="354" y1="382" x2="354" y2="382" stroke="#10b981" stroke-width="0"/>
+  <!-- already connected by arrows above -->
+
+  <!-- SCL to ADC ch6/ch7 -->
+  <line x1="354" y1="660" x2="354" y2="516" stroke="#ec4899" stroke-width="1.5"/>
+  <polygon points="354,514 349,524 359,524" fill="#ec4899"/>
+
+  <!-- ══════════════════ ESP32 ══════════════════ -->
+  <rect x="592" y="195" width="210" height="590" rx="7" fill="#1a2e1a" stroke="#10b981" stroke-width="2"/>
+  <text x="697" y="210" text-anchor="middle" font-size="11" font-weight="bold" fill="#6ee7b7">ESP32-S3-MINI-1-N8R8</text>
+  <text x="697" y="222" text-anchor="middle" font-size="9" fill="#34d399">Dual-core LX7 · 240MHz · BLE 5.0 · USB OTG</text>
+  <text x="697" y="233" text-anchor="middle" font-size="9" fill="#34d399">8MB Flash · 8MB PSRAM · 15.4×20.5mm · PCB antenna</text>
+
+  <line x1="602" y1="241" x2="792" y2="241" stroke="#1a2e1a" stroke-width="0.5"/>
+
+  <text x="602" y="250" font-size="9" font-weight="bold" fill="#10b981">SPI bus:</text>
+  <text x="602" y="263" font-size="9" fill="#94a3b8">· 24-bit ADC  (ICG/ECG/SCL · 1kHz)</text>
+  <text x="602" y="276" font-size="9" fill="#94a3b8">· 9-axis IMU  (accel + gyro + mag · 100Hz)</text>
+  <text x="602" y="289" font-size="9" fill="#94a3b8">· SPI Flash / SD card  (logging)</text>
+
+  <text x="602" y="308" font-size="9" font-weight="bold" fill="#10b981">I²C bus:</text>
+  <text x="602" y="321" font-size="9" fill="#94a3b8">· Barometric sensor  (pressure/alt)</text>
+  <text x="602" y="334" font-size="9" fill="#94a3b8">· Battery fuel gauge</text>
+  <text x="602" y="347" font-size="9" fill="#fdba74">· PPG AFE (MAX30101)  [NEW]</text>
+  <text x="602" y="360" font-size="9" fill="#67e8f9">· Body temp sensor (TMP117)  [NEW]</text>
+
+  <text x="602" y="379" font-size="9" font-weight="bold" fill="#10b981">GPIO:</text>
+  <text x="602" y="392" font-size="9" fill="#94a3b8">· ADC DRDY interrupt</text>
+  <text x="602" y="405" font-size="9" fill="#94a3b8">· IMU data-ready interrupt</text>
+  <text x="602" y="418" font-size="9" fill="#94a3b8">· Electrode contact detect</text>
+  <text x="602" y="431" font-size="9" fill="#94a3b8">· LED status · button</text>
+  <text x="602" y="444" font-size="9" fill="#fdba74">· PPG INT (FIFO)  [NEW]</text>
+
+  <text x="602" y="463" font-size="9" font-weight="bold" fill="#10b981">Firmware data blocks:</text>
+  <text x="602" y="476" font-size="9" fill="#94a3b8">· A-block: Time/Status/Z0/ECG1/ECG2/V_src/Temp</text>
+  <text x="602" y="489" font-size="9" fill="#94a3b8">· M-block: Time/ax/ay/az/φx/φy/φz/mx/my/mz</text>
+  <text x="602" y="502" font-size="9" fill="#94a3b8">· D-block: Time/Pressure/Temperature</text>
+  <text x="602" y="515" font-size="9" fill="#94a3b8">· B-block: Time/Battery voltage</text>
+  <text x="602" y="528" font-size="9" fill="#fdba74">· P-block: Time/Red/IR/SpO₂/HR_ppg  [NEW]</text>
+  <text x="602" y="541" font-size="9" fill="#f9a8d4">· S-block: Time/SCL_tonic/SCL_phasic  [NEW]</text>
+  <text x="602" y="554" font-size="9" fill="#67e8f9">· T-block: Time/SkinTemp  [NEW]</text>
+
+  <line x1="602" y1="564" x2="792" y2="564" stroke="#1a2e1a" stroke-width="0.5"/>
+
+  <text x="602" y="578" font-size="9" font-weight="bold" fill="#10b981">Firmware tasks:</text>
+  <text x="602" y="591" font-size="9" fill="#94a3b8">· Acquire + packetise all blocks</text>
+  <text x="602" y="604" font-size="9" fill="#94a3b8">· Digital filter (dZ/dt, resp, ECG)</text>
+  <text x="602" y="617" font-size="9" fill="#94a3b8">· R-peak detect (online)</text>
+  <text x="602" y="630" font-size="9" fill="#fdba74">· SpO₂ algorithm (Red/IR ratio)  [NEW]</text>
+  <text x="602" y="643" font-size="9" fill="#f9a8d4">· SCL tonic/phasic decompose  [NEW]</text>
+  <text x="602" y="656" font-size="9" fill="#94a3b8">· BLE GATT server · OTA</text>
+  <text x="602" y="669" font-size="9" fill="#94a3b8">· RTC sync · SD logging</text>
+  <text x="602" y="686" font-size="9" fill="#64748b">240MHz · FreeRTOS · ESP-IDF</text>
+  <text x="602" y="698" font-size="9" fill="#64748b">OTA via HTTPS / BLE DFU / USB OTG</text>
+  <text x="602" y="710" font-size="9" fill="#64748b">USB-C native (geen UART-bridge nodig)</text>
+  <text x="602" y="722" font-size="9" fill="#34d399">8MB PSRAM → ~40s kanaaldata-buffer</text>
+  <text x="602" y="730" text-anchor="start" font-size="9" fill="#64748b">ADC channels 6,7 now allocated</text>
+  <text x="602" y="742" text-anchor="start" font-size="9" fill="#64748b">to SCL. No spare ADC ch. remain.</text>
+  <text x="602" y="754" text-anchor="start" font-size="9" fill="#f97316">Consider 2nd ADC if more</text>
+  <text x="602" y="766" text-anchor="start" font-size="9" fill="#f97316">channels needed in future.</text>
+
+  <!-- ══════════════════ PERIPHERALS ══════════════════ -->
+  <rect x="830" y="195" width="148" height="52" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="904" y="211" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">9-AXIS IMU  [NEW]</text>
+  <text x="904" y="223" text-anchor="middle" font-size="8" fill="#94a3b8">Accel + Gyro + Mag · SPI</text>
+  <text x="904" y="234" text-anchor="middle" font-size="8" fill="#64748b">ICM-20948 · 9-DOF</text>
+  <text x="904" y="244" text-anchor="middle" font-size="8" fill="#64748b">ax/ay/az · φx/φy/φz · mx/my/mz</text>
+  <line x1="802" y1="218" x2="830" y2="218" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="828,218 818,213 818,223" fill="#94a3b8"/>
+
+  <rect x="830" y="261" width="148" height="42" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="904" y="279" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">BARO SENSOR</text>
+  <text x="904" y="292" text-anchor="middle" font-size="9" fill="#94a3b8">Pressure + Temp · I²C</text>
+  <text x="904" y="301" text-anchor="middle" font-size="9" fill="#64748b">BMP390 · altitude</text>
+  <line x1="802" y1="278" x2="830" y2="278" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="828,278 818,273 818,283" fill="#94a3b8"/>
+
+  <rect x="830" y="317" width="148" height="42" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="904" y="335" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">SPI FLASH / SD</text>
+  <text x="904" y="348" text-anchor="middle" font-size="9" fill="#94a3b8">Local data logging</text>
+  <text x="904" y="357" text-anchor="middle" font-size="9" fill="#64748b">All block types stored</text>
+  <line x1="802" y1="335" x2="830" y2="335" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="828,335 818,330 818,340" fill="#94a3b8"/>
+
+  <rect x="830" y="373" width="148" height="42" rx="5" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="904" y="391" text-anchor="middle" font-size="10" font-weight="bold" fill="#6ee7b7">BLE ANTENNA</text>
+  <text x="904" y="404" text-anchor="middle" font-size="9" fill="#94a3b8">2.4 GHz · BLE 5.0</text>
+  <text x="904" y="413" text-anchor="middle" font-size="9" fill="#64748b">→ iPhone · iPad · Watch</text>
+  <line x1="802" y1="390" x2="830" y2="390" stroke="#10b981" stroke-width="1.5"/>
+  <polygon points="828,390 818,385 818,395" fill="#10b981"/>
+
+  <rect x="830" y="429" width="148" height="42" rx="5" fill="#1a2e1a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="904" y="447" text-anchor="middle" font-size="10" font-weight="bold" fill="#6ee7b7">USB-C</text>
+  <text x="904" y="460" text-anchor="middle" font-size="9" fill="#94a3b8">Charging · UART debug</text>
+  <text x="904" y="469" text-anchor="middle" font-size="9" fill="#64748b">OTA / firmware flash</text>
+  <line x1="802" y1="447" x2="830" y2="447" stroke="#fbbf24" stroke-width="1.5"/>
+  <polygon points="828,447 818,442 818,452" fill="#fbbf24"/>
+
+  <!-- NEW: PPG on-device LED/PD detail -->
+  <rect x="830" y="485" width="148" height="62" rx="5" fill="#2d1800" stroke="#f97316" stroke-width="1.8"/>
+  <text x="904" y="503" text-anchor="middle" font-size="10" font-weight="bold" fill="#fdba74">PPG OPTICS  [NEW]</text>
+  <text x="904" y="516" text-anchor="middle" font-size="9" fill="#94a3b8">Red LED 660nm</text>
+  <text x="904" y="527" text-anchor="middle" font-size="9" fill="#94a3b8">IR LED 940nm</text>
+  <text x="904" y="538" text-anchor="middle" font-size="9" fill="#94a3b8">Photodiode receiver</text>
+  <text x="904" y="547" text-anchor="middle" font-size="8" fill="#64748b">Chest-mounted · on PCB</text>
+  <line x1="802" y1="508" x2="830" y2="508" stroke="#f97316" stroke-width="1.5"/>
+  <polygon points="828,508 818,503 818,513" fill="#f97316"/>
+
+  <!-- NEW: Body temp probe -->
+  <rect x="830" y="561" width="148" height="52" rx="5" fill="#0a2020" stroke="#06b6d4" stroke-width="1.8"/>
+  <text x="904" y="579" text-anchor="middle" font-size="10" font-weight="bold" fill="#67e8f9">SKIN TEMP PROBE  [NEW]</text>
+  <text x="904" y="592" text-anchor="middle" font-size="9" fill="#94a3b8">TMP117 digital · I²C</text>
+  <text x="904" y="603" text-anchor="middle" font-size="9" fill="#94a3b8">On-skin contact surface</text>
+  <text x="904" y="613" text-anchor="middle" font-size="8" fill="#64748b">0.0078°C res · ±0.1°C</text>
+  <line x1="802" y1="580" x2="830" y2="580" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="828,580 818,575 818,585" fill="#06b6d4"/>
+
+  <!-- NEW: SCL electrodes detail -->
+  <rect x="830" y="627" width="148" height="52" rx="5" fill="#2d0a1e" stroke="#ec4899" stroke-width="1.8"/>
+  <text x="904" y="645" text-anchor="middle" font-size="10" font-weight="bold" fill="#f9a8d4">SCL ELECTRODES  [NEW]</text>
+  <text x="904" y="658" text-anchor="middle" font-size="9" fill="#94a3b8">E6 + E7 · Ag/AgCl</text>
+  <text x="904" y="669" text-anchor="middle" font-size="9" fill="#94a3b8">~2cm spacing · chest</text>
+  <text x="904" y="678" text-anchor="middle" font-size="8" fill="#64748b">Location TBD Vasquez</text>
+  <line x1="802" y1="650" x2="830" y2="650" stroke="#ec4899" stroke-width="1.5"/>
+  <polygon points="828,650 818,645 818,655" fill="#ec4899"/>
+
+  <!-- Electrode detect -->
+  <rect x="830" y="693" width="148" height="44" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="904" y="711" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">ELECTRODE DETECT</text>
+  <text x="904" y="724" text-anchor="middle" font-size="9" fill="#94a3b8">Contact quality monitor</text>
+  <text x="904" y="733" text-anchor="middle" font-size="9" fill="#64748b">All 7 electrode lines</text>
+  <line x1="802" y1="710" x2="830" y2="710" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="828,710 818,705 818,715" fill="#94a3b8"/>
+
+  <!-- ══════════════════ POWER ══════════════════ -->
+  <text x="592" y="805" font-size="10" font-weight="bold" fill="#fbbf24" letter-spacing="1">— POWER MANAGEMENT —</text>
+
+  <rect x="592" y="812" width="118" height="42" rx="5" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="651" y="827" text-anchor="middle" font-size="10" font-weight="bold" fill="#fde68a">LiPo BATTERY</text>
+  <text x="651" y="839" text-anchor="middle" font-size="9" fill="#94a3b8">2200 mAh · 3.7V</text>
+  <text x="651" y="849" text-anchor="middle" font-size="8" fill="#34d399">24–30h · ext. pack voor 50h</text>
+
+  <rect x="726" y="812" width="118" height="42" rx="5" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="785" y="830" text-anchor="middle" font-size="10" font-weight="bold" fill="#fde68a">CHARGER IC</text>
+  <text x="785" y="843" text-anchor="middle" font-size="9" fill="#94a3b8">USB-C · CC/CV</text>
+  <text x="785" y="852" text-anchor="middle" font-size="8" fill="#64748b">BQ25895 · status GPIO</text>
+  <line x1="710" y1="833" x2="726" y2="833" stroke="#fbbf24" stroke-width="1.5"/>
+
+  <rect x="20" y="812" width="130" height="42" rx="5" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="85" y="830" text-anchor="middle" font-size="10" font-weight="bold" fill="#fde68a">ANALOG 3.3V LDO</text>
+  <text x="85" y="843" text-anchor="middle" font-size="9" fill="#94a3b8">Ultra-low noise</text>
+  <text x="85" y="852" text-anchor="middle" font-size="8" fill="#64748b">ICG/ECG/SCL rails</text>
+
+  <rect x="170" y="812" width="130" height="42" rx="5" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="235" y="828" text-anchor="middle" font-size="10" font-weight="bold" fill="#fde68a">DIGITAL 3.3V BUCK</text>
+  <text x="235" y="840" text-anchor="middle" font-size="9" fill="#34d399">92% rendement</text>
+  <text x="235" y="851" text-anchor="middle" font-size="8" fill="#94a3b8">ESP32 · IMU · sensors</text>
+
+  <rect x="320" y="812" width="130" height="42" rx="5" fill="#2d2000" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="385" y="830" text-anchor="middle" font-size="10" font-weight="bold" fill="#fde68a">ADC VREF 2.5V</text>
+  <text x="385" y="843" text-anchor="middle" font-size="9" fill="#94a3b8">Precision reference</text>
+  <text x="385" y="852" text-anchor="middle" font-size="8" fill="#64748b">Low-drift · ICG accuracy</text>
+
+  <!-- Power bus -->
+  <line x1="592" y1="833" x2="450" y2="833" stroke="#fbbf24" stroke-width="1.5"/>
+  <line x1="450" y1="833" x2="450" y2="814" stroke="#fbbf24" stroke-width="1.5"/>
+  <line x1="450" y1="812" x2="320" y2="812" stroke="#fbbf24" stroke-width="0"/>
+  <line x1="385" y1="812" x2="385" y2="800" stroke="#fbbf24" stroke-width="1.5"/>
+  <line x1="235" y1="812" x2="235" y2="800" stroke="#fbbf24" stroke-width="1.5"/>
+  <line x1="85" y1="812" x2="85" y2="800" stroke="#fbbf24" stroke-width="1.5"/>
+  <line x1="85" y1="800" x2="590" y2="800" stroke="#fbbf24" stroke-width="1.5"/>
+
+</svg>
