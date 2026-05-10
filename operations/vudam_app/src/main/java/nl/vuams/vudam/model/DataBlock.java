@@ -21,11 +21,13 @@ package nl.vuams.vudam.model;
  */
 public sealed interface DataBlock
         permits DataBlock.ABlock,
+                DataBlock.BBlock,
                 DataBlock.IBlock,
                 DataBlock.MBlock,
                 DataBlock.PBlock,
                 DataBlock.SBlock,
-                DataBlock.TBlock {
+                DataBlock.TBlock,
+                DataBlock.VBlock {
 
     /** Block type byte as defined by BLOCK_TYPE_* constants. */
     byte type();
@@ -222,5 +224,79 @@ public sealed interface DataBlock
             short tempRaw
     ) implements DataBlock {
         public static final byte TYPE = 0x54;
+    }
+
+    // -------------------------------------------------------------------------
+    // V-block — High-ODR accelerometer for Speech Activity Detection (SAD)
+    //   1 kHz, 100 samples per block (100 ms window), SD-only
+    //   payload_len = 3 × 100 × 2 = 600 bytes
+    //   int16_t ax[100], ay[100], az[100]
+    // -------------------------------------------------------------------------
+
+    /**
+     * High-ODR accelerometer block for Speech Activity Detection (SP-002).
+     *
+     * <p>Carries 100 samples at 1 kHz on three accelerometer axes, covering 100 ms.
+     * The gyroscope and magnetometer are NOT included — they remain in the 100 Hz M-block.
+     *
+     * @param type        block type byte — always {@code 0x56} ('V')
+     * @param version     schema version
+     * @param seq         rolling sequence number
+     * @param timestampUs timestamp of sample[0], µs
+     * @param ax          100 accelerometer-X samples [raw LSB, 1 kHz]
+     * @param ay          100 accelerometer-Y samples
+     * @param az          100 accelerometer-Z samples
+     */
+    record VBlock(
+            byte type,
+            byte version,
+            int seq,
+            long timestampUs,
+            short[] ax,
+            short[] ay,
+            short[] az
+    ) implements DataBlock {
+        public static final byte TYPE = 0x56;
+
+        public VBlock {
+            validateLen(ax, "ax");
+            validateLen(ay, "ay");
+            validateLen(az, "az");
+        }
+
+        private static void validateLen(short[] arr, String name) {
+            if (arr.length != 100)
+                throw new IllegalArgumentException("V-block channel " + name + " must be 100 samples");
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // B-block — Barometric pressure / altitude (BMP390), 25 Hz
+    //   payload_len = 4 + 4 = 8 bytes
+    //   float baro_pressure_pa, float baro_temp_c
+    // -------------------------------------------------------------------------
+
+    /**
+     * Barometric pressure block (BMP390) for HAR stair detection (SP-002).
+     *
+     * <p>One sample per block at up to 25 Hz. Altitude is derived from pressure
+     * in the analyser using the hypsometric approximation (ΔP / 12.0 Pa/m).
+     *
+     * @param type           block type byte — always {@code 0x42} ('B')
+     * @param version        schema version
+     * @param seq            rolling sequence number
+     * @param timestampUs    timestamp of the pressure sample, µs
+     * @param baroPressurePa compensated pressure [Pa]
+     * @param baroTempC      compensated temperature [°C]
+     */
+    record BBlock(
+            byte type,
+            byte version,
+            int seq,
+            long timestampUs,
+            float baroPressurePa,
+            float baroTempC
+    ) implements DataBlock {
+        public static final byte TYPE = 0x42;
     }
 }

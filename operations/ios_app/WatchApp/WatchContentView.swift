@@ -2,45 +2,57 @@ import SwiftUI
 
 struct WatchContentView: View {
 
-    @EnvironmentObject private var receiver: WatchConnectivityReceiver
+    @Environment(WatchConnectivityReceiver.self) private var receiver
 
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
-                connectionBadge
+                WatchConnectionBadgeView(isConnected: receiver.deviceConnected)
 
                 WatchWaveformView(samples: receiver.ecgBuffer)
                     .frame(height: 60)
                     .padding(.horizontal, 4)
 
-                metricsRow
+                WatchMetricsRowView(heartRate: receiver.heartRate,
+                                    respirationRate: receiver.respirationRate)
             }
             .padding(.vertical, 6)
         }
         .navigationTitle("VU-AMS")
         .navigationBarTitleDisplayMode(.inline)
     }
+}
 
-    // MARK: - Subviews
+// MARK: - Connection Badge
 
-    private var connectionBadge: some View {
+private struct WatchConnectionBadgeView: View {
+    let isConnected: Bool
+
+    var body: some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(receiver.deviceConnected ? Color.green : Color.orange)
+                .fill(isConnected ? Color.green : Color.orange)
                 .frame(width: 7, height: 7)
-            Text(receiver.deviceConnected ? "Connected" : "No Signal")
+            Text(isConnected ? "Connected" : "No Signal")
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(receiver.deviceConnected ? .green : .orange)
+                .foregroundStyle(isConnected ? .green : .orange)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 3)
         .background(.ultraThinMaterial, in: Capsule())
     }
+}
 
-    private var metricsRow: some View {
+// MARK: - Metrics Row
+
+private struct WatchMetricsRowView: View {
+    let heartRate: Double
+    let respirationRate: Double
+
+    var body: some View {
         HStack(spacing: 0) {
-            metricTile(
-                value: receiver.heartRate > 0 ? String(format: "%.0f", receiver.heartRate) : "--",
+            WatchMetricTileView(
+                value: heartRate > 0 ? heartRate.formatted(.number.precision(.fractionLength(0))) : "--",
                 unit: "bpm",
                 label: "HR",
                 icon: "heart.fill",
@@ -51,8 +63,8 @@ struct WatchContentView: View {
                 .frame(height: 40)
                 .background(.secondary.opacity(0.4))
 
-            metricTile(
-                value: receiver.respirationRate > 0 ? String(format: "%.1f", receiver.respirationRate) : "--",
+            WatchMetricTileView(
+                value: respirationRate > 0 ? respirationRate.formatted(.number.precision(.fractionLength(1))) : "--",
                 unit: "br/min",
                 label: "RR",
                 icon: "lungs.fill",
@@ -62,12 +74,18 @@ struct WatchContentView: View {
         .padding(.horizontal, 4)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
+}
 
-    private func metricTile(value: String,
-                             unit: String,
-                             label: String,
-                             icon: String,
-                             iconColor: Color) -> some View {
+// MARK: - Metric Tile
+
+private struct WatchMetricTileView: View {
+    let value: String
+    let unit: String
+    let label: String
+    let icon: String
+    let iconColor: Color
+
+    var body: some View {
         VStack(spacing: 2) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
@@ -96,5 +114,5 @@ struct WatchContentView: View {
 #Preview {
     let receiver = WatchConnectivityReceiver()
     return WatchContentView()
-        .environmentObject(receiver)
+        .environment(receiver)
 }

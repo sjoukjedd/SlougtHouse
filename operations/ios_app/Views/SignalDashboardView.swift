@@ -3,7 +3,7 @@ import SwiftUI
 /// Live numeric dashboard — grid of key physiological values.
 struct SignalDashboardView: View {
 
-    @EnvironmentObject var ble: BLEManager
+    @Environment(BLEManager.self) var ble
 
     private let background   = Color(red: 0x08/255.0, green: 0x0C/255.0, blue: 0x1E/255.0)
     private let accentColour = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
@@ -38,17 +38,17 @@ struct SignalDashboardView: View {
 
     private var coText: String {
         guard let i = ble.latestIBlock else { return "—" }
-        return String(format: "%.1f", i.co)
+        return i.co.formatted(.number.precision(.fractionLength(1)))
     }
 
     private var svText: String {
         guard let i = ble.latestIBlock else { return "—" }
-        return String(format: "%.0f", i.sv)
+        return i.sv.formatted(.number.precision(.fractionLength(0)))
     }
 
     private var spo2Text: String {
         guard let p = ble.latestPBlock else { return "—" }
-        return String(format: "%.1f", p.spo2Pct)
+        return p.spo2Pct.formatted(.number.precision(.fractionLength(1)))
     }
 
     private var sclText: String {
@@ -58,12 +58,12 @@ struct SignalDashboardView: View {
 
     private var tempText: String {
         guard let t = ble.latestTBlock else { return "—" }
-        return String(format: "%.1f", t.skinTempC)
+        return t.skinTempC.formatted(.number.precision(.fractionLength(1)))
     }
 
     private var z0Text: String {
         guard let i = ble.latestIBlock else { return "—" }
-        return String(format: "%.1f", i.z0)
+        return i.z0.formatted(.number.precision(.fractionLength(1)))
     }
 }
 
@@ -102,5 +102,5 @@ private struct MetricTile: View {
 
 #Preview {
     SignalDashboardView()
-        .environmentObject(BLEManager())
+        .environment(BLEManager())
 }

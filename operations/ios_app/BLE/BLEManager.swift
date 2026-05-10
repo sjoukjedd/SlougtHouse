@@ -1,6 +1,6 @@
 import Foundation
 import CoreBluetooth
-import Combine
+import Observation
 
 // MARK: - Connection State
 
@@ -45,18 +45,21 @@ struct DiscoveredPeripheral: Identifiable, Equatable {
 
 // MARK: - BLEManager
 
-final class BLEManager: NSObject, ObservableObject {
+@Observable
+@MainActor
+final class BLEManager: NSObject {
 
-    // Published state
-    @Published var connectionState: ConnectionState = .disconnected
-    @Published var discoveredPeripherals: [DiscoveredPeripheral] = []
-    @Published var latestABlock: ABlock?
-    @Published var latestIBlock: IBlock?
-    @Published var latestMBlock: MBlock?
-    @Published var latestPBlock: PBlock?
-    @Published var latestSBlock: SBlock?
-    @Published var latestTBlock: TBlock?
-    @Published var signalQuality: [String: Bool] = [
+    // Tracked state
+    var connectionState: ConnectionState = .disconnected
+    var discoveredPeripherals: [DiscoveredPeripheral] = []
+    var latestABlock: ABlock?
+    var latestIBlock: IBlock?
+    var latestMBlock: MBlock?
+    var latestPBlock: PBlock?
+    var latestSBlock: SBlock?
+    var latestTBlock: TBlock?
+    var currentActivity: XBlock?
+    var signalQuality: [String: Bool] = [
         "ecg1":       false,
         "ecg2":       false,
         "icg":        false,
@@ -66,16 +69,18 @@ final class BLEManager: NSObject, ObservableObject {
     ]
 
     // Signal buffers (5 s at relevant sample rates)
-    let ecg1Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
-    let ecg2Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
-    let icgBuffer   = SignalBuffer(seconds: 5, sampleRate: 1000)
-    let ppgBuffer   = SignalBuffer(seconds: 5, sampleRate: 100)
-    let sclBuffer   = SignalBuffer(seconds: 5, sampleRate: 10)
+    // @ObservationIgnored: buffers are mutated internally and polled by a timer,
+    // not observed directly by SwiftUI.
+    @ObservationIgnored let ecg1Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
+    @ObservationIgnored let ecg2Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
+    @ObservationIgnored let icgBuffer   = SignalBuffer(seconds: 5, sampleRate: 1000)
+    @ObservationIgnored let ppgBuffer   = SignalBuffer(seconds: 5, sampleRate: 100)
+    @ObservationIgnored let sclBuffer   = SignalBuffer(seconds: 5, sampleRate: 10)
 
     // BLE internals
-    private var centralManager: CBCentralManager!
-    private var connectedPeripheral: CBPeripheral?
-    private var characteristics: [CBUUID: CBCharacteristic] = [:]
+    @ObservationIgnored private var centralManager: CBCentralManager!
+    @ObservationIgnored private var connectedPeripheral: CBPeripheral?
+    @ObservationIgnored private var characteristics: [CBUUID: CBCharacteristic] = [:]
 
     override init() {
         super.init()
@@ -172,52 +177,61 @@ final class BLEManager: NSObject, ObservableObject {
 }
 
 // MARK: - CBCentralManagerDelegate
+// CBCentralManager is created with queue: .main, so all callbacks arrive on the main thread.
+// We use nonisolated + MainActor.assumeIsolated to satisfy the protocol while keeping
+// the guarantee that we are always on the main actor when touching state.
 
 extension BLEManager: CBCentralManagerDelegate {
 
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        switch central.state {
-        case .poweredOn:
-            break // Ready; scanning starts on user request
-        default:
-            resetState()
+    nonisolated func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        MainActor.assumeIsolated {
+            switch central.state {
+            case .poweredOn:
+                break // Ready; scanning starts on user request
+            default:
+                resetState()
+            }
         }
     }
 
-    func centralManager(_ central: CBCentralManager,
-                        didDiscover peripheral: CBPeripheral,
-                        advertisementData: [String: Any],
-                        rssi RSSI: NSNumber) {
-        let id = peripheral.identifier
-        if let idx = discoveredPeripherals.firstIndex(where: { $0.id == id }) {
-            discoveredPeripherals[idx].rssi = RSSI.intValue
-        } else {
-            let dp = DiscoveredPeripheral(
-                id: id,
-                peripheral: peripheral,
-                name: peripheral.name ?? id.uuidString,
-                rssi: RSSI.intValue
-            )
-            discoveredPeripherals.append(dp)
+    nonisolated func centralManager(_ central: CBCentralManager,
+                                    didDiscover peripheral: CBPeripheral,
+                                    advertisementData: [String: Any],
+                                    rssi RSSI: NSNumber) {
+        MainActor.assumeIsolated {
+            let id = peripheral.identifier
+            if let idx = discoveredPeripherals.firstIndex(where: { $0.id == id }) {
+                discoveredPeripherals[idx].rssi = RSSI.intValue
+            } else {
+                let dp = DiscoveredPeripheral(
+                    id: id,
+                    peripheral: peripheral,
+                    name: peripheral.name ?? id.uuidString,
+                    rssi: RSSI.intValue
+                )
+                discoveredPeripherals.append(dp)
+            }
         }
     }
 
-    func centralManager(_ central: CBCentralManager,
-                        didConnect peripheral: CBPeripheral) {
-        connectionState = .connected(peripheral)
-        peripheral.discoverServices([VUAMSUUID.service])
+    nonisolated func centralManager(_ central: CBCentralManager,
+                                    didConnect peripheral: CBPeripheral) {
+        MainActor.assumeIsolated {
+            connectionState = .connected(peripheral)
+            peripheral.discoverServices([VUAMSUUID.service])
+        }
     }
 
-    func centralManager(_ central: CBCentralManager,
-                        didFailToConnect peripheral: CBPeripheral,
-                        error: Error?) {
-        resetState()
+    nonisolated func centralManager(_ central: CBCentralManager,
+                                    didFailToConnect peripheral: CBPeripheral,
+                                    error: Error?) {
+        MainActor.assumeIsolated { resetState() }
     }
 
-    func centralManager(_ central: CBCentralManager,
-                        didDisconnectPeripheral peripheral: CBPeripheral,
-                        error: Error?) {
-        resetState()
+    nonisolated func centralManager(_ central: CBCentralManager,
+                                    didDisconnectPeripheral peripheral: CBPeripheral,
+                                    error: Error?) {
+        MainActor.assumeIsolated { resetState() }
     }
 }
 
@@ -225,91 +239,84 @@ extension BLEManager: CBCentralManagerDelegate {
 
 extension BLEManager: CBPeripheralDelegate {
 
-    func peripheral(_ peripheral: CBPeripheral,
-                    didDiscoverServices error: Error?) {
-        guard error == nil,
-              let services = peripheral.services else { return }
-        for service in services where service.uuid == VUAMSUUID.service {
-            peripheral.discoverCharacteristics(VUAMSUUID.allUUIDs, for: service)
-        }
-    }
-
-    func peripheral(_ peripheral: CBPeripheral,
-                    didDiscoverCharacteristicsFor service: CBService,
-                    error: Error?) {
-        guard error == nil,
-              let chars = service.characteristics else { return }
-        for ch in chars {
-            characteristics[ch.uuid] = ch
-            if VUAMSUUID.allBlockUUIDs.contains(ch.uuid) ||
-               ch.uuid == VUAMSUUID.status {
-                peripheral.setNotifyValue(true, for: ch)
+    nonisolated func peripheral(_ peripheral: CBPeripheral,
+                                didDiscoverServices error: Error?) {
+        MainActor.assumeIsolated {
+            guard error == nil,
+                  let services = peripheral.services else { return }
+            for service in services where service.uuid == VUAMSUUID.service {
+                peripheral.discoverCharacteristics(VUAMSUUID.allUUIDs, for: service)
             }
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral,
-                    didUpdateValueFor characteristic: CBCharacteristic,
-                    error: Error?) {
+    nonisolated func peripheral(_ peripheral: CBPeripheral,
+                                didDiscoverCharacteristicsFor service: CBService,
+                                error: Error?) {
+        MainActor.assumeIsolated {
+            guard error == nil,
+                  let chars = service.characteristics else { return }
+            for ch in chars {
+                characteristics[ch.uuid] = ch
+                if VUAMSUUID.allBlockUUIDs.contains(ch.uuid) ||
+                   ch.uuid == VUAMSUUID.status {
+                    peripheral.setNotifyValue(true, for: ch)
+                }
+            }
+        }
+    }
+
+    nonisolated func peripheral(_ peripheral: CBPeripheral,
+                                didUpdateValueFor characteristic: CBCharacteristic,
+                                error: Error?) {
         guard error == nil, let data = characteristic.value else { return }
         let uuid = characteristic.uuid
-        do {
-            if uuid == VUAMSUUID.aBlock {
-                let block = try ABlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.latestABlock = block
-                    self.ecg1Buffer.append(block.ecg1.map { Float($0) })
-                    self.ecg2Buffer.append(block.ecg2.map { Float($0) })
-                    self.signalQuality["ecg1"] = true
-                    self.signalQuality["ecg2"] = true
+        MainActor.assumeIsolated {
+            do {
+                if uuid == VUAMSUUID.aBlock {
+                    let block = try ABlock.parse(from: data)
+                    latestABlock = block
+                    ecg1Buffer.append(block.ecg1.map { Float($0) })
+                    ecg2Buffer.append(block.ecg2.map { Float($0) })
+                    signalQuality["ecg1"] = true
+                    signalQuality["ecg2"] = true
+                } else if uuid == VUAMSUUID.iBlock {
+                    let block = try IBlock.parse(from: data)
+                    latestIBlock = block
+                    icgBuffer.append([block.dZdt])
+                    signalQuality["icg"] = true
+                } else if uuid == VUAMSUUID.mBlock {
+                    let block = try MBlock.parse(from: data)
+                    latestMBlock = block
+                } else if uuid == VUAMSUUID.pBlock {
+                    let block = try PBlock.parse(from: data)
+                    latestPBlock = block
+                    ppgBuffer.append([Float(block.ppgIr)])
+                    signalQuality["ppg"] = true
+                } else if uuid == VUAMSUUID.sBlock {
+                    let block = try SBlock.parse(from: data)
+                    latestSBlock = block
+                    sclBuffer.append([block.sclTonic])
+                    signalQuality["scl"] = true
+                } else if uuid == VUAMSUUID.tBlock {
+                    let block = try TBlock.parse(from: data)
+                    latestTBlock = block
+                    signalQuality["temperature"] = true
+                } else if uuid == VUAMSUUID.xBlock {
+                    if let block = XBlock.parse(from: data) {
+                        currentActivity = block
+                    }
                 }
-            } else if uuid == VUAMSUUID.iBlock {
-                let block = try IBlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.latestIBlock = block
-                    self.icgBuffer.append([block.dZdt])
-                    self.signalQuality["icg"] = true
-                }
-            } else if uuid == VUAMSUUID.mBlock {
-                let block = try MBlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    self?.latestMBlock = block
-                }
-            } else if uuid == VUAMSUUID.pBlock {
-                let block = try PBlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.latestPBlock = block
-                    self.ppgBuffer.append([Float(block.ppgIr)])
-                    self.signalQuality["ppg"] = true
-                }
-            } else if uuid == VUAMSUUID.sBlock {
-                let block = try SBlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.latestSBlock = block
-                    self.sclBuffer.append([block.sclTonic])
-                    self.signalQuality["scl"] = true
-                }
-            } else if uuid == VUAMSUUID.tBlock {
-                let block = try TBlock.parse(from: data)
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.latestTBlock = block
-                    self.signalQuality["temperature"] = true
-                }
+                // status characteristic — parse if needed in future
+            } catch {
+                // Silently drop malformed packets; production would log to telemetry
             }
-            // status characteristic — parse if needed in future
-        } catch {
-            // Silently drop malformed packets; production would log to telemetry
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral,
-                    didWriteValueFor characteristic: CBCharacteristic,
-                    error: Error?) {
+    nonisolated func peripheral(_ peripheral: CBPeripheral,
+                                didWriteValueFor characteristic: CBCharacteristic,
+                                error: Error?) {
         // ACK for control writes — handle errors if needed
     }
 }

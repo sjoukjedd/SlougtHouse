@@ -4,7 +4,7 @@ import CoreBluetooth
 /// "Connect" tab — scan, device list, status indicator.
 struct ConnectionView: View {
 
-    @EnvironmentObject var ble: BLEManager
+    @Environment(BLEManager.self) var ble
 
     private let background   = Color(red: 0x08/255.0, green: 0x0C/255.0, blue: 0x1E/255.0)
     private let accentColour = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
@@ -120,5 +120,5 @@ private struct DeviceRow: View {
 
 #Preview {
     ConnectionView()
-        .environmentObject(BLEManager())
+        .environment(BLEManager())
 }

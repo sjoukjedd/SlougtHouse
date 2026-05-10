@@ -2,6 +2,7 @@ package nl.vuams.vudam.ui;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -12,12 +13,16 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import nl.vuams.vudam.analysis.HRVAnalyser;
+import nl.vuams.vudam.analysis.HarAnalyser;
 import nl.vuams.vudam.analysis.RPeakDetector;
+import nl.vuams.vudam.analysis.SadAnalyser;
 import nl.vuams.vudam.io.VUAFileReader;
 import nl.vuams.vudam.model.DataBlock;
 
@@ -74,6 +79,16 @@ public class MainController {
     // ---- Status bar ----
     @FXML private Label statusLabel;
 
+    // ---- Activiteit tab ----
+    @FXML private TabPane mainTabPane;
+    @FXML private TableView<ActivityRow>                activityTable;
+    @FXML private TableColumn<ActivityRow, String>      actTimeCol;
+    @FXML private TableColumn<ActivityRow, String>      actClassCol;
+    @FXML private TableColumn<ActivityRow, Number>      actCadenceCol;
+    @FXML private TableColumn<ActivityRow, Number>      actIntensityCol;
+    @FXML private TableColumn<ActivityRow, Number>      actSpeakingCol;
+    @FXML private TableColumn<ActivityRow, Number>      actAltCol;
+
     // ---- State ----
     private Stage primaryStage;
     private List<DataBlock> loadedBlocks = List.of();
@@ -99,6 +114,54 @@ public class MainController {
         icgSvCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().svMl()));
         icgCoCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().coLpm()));
         icgZ0Col  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().z0()));
+
+        // Activiteit tab — build programmatically if FXML does not declare it
+        initActivityTab();
+    }
+
+    /**
+     * Builds the "Activiteit" tab and its TableView when the FXML does not
+     * already contain it.  If the tab pane and columns were injected via FXML,
+     * this method configures the cell-value factories on them; otherwise it
+     * creates the entire tab structure and appends it to {@code mainTabPane}.
+     */
+    private void initActivityTab() {
+        if (activityTable == null) {
+            // Create the table and its columns programmatically
+            activityTable = new TableView<>();
+            activityTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+            actTimeCol      = new TableColumn<>("Tijdstip");
+            actClassCol     = new TableColumn<>("Activiteit");
+            actCadenceCol   = new TableColumn<>("Cadans (spm)");
+            actIntensityCol = new TableColumn<>("Intensiteit");
+            actSpeakingCol  = new TableColumn<>("Spraak %");
+            actAltCol       = new TableColumn<>("Hoogte Δ (m)");
+
+            activityTable.getColumns().addAll(
+                    actTimeCol, actClassCol, actCadenceCol,
+                    actIntensityCol, actSpeakingCol, actAltCol);
+
+            if (mainTabPane != null) {
+                Tab tab = new Tab("Activiteit", activityTable);
+                tab.setClosable(false);
+                mainTabPane.getTabs().add(tab);
+            }
+        }
+
+        // Wire cell-value factories
+        actTimeCol.setCellValueFactory(
+                cd -> new SimpleStringProperty(cd.getValue().timeLabel()));
+        actClassCol.setCellValueFactory(
+                cd -> new SimpleStringProperty(cd.getValue().activityClass()));
+        actCadenceCol.setCellValueFactory(
+                cd -> new SimpleFloatProperty(cd.getValue().cadenceSpm()));
+        actIntensityCol.setCellValueFactory(
+                cd -> new SimpleFloatProperty(cd.getValue().motionIntensity()));
+        actSpeakingCol.setCellValueFactory(
+                cd -> new SimpleFloatProperty(cd.getValue().speakingPct()));
+        actAltCol.setCellValueFactory(
+                cd -> new SimpleFloatProperty(cd.getValue().altitudeChangeM()));
     }
 
     // =========================================================================
@@ -240,11 +303,32 @@ public class MainController {
                 VUAFileReader reader = new VUAFileReader();
                 List<DataBlock> blocks = reader.read(path);
 
+                // Separate block types needed for HAR and SAD
+                List<DataBlock.MBlock> mBlocks = blocks.stream()
+                        .filter(b -> b instanceof DataBlock.MBlock)
+                        .map(b -> (DataBlock.MBlock) b)
+                        .toList();
+                List<DataBlock.BBlock> bBlocks = blocks.stream()
+                        .filter(b -> b instanceof DataBlock.BBlock)
+                        .map(b -> (DataBlock.BBlock) b)
+                        .toList();
+                List<DataBlock.VBlock> vBlocks = blocks.stream()
+                        .filter(b -> b instanceof DataBlock.VBlock)
+                        .map(b -> (DataBlock.VBlock) b)
+                        .toList();
+
+                // Run HAR and SAD on background thread (potentially slow for long recordings)
+                List<HarAnalyser.HarResult> harResults = HarAnalyser.analyse(mBlocks, bBlocks);
+                List<SadAnalyser.SadResult> sadResults = SadAnalyser.analyse(vBlocks);
+
                 Platform.runLater(() -> {
                     loadedBlocks = blocks;
                     populateWaveforms(blocks);
+                    populateActivityTable(harResults, sadResults);
                     enablePostLoadMenus();
-                    setStatus("Loaded %s — %d blocks.".formatted(path.getFileName(), blocks.size()));
+                    setStatus("Loaded %s — %d blocks, %d HAR epochs, %d SAD epochs."
+                            .formatted(path.getFileName(), blocks.size(),
+                                       harResults.size(), sadResults.size()));
                 });
             } catch (IOException ex) {
                 Platform.runLater(() -> {
@@ -336,6 +420,52 @@ public class MainController {
 
         imuAccChart.getData().clear();
         imuAccChart.getData().addAll(axSeries, aySeries, azSeries);
+    }
+
+    /**
+     * Merges HAR and SAD epoch results into the Activiteit TableView.
+     *
+     * <p>HAR and SAD epochs are aligned by start time.  SAD data is matched
+     * to the nearest HAR epoch (same start millisecond when available).
+     * Epochs present only in HAR are shown with NaN speaking fraction.
+     */
+    private void populateActivityTable(List<HarAnalyser.HarResult> harResults,
+                                       List<SadAnalyser.SadResult> sadResults) {
+        if (activityTable == null) return;
+
+        ObservableList<ActivityRow> rows = FXCollections.observableArrayList();
+
+        // Build a quick lookup: epochStartMs → SadResult
+        java.util.Map<Long, SadAnalyser.SadResult> sadMap = new java.util.HashMap<>();
+        for (SadAnalyser.SadResult sr : sadResults) {
+            if (sr.sadAvailable()) {
+                sadMap.put(sr.epochStartMs(), sr);
+            }
+        }
+
+        for (HarAnalyser.HarResult hr : harResults) {
+            SadAnalyser.SadResult sr = sadMap.get(hr.windowStartMs());
+
+            long startMs = hr.windowStartMs();
+            long mm  = (startMs / 60_000L) % 60;
+            long ss  = (startMs / 1_000L)  % 60;
+            String timeLabel = "%02d:%02d".formatted(mm, ss);
+
+            float speakingPct = (sr != null && sr.sadAvailable())
+                    ? sr.speakingFraction() * 100.0f
+                    : Float.NaN;
+
+            rows.add(new ActivityRow(
+                    timeLabel,
+                    hr.activityClass().name(),
+                    hr.cadenceSpm(),
+                    hr.motionIntensity(),
+                    speakingPct,
+                    hr.altitudeChangeM()
+            ));
+        }
+
+        activityTable.setItems(rows);
     }
 
     private void populateRriChart(List<Double> rri) {
@@ -476,4 +606,24 @@ public class MainController {
     record HrvRow(String metric, double value, String unit) {}
 
     record IcgRow(int beat, double pepMs, double lvetMs, double svMl, double coLpm, double z0) {}
+
+    /**
+     * One row in the Activiteit table, merging one HAR epoch with its
+     * corresponding SAD epoch (if available).
+     *
+     * @param timeLabel       human-readable epoch start time (mm:ss)
+     * @param activityClass   HAR activity class name
+     * @param cadenceSpm      step cadence [steps/min]; NaN if not applicable
+     * @param motionIntensity normalised motion intensity 0–1
+     * @param speakingPct     speaking fraction × 100 [%]; NaN if SAD not available
+     * @param altitudeChangeM barometric altitude change over epoch [m]; NaN if no baro
+     */
+    record ActivityRow(
+            String timeLabel,
+            String activityClass,
+            float  cadenceSpm,
+            float  motionIntensity,
+            float  speakingPct,
+            float  altitudeChangeM
+    ) {}
 }

@@ -5,12 +5,12 @@ import WatchKit
 struct VUAMSWatchApp: App {
 
     @WKApplicationDelegateAdaptor(WatchAppDelegate.self) var delegate
-    @StateObject private var connectivityReceiver = WatchConnectivityReceiver()
+    @State private var connectivityReceiver = WatchConnectivityReceiver()
 
     var body: some Scene {
         WindowGroup {
             WatchContentView()
-                .environmentObject(connectivityReceiver)
+                .environment(connectivityReceiver)
                 .preferredColorScheme(.dark)
         }
     }

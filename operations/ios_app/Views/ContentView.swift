@@ -1,37 +1,38 @@
 import SwiftUI
 
-/// Root view — four-tab layout: Connect / Live / Record / Dashboard.
+// MARK: - Tab selection
+
+private enum AppTab {
+    case connect, live, record, dashboard, activity
+}
+
+// MARK: - ContentView
+
+/// Root view — five-tab layout: Connect / Live / Record / Dashboard / Activiteit.
 struct ContentView: View {
 
-    @EnvironmentObject var ble: BLEManager
+    @Environment(BLEManager.self) var ble
+    @State private var selectedTab: AppTab = .connect
 
     private let accentColour = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
 
     var body: some View {
-        TabView {
-            // ── Tab 1: Connect ────────────────────────────────────────────
-            ConnectionView()
-                .tabItem {
-                    Label("Connect", systemImage: "antenna.radiowaves.left.and.right")
-                }
-
-            // ── Tab 2: Live Waveforms ─────────────────────────────────────
-            LiveWaveformView()
-                .tabItem {
-                    Label("Live", systemImage: "waveform.path.ecg")
-                }
-
-            // ── Tab 3: Record ─────────────────────────────────────────────
-            RecordingControlView()
-                .tabItem {
-                    Label("Record", systemImage: "record.circle")
-                }
-
-            // ── Tab 4: Dashboard ──────────────────────────────────────────
-            SignalDashboardView()
-                .tabItem {
-                    Label("Dashboard", systemImage: "gauge.with.dots.needle.67percent")
-                }
+        TabView(selection: $selectedTab) {
+            Tab("Connect", systemImage: "antenna.radiowaves.left.and.right", value: AppTab.connect) {
+                ConnectionView()
+            }
+            Tab("Live", systemImage: "waveform.path.ecg", value: AppTab.live) {
+                LiveWaveformView()
+            }
+            Tab("Record", systemImage: "record.circle", value: AppTab.record) {
+                RecordingControlView()
+            }
+            Tab("Dashboard", systemImage: "gauge.with.dots.needle.67percent", value: AppTab.dashboard) {
+                SignalDashboardView()
+            }
+            Tab("Activiteit", systemImage: "figure.walk", value: AppTab.activity) {
+                ActivityView()
+            }
         }
         .tint(accentColour)
     }
@@ -51,7 +52,7 @@ struct ContentView: View {
 ///   2. The session is discarded (sidecar writing would happen here in a real flow).
 private struct RecordingControlView: View {
 
-    @EnvironmentObject var ble: BLEManager
+    @Environment(BLEManager.self) var ble
 
     @State private var session: RecordingSession?
     @State private var elapsed: TimeInterval = 0
@@ -121,8 +122,8 @@ private struct RecordingControlView: View {
                 // ── Session metadata ──────────────────────────────────────
                 if let session {
                     VStack(spacing: 6) {
-                        metaRow(label: "Device",  value: session.deviceName)
-                        metaRow(label: "Started", value: formattedDate(session.startTimestamp))
+                        MetaRowView(label: "Device",  value: session.deviceName)
+                        MetaRowView(label: "Started", value: formattedDate(session.startTimestamp))
                     }
                     .padding(16)
                     .background(
@@ -176,14 +177,17 @@ private struct RecordingControlView: View {
     }
 
     private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .medium
-        return formatter.string(from: date)
+        date.formatted(date: .omitted, time: .standard)
     }
+}
 
-    @ViewBuilder
-    private func metaRow(label: String, value: String) -> some View {
+// MARK: - Meta Row
+
+private struct MetaRowView: View {
+    let label: String
+    let value: String
+
+    var body: some View {
         HStack {
             Text(label)
                 .font(.caption)
@@ -202,7 +206,7 @@ private struct RecordingControlView: View {
 /// Stacks four waveforms: ECG1, ICG (dZ/dt), SCL, PPG-IR.
 private struct LiveWaveformView: View {
 
-    @EnvironmentObject var ble: BLEManager
+    @Environment(BLEManager.self) var ble
 
     private let background = Color(red: 0x08/255.0, green: 0x0C/255.0, blue: 0x1E/255.0)
 
@@ -210,35 +214,40 @@ private struct LiveWaveformView: View {
         ZStack {
             background.ignoresSafeArea()
             VStack(spacing: 2) {
-                channelRow(title: "ECG",
-                           buffer: ble.ecg1Buffer,
-                           color: .green,
-                           yRange: -1500...1500)
+                ChannelRowView(title: "ECG",
+                               buffer: ble.ecg1Buffer,
+                               color: .green,
+                               yRange: -1500...1500)
 
-                channelRow(title: "ICG dZ/dt",
-                           buffer: ble.icgBuffer,
-                           color: Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0),
-                           yRange: -2...2)
+                ChannelRowView(title: "ICG dZ/dt",
+                               buffer: ble.icgBuffer,
+                               color: Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0),
+                               yRange: -2...2)
 
-                channelRow(title: "SCL",
-                           buffer: ble.sclBuffer,
-                           color: .yellow,
-                           yRange: 0...25)
+                ChannelRowView(title: "SCL",
+                               buffer: ble.sclBuffer,
+                               color: .yellow,
+                               yRange: 0...25)
 
-                channelRow(title: "PPG-IR",
-                           buffer: ble.ppgBuffer,
-                           color: .red,
-                           yRange: 0...1_000_000)
+                ChannelRowView(title: "PPG-IR",
+                               buffer: ble.ppgBuffer,
+                               color: .red,
+                               yRange: 0...1_000_000)
             }
             .padding(.vertical, 8)
         }
     }
+}
 
-    @ViewBuilder
-    private func channelRow(title: String,
-                            buffer: SignalBuffer,
-                            color: Color,
-                            yRange: ClosedRange<Float>) -> some View {
+// MARK: - Channel Row
+
+private struct ChannelRowView: View {
+    let title: String
+    let buffer: SignalBuffer
+    let color: Color
+    let yRange: ClosedRange<Float>
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
                 .font(.caption2)
@@ -253,5 +262,5 @@ private struct LiveWaveformView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(BLEManager())
+        .environment(BLEManager())
 }

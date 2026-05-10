@@ -57,11 +57,13 @@ import java.util.List;
  * <h2>Block payloads</h2>
  * <ul>
  *   <li>A — 2000 bytes : int32[250] ecg1, int32[250] ecg2</li>
+ *   <li>B — 8 bytes    : float baro_pressure_pa, float baro_temp_c</li>
  *   <li>I — 24 bytes   : float z0, dZdt_peak, pep_ms, lvet_ms, co_lpm, sv_ml</li>
  *   <li>M — 180 bytes  : int16[10] ax,ay,az,gx,gy,gz,mx,my,mz</li>
  *   <li>P — 14 bytes   : uint32 ppg_red, uint32 ppg_ir, float spo2, uint8 hr, uint8 valid</li>
  *   <li>S — 9 bytes    : float scl_tonic, float scl_phasic, uint8 contact</li>
  *   <li>T — 6 bytes    : float skin_temp_c, int16 temp_raw</li>
+ *   <li>V — 606 bytes  : uint16 seq, uint32 timestamp_us, int16[100] ax, ay, az, uint16 crc</li>
  * </ul>
  */
 public class VUAFileReader {
@@ -174,11 +176,13 @@ public class VUAFileReader {
 
                 DataBlock block = switch (type) {
                     case DataBlock.ABlock.TYPE -> parseABlock(type, version, tsUs, p, payloadLen);
+                    case DataBlock.BBlock.TYPE -> parseBBlock(type, version, tsUs, p, payloadLen);
                     case DataBlock.IBlock.TYPE -> parseIBlock(type, version, tsUs, p, payloadLen);
                     case DataBlock.MBlock.TYPE -> parseMBlock(type, version, tsUs, p, payloadLen);
                     case DataBlock.PBlock.TYPE -> parsePBlock(type, version, tsUs, p, payloadLen);
                     case DataBlock.SBlock.TYPE -> parseSBlock(type, version, tsUs, p, payloadLen);
                     case DataBlock.TBlock.TYPE -> parseTBlock(type, version, tsUs, p, payloadLen);
+                    case DataBlock.VBlock.TYPE -> parseVBlock(type, version, tsUs, p, payloadLen);
                     default -> throw new IOException(
                             "Unknown block type 0x%02X".formatted(type & 0xFF));
                 };
@@ -289,6 +293,41 @@ public class VUAFileReader {
         short raw    = p.getShort();
 
         return new DataBlock.TBlock(type, version, tsUs, tempC, raw);
+    }
+
+    // -------------------------------------------------------------------------
+    // B-block — 8 bytes payload (two floats; seq is not present in standard header)
+    // -------------------------------------------------------------------------
+
+    private DataBlock.BBlock parseBBlock(byte type, byte version, long tsUs,
+                                         ByteBuffer p, int payloadLen) throws IOException {
+        requirePayloadLen(type, payloadLen, 8);
+
+        float pressurePa = p.getFloat();
+        float tempC      = p.getFloat();
+
+        // The standard vuams_block_header_t carries no seq field; use 0 as sentinel.
+        return new DataBlock.BBlock(type, version, 0, tsUs, pressurePa, tempC);
+    }
+
+    // -------------------------------------------------------------------------
+    // V-block — 604 bytes payload:
+    //   uint16 seq (2), int16[100] ax (200), int16[100] ay (200), int16[100] az (200), uint16 crc (2)
+    // -------------------------------------------------------------------------
+
+    private DataBlock.VBlock parseVBlock(byte type, byte version, long tsUs,
+                                         ByteBuffer p, int payloadLen) throws IOException {
+        // payload = 2 (seq) + 3*200 (axes) + 2 (crc) = 604 bytes
+        requirePayloadLen(type, payloadLen, 604);
+
+        int seq        = p.getShort() & 0xFFFF;   // uint16 sequence number
+        short[] ax     = readShorts(p, 100);
+        short[] ay     = readShorts(p, 100);
+        short[] az     = readShorts(p, 100);
+        /* crc16 — read and discard (reserved for future validation) */
+        p.getShort();
+
+        return new DataBlock.VBlock(type, version, seq, tsUs, ax, ay, az);
     }
 
     // -------------------------------------------------------------------------
