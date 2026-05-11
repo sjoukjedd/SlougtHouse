@@ -53,6 +53,9 @@ final class BLEManager: NSObject {
     // Tracked state
     var connectionState: ConnectionState = .disconnected
     var discoveredPeripherals: [DiscoveredPeripheral] = []
+    var subjectId: String = ""
+    var electrodDistanceCm: Float? = nil
+    var lastDisconnectReason: String? = nil
     var latestABlock: ABlock?
     var latestIBlock: IBlock?
     var latestMBlock: MBlock?
@@ -74,12 +77,21 @@ final class BLEManager: NSObject {
     // Signal buffers (5 s at relevant sample rates)
     // @ObservationIgnored: buffers are mutated internally and polled by a timer,
     // not observed directly by SwiftUI.
-    @ObservationIgnored let ecg1Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
-    @ObservationIgnored let ecg2Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
-    @ObservationIgnored let icgBuffer   = SignalBuffer(seconds: 5, sampleRate: 200)
-    @ObservationIgnored let ppgBuffer   = SignalBuffer(seconds: 5, sampleRate: 50)
-    @ObservationIgnored let sclBuffer   = SignalBuffer(seconds: 5, sampleRate: 10)
-    @ObservationIgnored let respBuffer  = SignalBuffer(seconds: 30, sampleRate: 10)
+    @ObservationIgnored let ecg1Buffer      = SignalBuffer(seconds: 5,  sampleRate: 1000)
+    @ObservationIgnored let ecg2Buffer      = SignalBuffer(seconds: 5,  sampleRate: 1000)
+    @ObservationIgnored let icgBuffer       = SignalBuffer(seconds: 5,  sampleRate: 200)
+    @ObservationIgnored let ppgBuffer       = SignalBuffer(seconds: 5,  sampleRate: 50)
+    @ObservationIgnored let sclBuffer       = SignalBuffer(seconds: 5,  sampleRate: 10)
+    @ObservationIgnored let respBuffer      = SignalBuffer(seconds: 30, sampleRate: 10)
+    // 30-second phasic EDA buffer for SCR peak detection (10 Hz)
+    @ObservationIgnored let sclPhasicBuffer = SignalBuffer(seconds: 30, sampleRate: 10)
+
+    // SCR detection — published state consumed by SignalDashboardView
+    var scrRatePerMin: Double = 0.0
+    var scrActive: Bool = false
+    // Internal SCR detector state (not observed by SwiftUI)
+    @ObservationIgnored private var scrLastEventTime: Date? = nil
+    @ObservationIgnored private var scrEventTimestamps: [Date] = []
 
     // CSI engine — owns the R-peak detector and 30-second epoch timer.
     // Declared as a stored property (not lazy) so the ModelContext can be
@@ -152,7 +164,9 @@ final class BLEManager: NSObject {
         p.writeValue(Data([0x01]), for: ch, type: .withResponse)
         // 2. SYNC_TIME — capture wall-clock time as close to the START write as possible
         let session = RecordingSession(
-            deviceName: p.name ?? p.identifier.uuidString
+            deviceName: p.name ?? p.identifier.uuidString,
+            subjectId: subjectId,
+            electrodDistanceCm: electrodDistanceCm
         )
         sendSyncTime(to: p, characteristic: ch, at: session.startTimestamp)
         return session
@@ -181,6 +195,42 @@ final class BLEManager: NSObject {
         peripheral.writeValue(payload, for: characteristic, type: .withResponse)
     }
 
+    // MARK: - SCR detection
+
+    /// Called on every new S-block (10 Hz). Detects upward threshold crossings
+    /// with a 5-second refractory period, then recomputes rolling rate over 60 s.
+    private func updateSCR(phasic: Float) {
+        let threshold: Float = 0.05
+        let refractorySeconds: TimeInterval = 5.0
+        let rateWindowSeconds: TimeInterval = 60.0
+        let now = Date()
+
+        // Fetch the two most recent phasic samples to detect upward crossing
+        let recent = sclPhasicBuffer.latest(count: 2)
+        if recent.count == 2 {
+            let prev = recent[0]
+            let curr = recent[1]
+            // Upward crossing: prev was below threshold, curr is at or above
+            let refractory = scrLastEventTime.map { now.timeIntervalSince($0) < refractorySeconds } ?? false
+            if prev < threshold && curr >= threshold && !refractory {
+                scrLastEventTime = now
+                scrEventTimestamps.append(now)
+            }
+        }
+
+        // Prune events outside the 60-second rolling window
+        scrEventTimestamps = scrEventTimestamps.filter {
+            now.timeIntervalSince($0) <= rateWindowSeconds
+        }
+
+        // Rolling rate: events in last 60 s, scaled to per-minute
+        scrRatePerMin = Double(scrEventTimestamps.count)
+            * (60.0 / rateWindowSeconds)
+
+        // scrActive: any event within the last 5 seconds
+        scrActive = scrEventTimestamps.contains { now.timeIntervalSince($0) <= 5.0 }
+    }
+
     // MARK: - Private helpers
 
     private func resetState() {
@@ -188,6 +238,11 @@ final class BLEManager: NSObject {
         characteristics.removeAll()
         connectionState = .disconnected
         signalQuality = signalQuality.mapValues { _ in false }
+        // Reset SCR detector
+        scrRatePerMin = 0.0
+        scrActive = false
+        scrLastEventTime = nil
+        scrEventTimestamps.removeAll()
     }
 }
 
@@ -233,6 +288,7 @@ extension BLEManager: CBCentralManagerDelegate {
                                     didConnect peripheral: CBPeripheral) {
         MainActor.assumeIsolated {
             connectionState = .connected(peripheral)
+            lastDisconnectReason = nil
             peripheral.discoverServices([VUAMSUUID.service])
         }
     }
@@ -246,7 +302,12 @@ extension BLEManager: CBCentralManagerDelegate {
     nonisolated func centralManager(_ central: CBCentralManager,
                                     didDisconnectPeripheral peripheral: CBPeripheral,
                                     error: Error?) {
-        MainActor.assumeIsolated { resetState() }
+        MainActor.assumeIsolated {
+            if let error {
+                lastDisconnectReason = error.localizedDescription
+            }
+            resetState()
+        }
     }
 }
 
@@ -320,7 +381,9 @@ extension BLEManager: CBPeripheralDelegate {
                     let block = try SBlock.parse(from: data)
                     latestSBlock = block
                     sclBuffer.append([block.sclTonic])
+                    sclPhasicBuffer.append([block.sclPhasic])
                     signalQuality["scl"] = true
+                    updateSCR(phasic: block.sclPhasic)
                 } else if uuid == VUAMSUUID.tBlock {
                     let block = try TBlock.parse(from: data)
                     latestTBlock = block

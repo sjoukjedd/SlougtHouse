@@ -10,6 +10,7 @@ import SwiftData
 struct StressView: View {
 
     @Environment(BLEManager.self) private var ble
+    @State private var baselineResetTrigger = false
 
     private let background    = Color(red: 0x08/255.0, green: 0x0C/255.0, blue: 0x1E/255.0)
     private let accent        = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
@@ -53,10 +54,45 @@ struct StressView: View {
                         .foregroundStyle(.white.opacity(0.3))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
-                        .padding(.bottom, 16)
+
+                    // ── Reset baseline ────────────────────────────────────
+                    Button {
+                        engine.resetBaseline()
+                        baselineResetTrigger = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.counterclockwise")
+                            Text("Reset baseline")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.4))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.bottom, 16)
                 }
                 .padding(.horizontal, 16)
             }
+        }
+        .overlay(alignment: .bottom) {
+            if baselineResetTrigger {
+                Text("Baseline gereset")
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.15))
+                    )
+                    .padding(.bottom, 24)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: baselineResetTrigger)
+        .task(id: baselineResetTrigger) {
+            guard baselineResetTrigger else { return }
+            try? await Task.sleep(for: .milliseconds(2000))
+            baselineResetTrigger = false
         }
     }
 }

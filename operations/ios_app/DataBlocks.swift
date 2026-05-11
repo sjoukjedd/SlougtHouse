@@ -6,6 +6,7 @@ import simd
 enum BlockParseError: Error {
     case insufficientData(needed: Int, got: Int)
     case unknownVersion(UInt8)
+    case wrongType(expected: UInt8, got: UInt8)
 }
 
 // MARK: - Block Header
@@ -273,6 +274,9 @@ struct YBlock {
     /// Payload: Float32 rmssdMs | Float32 rriLastMs | Float32 hrEcgBpm | UInt8 beatCount | UInt8 reserved
     static func parse(from data: Data) throws -> YBlock {
         let (header, rest) = try BlockHeader.parse(from: data)
+        guard header.type == 0x59 else {
+            throw BlockParseError.wrongType(expected: 0x59, got: header.type)
+        }
         let needed = 4 + 4 + 4 + 1 + 1
         guard rest.count >= needed else {
             throw BlockParseError.insufficientData(needed: needed, got: rest.count)

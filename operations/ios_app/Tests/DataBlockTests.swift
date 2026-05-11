@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 import simd
+import SwiftData
 @testable import VUAMS
 
 // MARK: - Header helper (mirrors SimPeripheralManager.makeHeader exactly)
@@ -345,5 +346,237 @@ struct XBlockTests {
                                  speaking: 0, speakingFraction: 0)
         #expect(packet.count == 13)
         #expect(XBlock.parse(from: packet) != nil)
+    }
+}
+
+// MARK: - YBlock tests
+
+@Suite("YBlock — HRV summary round-trip")
+struct YBlockTests {
+
+    // Build a 26-byte wire frame: 12-byte header + 14-byte payload.
+    private func makeYPacket(
+        rmssdMs: Float,
+        rriLastMs: Float,
+        hrEcgBpm: Float,
+        beatCount: UInt8,
+        reserved: UInt8 = 0,
+        type: UInt8 = 0x59
+    ) -> Data {
+        var data = makeHeader(type: type, payloadLength: 14, timestampUs: 0)
+        var rmssd = rmssdMs;    withUnsafeBytes(of: &rmssd)    { data.append(contentsOf: $0) }
+        var rri   = rriLastMs;  withUnsafeBytes(of: &rri)      { data.append(contentsOf: $0) }
+        var hr    = hrEcgBpm;   withUnsafeBytes(of: &hr)       { data.append(contentsOf: $0) }
+        data.append(beatCount)
+        data.append(reserved)
+        return data
+    }
+
+    @Test func yBlockRoundTrip() throws {
+        let packet = makeYPacket(rmssdMs: 42.5, rriLastMs: 810.0, hrEcgBpm: 74.1,
+                                 beatCount: 30, reserved: 0)
+
+        let block = try YBlock.parse(from: packet)
+
+        #expect(block.header.type       == 0x59)
+        #expect(block.header.version    == 0x01)
+        #expect(block.header.payloadLength == 14)
+        #expect(block.header.timestampUs   == 0)
+        #expect(block.rmssdMs   == 42.5)
+        #expect(block.rriLastMs == 810.0)
+        #expect(abs(block.hrEcgBpm - 74.1) < 0.001)
+        #expect(block.beatCount == 30)
+    }
+
+    /// 25-byte total packet (1 byte short of the required 26) must throw.
+    @Test func yBlockTooShort() throws {
+        // Build a correct packet then lop off the last byte.
+        let full = makeYPacket(rmssdMs: 0, rriLastMs: 0, hrEcgBpm: 0, beatCount: 0)
+        #expect(full.count == 26)
+        let short = full.dropLast(1)
+        #expect(throws: BlockParseError.self) {
+            try YBlock.parse(from: short)
+        }
+    }
+
+    /// Correct length but type byte 0x58 — parser must throw wrongType.
+    @Test func yBlockWrongType() throws {
+        let packet = makeYPacket(rmssdMs: 0, rriLastMs: 0, hrEcgBpm: 0, beatCount: 0,
+                                 type: 0x58)
+        #expect(throws: BlockParseError.self) {
+            try YBlock.parse(from: packet)
+        }
+    }
+}
+
+// MARK: - RBlock tests
+
+@Suite("RBlock — Respiratory rate round-trip")
+struct RBlockTests {
+
+    // Build a 24-byte wire frame: 12-byte header + 12-byte payload.
+    // Payload layout: Float32 rrBpm | UInt8 rrValid | UInt8 rrQuality |
+    //                 UInt8 rrMethod | UInt8 rrConflict | UInt8 rrConfounder |
+    //                 UInt8 rrCaution | UInt8 pad | UInt8 pad
+    // (parser only requires rest.count >= 10, extra pad bytes are harmless)
+    private func makeRPacket(
+        rrBpmBits: UInt32,
+        rrValid: UInt8,
+        rrQuality: UInt8,
+        rrMethod: UInt8  = 0x00,
+        rrConflict: UInt8 = 0x00,
+        rrConfounder: UInt8 = 0x00,
+        rrCaution: UInt8   = 0x00,
+        type: UInt8 = 0x52
+    ) -> Data {
+        var data = makeHeader(type: type, payloadLength: 12, timestampUs: 0)
+        withUnsafeBytes(of: rrBpmBits.littleEndian) { data.append(contentsOf: $0) }
+        data.append(rrValid)
+        data.append(rrQuality)
+        data.append(rrMethod)
+        data.append(rrConflict)
+        data.append(rrConfounder)
+        data.append(rrCaution)
+        data.append(0x00)   // pad
+        data.append(0x00)   // pad
+        return data
+    }
+
+    @Test func rBlockRoundTrip() {
+        let bpmBits = Float(14.3).bitPattern
+        let packet  = makeRPacket(rrBpmBits: bpmBits, rrValid: 0x01, rrQuality: 75)
+        let block   = #require(RBlock.parse(from: packet))
+
+        #expect(block.header.type == 0x52)
+        #expect(abs(block.rrBpm - 14.3) < 0.01)
+        #expect(block.rrValid    == true)
+        #expect(block.rrQuality  == 75)
+        #expect(block.rrConfounder == false)
+    }
+
+    /// rr_valid=0x00, rr_bpm bits = quiet NaN (0x7FC00000).
+    @Test func rBlockInvalid() {
+        let nanBits: UInt32 = 0x7FC0_0000
+        let packet = makeRPacket(rrBpmBits: nanBits, rrValid: 0x00, rrQuality: 0)
+        let block  = #require(RBlock.parse(from: packet))
+
+        #expect(block.rrValid == false)
+        #expect(block.rrBpm.isNaN)
+    }
+
+    /// 21-byte total (1 byte short of the required 22) must return nil.
+    @Test func rBlockTooShort() {
+        let full = makeRPacket(rrBpmBits: 0, rrValid: 0, rrQuality: 0)
+        #expect(full.count == 24)
+        let short = full.dropLast(3)   // 24 - 3 = 21
+        #expect(RBlock.parse(from: short) == nil)
+    }
+
+    /// Correct length but type byte 0x41 — parser must return nil.
+    @Test func rBlockWrongType() {
+        let packet = makeRPacket(rrBpmBits: 0, rrValid: 0, rrQuality: 0, type: 0x41)
+        #expect(RBlock.parse(from: packet) == nil)
+    }
+}
+
+// MARK: - CSIEngine tests
+
+@Suite("CSIEngine")
+struct CSIEngineTests {
+
+    // Full epoch integration tests require Timer injection — deferred.
+
+    // Shared in-memory SwiftData container for CSIEngine tests.
+    @MainActor
+    private func makeEngine() throws -> CSIEngine {
+        let container = try ModelContainer(
+            for: CSIBaselineRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let ctx = container.mainContext
+        let ble = BLEManager(modelContext: ctx)
+        return CSIEngine(ble: ble, modelContext: ctx)
+    }
+
+    @Test @MainActor func initialState() throws {
+        let engine = try makeEngine()
+        #expect(engine.score == nil)
+        #expect(engine.isBaselineComplete == false)
+        #expect(engine.baselineProgress == 0.0)
+        #expect(engine.csiLabel == "CSI-4")
+    }
+
+    /// updateFromYBlock with beatCount >= 10 must not crash and must set internal state
+    /// (verified indirectly by confirming beatCount < 10 leaves state unchanged while
+    /// beatCount >= 10 runs through the acceptance branch without error).
+    @Test @MainActor func yBlockStoredWhenBeatCountSufficient() throws {
+        let engine = try makeEngine()
+
+        // Build a minimal YBlock with beatCount < 10 — should not update firmwareRMSSD.
+        let lowPacket  = makeHeader(type: 0x59, payloadLength: 14)
+        var low = lowPacket
+        var f0: Float = 30.0; withUnsafeBytes(of: &f0) { low.append(contentsOf: $0) }
+        var f1: Float = 700.0; withUnsafeBytes(of: &f1) { low.append(contentsOf: $0) }
+        var f2: Float = 65.0; withUnsafeBytes(of: &f2) { low.append(contentsOf: $0) }
+        low.append(UInt8(5))   // beatCount < 10
+        low.append(UInt8(0))
+        let lowBlock = try YBlock.parse(from: low)
+        engine.updateFromYBlock(lowBlock)
+        // No assertion on private property; just verify no crash and state unchanged.
+        #expect(engine.score == nil)
+
+        // beatCount >= 10 — should store firmwareRMSSD.
+        var high = makeHeader(type: 0x59, payloadLength: 14)
+        var g0: Float = 42.5; withUnsafeBytes(of: &g0) { high.append(contentsOf: $0) }
+        var g1: Float = 810.0; withUnsafeBytes(of: &g1) { high.append(contentsOf: $0) }
+        var g2: Float = 74.0; withUnsafeBytes(of: &g2) { high.append(contentsOf: $0) }
+        high.append(UInt8(10))  // beatCount == 10 → accepted
+        high.append(UInt8(0))
+        let highBlock = try YBlock.parse(from: high)
+        engine.updateFromYBlock(highBlock)
+        // No crash; score still nil (no epoch computed yet).
+        #expect(engine.score == nil)
+    }
+
+    /// After updateFromRBlock with a valid R-block, csiLabel must still be "CSI-4"
+    /// because a score requires a completed baseline, which needs epoch computation.
+    @Test @MainActor func rBlockLabelTransition() throws {
+        let engine = try makeEngine()
+
+        let bpmBits = Float(14.0).bitPattern
+        var packet  = makeHeader(type: 0x52, payloadLength: 12)
+        withUnsafeBytes(of: bpmBits.littleEndian) { packet.append(contentsOf: $0) }
+        packet.append(0x01)  // rrValid
+        packet.append(75)    // rrQuality
+        packet.append(0x00)  // rrMethod
+        packet.append(0x00)  // rrConflict
+        packet.append(0x00)  // rrConfounder
+        packet.append(0x00)  // rrCaution
+        packet.append(0x00)  // pad
+        packet.append(0x00)  // pad
+
+        let rBlock = #require(RBlock.parse(from: packet))
+        engine.updateFromRBlock(rBlock)
+
+        // Label must remain "CSI-4" — no epoch has fired yet.
+        #expect(engine.csiLabel == "CSI-4")
+    }
+
+    /// resetBaseline() on a fresh engine leaves all observable state at defaults.
+    @Test @MainActor func resetBaselineClears() throws {
+        let engine = try makeEngine()
+        engine.resetBaseline()
+
+        #expect(engine.isBaselineComplete == false)
+        #expect(engine.baselineProgress   == 0.0)
+        #expect(engine.score              == nil)
+        #expect(engine.csiLabel           == "CSI-4")
+    }
+
+    /// baselineProgress on a fresh engine must be in [0, 1].
+    @Test @MainActor func baselineProgressInRange() throws {
+        let engine = try makeEngine()
+        #expect(engine.baselineProgress >= 0.0)
+        #expect(engine.baselineProgress <= 1.0)
     }
 }

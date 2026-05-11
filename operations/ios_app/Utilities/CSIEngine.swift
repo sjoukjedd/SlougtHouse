@@ -180,6 +180,39 @@ final class CSIEngine {
         }
     }
 
+    // MARK: - Baseline reset
+
+    /// Clears all accumulated baseline data and resets observable state to its
+    /// initial values. The next valid epoch accumulation cycle will rebuild
+    /// the baseline from scratch. Any previously persisted record is removed
+    /// from SwiftData so that `restoreBaseline()` on the next launch starts
+    /// fresh as well.
+    func resetBaseline() {
+        baselinePEPInv.removeAll()
+        baselineSCL.removeAll()
+        baselineRMSSDInv.removeAll()
+        baselineSCRRate.removeAll()
+        baselineRR.removeAll()
+
+        mu  = MarkerStats()
+        sig = MarkerStats()
+        rrMean = 15.0
+        rrSd   = 3.0
+
+        latestFirmwareRMSSD = nil
+        latestRBlock        = nil
+
+        isBaselineComplete = false
+        baselineProgress   = 0.0
+        score              = nil
+        componentScores    = nil
+        csiLabel           = "CSI-4"
+
+        let existing = (try? modelContext.fetch(FetchDescriptor<CSIBaselineRecord>())) ?? []
+        for old in existing { modelContext.delete(old) }
+        try? modelContext.save()
+    }
+
     // MARK: - Y-block integration
 
     func updateFromYBlock(_ block: YBlock) {
@@ -413,6 +446,34 @@ final class CSIEngine {
         }
 
         sendWatchMessage()
+    }
+
+    // MARK: - Baseline reset
+
+    /// Clears all baseline accumulators and deletes the persisted baseline record.
+    /// The engine will start fresh accumulation from the next epoch.
+    func resetBaseline() {
+        isBaselineComplete = false
+        baselineProgress = 0.0
+        score = nil
+        componentScores = nil
+
+        baselinePEPInv.removeAll()
+        baselineSCL.removeAll()
+        baselineRMSSDInv.removeAll()
+        baselineSCRRate.removeAll()
+        baselineRR.removeAll()
+
+        rrMean = 15.0
+        rrSd = 3.0
+
+        mu  = MarkerStats()
+        sig = MarkerStats()
+
+        // Delete stored baseline so it is not restored on next launch
+        let existing = (try? modelContext.fetch(FetchDescriptor<CSIBaselineRecord>())) ?? []
+        for old in existing { modelContext.delete(old) }
+        try? modelContext.save()
     }
 
     // MARK: - Baseline finalisation

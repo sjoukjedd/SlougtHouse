@@ -352,7 +352,7 @@ final class SimPeripheralManager: NSObject {
         guard hasSubscribers(for: VUAMSUUID.rBlock) else { return }
         let noise = Float.random(in: -0.5...0.5)
         var rrBpm = Float(14.0) + noise
-        let payloadLength: UInt16 = 10
+        let payloadLength: UInt16 = 12  // 4 (float) + 6 (flags) + 2 (pad)
         var payload = makeHeader(type: 0x52, payloadLength: payloadLength)
         // rr_bpm: Float32 LE
         withUnsafeBytes(of: &rrBpm) { payload.append(contentsOf: $0) }

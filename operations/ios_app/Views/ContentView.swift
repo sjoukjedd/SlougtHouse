@@ -14,8 +14,14 @@ struct ContentView: View {
 
     @Environment(BLEManager.self) var ble
     @State private var selectedTab: AppTab = .connect
+    @State private var showDisconnectBanner: Bool = false
 
     private let accentColour = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
+
+    private var isConnected: Bool {
+        if case .connected = ble.connectionState { return true }
+        return false
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -39,6 +45,52 @@ struct ContentView: View {
             }
         }
         .tint(accentColour)
+        .overlay(alignment: .top) {
+            if showDisconnectBanner {
+                DisconnectBannerView()
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.35), value: showDisconnectBanner)
+        .onChange(of: ble.connectionState) { _, newState in
+            if case .disconnected = newState {
+                // Only show banner when we were previously connected
+                // (lastDisconnectReason is set on unexpected disconnects)
+                if ble.lastDisconnectReason != nil {
+                    showDisconnectBanner = true
+                }
+            } else if isConnected {
+                showDisconnectBanner = false
+            }
+        }
+        .task(id: showDisconnectBanner) {
+            guard showDisconnectBanner else { return }
+            try? await Task.sleep(for: .seconds(4))
+            showDisconnectBanner = false
+        }
+    }
+}
+
+// MARK: - DisconnectBannerView
+
+private struct DisconnectBannerView: View {
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "wifi.slash")
+                .font(.subheadline.bold())
+            Text("Verbinding verloren")
+                .font(.subheadline.bold())
+            Spacer()
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            Color(red: 0xC0/255.0, green: 0x39/255.0, blue: 0x1C/255.0)
+                .ignoresSafeArea(edges: .top)
+        )
     }
 }
 
@@ -61,6 +113,7 @@ private struct RecordingControlView: View {
     @State private var session: RecordingSession?
     @State private var elapsed: TimeInterval = 0
     @State private var displayTimer: Timer?
+    @State private var electrodDistanceText: String = ""
 
     private let background    = Color(red: 0x08/255.0, green: 0x0C/255.0, blue: 0x1E/255.0)
     private let accentColour  = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
@@ -68,12 +121,29 @@ private struct RecordingControlView: View {
 
     private var isRecording: Bool { session != nil }
 
+    /// Parsed electrode distance — nil if empty or out of [5, 50] range.
+    private var parsedDistance: Float? {
+        guard let v = Float(electrodDistanceText.replacingOccurrences(of: ",", with: ".")) else { return nil }
+        return (5...50).contains(v) ? v : nil
+    }
+
+    private var distanceOutOfRange: Bool {
+        let raw = electrodDistanceText.replacingOccurrences(of: ",", with: ".")
+        guard !raw.isEmpty, let v = Float(raw) else { return false }
+        return !(5...50).contains(v)
+    }
+
+    private var canStart: Bool {
+        isConnected && parsedDistance != nil
+    }
+
     private var isConnected: Bool {
         if case .connected = ble.connectionState { return true }
         return false
     }
 
     var body: some View {
+        @Bindable var bleBindable = ble
         ZStack {
             background.ignoresSafeArea()
 
@@ -98,6 +168,49 @@ private struct RecordingControlView: View {
                     .foregroundStyle(isRecording ? .white : .white.opacity(0.25))
                     .animation(.none, value: elapsed)
 
+                // ── Subject + electrode inputs (hidden while recording) ───
+                if !isRecording {
+                    VStack(spacing: 16) {
+                        // Subject ID
+                        VStack(alignment: .leading, spacing: 4) {
+                            TextField("Subject ID", text: $bleBindable.subjectId)
+                                .font(.body)
+                                .foregroundStyle(.white)
+                                .padding(.bottom, 6)
+                                .overlay(alignment: .bottom) {
+                                    Rectangle()
+                                        .fill(accentColour)
+                                        .frame(height: 1.5)
+                                }
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.characters)
+                        }
+
+                        // Electrode distance
+                        VStack(alignment: .leading, spacing: 4) {
+                            TextField("Afstand elektroden (cm)", text: $electrodDistanceText)
+                                .font(.body)
+                                .foregroundStyle(.white)
+                                .keyboardType(.decimalPad)
+                                .padding(.bottom, 6)
+                                .overlay(alignment: .bottom) {
+                                    Rectangle()
+                                        .fill(distanceOutOfRange ? Color.red : accentColour)
+                                        .frame(height: 1.5)
+                                }
+                                .onChange(of: electrodDistanceText) {
+                                    ble.electrodDistanceCm = parsedDistance
+                                }
+                            if distanceOutOfRange {
+                                Text("Waarde moet tussen 5 en 50 cm liggen")
+                                    .font(.caption2)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 32)
+                }
+
                 // ── Start / Stop button ───────────────────────────────────
                 Button(action: toggleRecording) {
                     ZStack {
@@ -119,15 +232,21 @@ private struct RecordingControlView: View {
                         }
                     }
                 }
-                .disabled(!isConnected)
-                .opacity(isConnected ? 1 : 0.4)
+                .disabled(isRecording ? false : !canStart)
+                .opacity((isRecording || canStart) ? 1 : 0.4)
                 .accessibilityLabel(isRecording ? "Stop recording" : "Start recording")
 
                 // ── Session metadata ──────────────────────────────────────
                 if let session {
                     VStack(spacing: 6) {
-                        MetaRowView(label: "Device",  value: session.deviceName)
-                        MetaRowView(label: "Started", value: formattedDate(session.startTimestamp))
+                        MetaRowView(label: "Device",   value: session.deviceName)
+                        if !session.subjectId.isEmpty {
+                            MetaRowView(label: "Subject",  value: session.subjectId)
+                        }
+                        if let d = session.electrodDistanceCm {
+                            MetaRowView(label: "L (cm)",   value: String(format: "%.1f", d))
+                        }
+                        MetaRowView(label: "Started",  value: formattedDate(session.startTimestamp))
                     }
                     .padding(16)
                     .background(
@@ -241,8 +360,7 @@ private struct LiveWaveformView: View {
                 if ble.latestRBlock?.rrValid == true {
                     ChannelRowView(title: "RESP",
                                    buffer: ble.respBuffer,
-                                   color: Color(red: 0.0, green: 0.80, blue: 0.70),
-                                   yRange: -5000...5000)
+                                   color: Color(red: 0.0, green: 0.80, blue: 0.70))
                 }
             }
             .padding(.vertical, 8)
@@ -256,15 +374,37 @@ private struct ChannelRowView: View {
     let title: String
     let buffer: SignalBuffer
     let color: Color
-    let yRange: ClosedRange<Float>
+    var yRange: ClosedRange<Float>? = nil
 
     var body: some View {
+        // Compute the effective y-range once per render, outside the path loop.
+        // When no explicit range is provided, derive it from the buffer contents
+        // with 10 % padding and a minimum span of ±10 to avoid division by zero.
+        let effectiveRange: ClosedRange<Float> = {
+            if let r = yRange { return r }
+            let samples = buffer.latest(count: buffer.currentCount)
+            guard !samples.isEmpty,
+                  let lo = samples.min(), let hi = samples.max() else {
+                return -10...10
+            }
+            let span = hi - lo
+            let padding = max(span * 0.1, 1.0)   // 10 % of range; at least 1 unit
+            let lower = lo - padding
+            let upper = hi + padding
+            // Ensure minimum total span of 20 (±10 equivalent)
+            if upper - lower < 20 {
+                let mid = (lower + upper) / 2
+                return (mid - 10)...(mid + 10)
+            }
+            return lower...upper
+        }()
+
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.5))
                 .padding(.leading, 8)
-            WaveformView(buffer: buffer, color: color, yRange: yRange)
+            WaveformView(buffer: buffer, color: color, yRange: effectiveRange)
                 .frame(maxWidth: .infinity)
                 .frame(height: 130)
         }
