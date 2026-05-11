@@ -14,6 +14,138 @@ struct CSIComponents {
     var rrZ: Double?      // z(RR) — present only when CSI-5-RR is active
 }
 
+// MARK: - EpochComputer
+
+/// Private background actor that performs the pure floating-point scoring work
+/// (z-scores, weighted sum, sigmoid) off the main thread.
+private actor EpochComputer {
+
+    struct Input {
+        let pepInv: Double?
+        let sclMean: Double?
+        let rmssdInv: Double?
+        let scrRate: Double
+        let rrBlock: RBlock?
+        let mu: MarkerStats
+        let sig: MarkerStats
+        let rrMean: Double
+        let rrSd: Double
+    }
+
+    struct Output {
+        let score: Double
+        let components: CSIComponents
+        let label: String
+    }
+
+    func compute(_ input: Input) -> Output? {
+        let pepInv   = input.pepInv
+        let sclMean  = input.sclMean
+        let rmssdInv = input.rmssdInv
+        let scrRate  = input.scrRate
+        let mu       = input.mu
+        let sig      = input.sig
+
+        let rrBlock = input.rrBlock
+        let rrIsUsable: Bool
+        if let rb = rrBlock, rb.rrValid, rb.rrBpm >= 4, rb.rrBpm <= 40 {
+            rrIsUsable = true
+        } else {
+            rrIsUsable = false
+        }
+
+        if rrIsUsable, let rb = rrBlock {
+            // CSI-5-RR path
+            let rrBpmD = Double(rb.rrBpm)
+            let rrZ = clampZ((rrBpmD - input.rrMean) / safeSD(input.rrSd))
+
+            let weights: [Double]
+            if rb.rrConfounder {
+                weights = [0.39, 0.33, 0.10, 0.08, 0.10]
+            } else {
+                weights = [0.32, 0.27, 0.22, 0.09, 0.10]
+            }
+
+            var availableWeights: [(w: Double, z: Double)] = []
+            if let p = pepInv {
+                let z = clampZ((p - mu.pepInv) / safeSD(sig.pepInv))
+                availableWeights.append((weights[0], z))
+            }
+            if let s = sclMean {
+                let z = clampZ((s - mu.scl) / safeSD(sig.scl))
+                availableWeights.append((weights[1], z))
+            }
+            if let r = rmssdInv {
+                let z = clampZ((r - mu.rmssdInv) / safeSD(sig.rmssdInv))
+                availableWeights.append((weights[2], z))
+            }
+            let scrZ = clampZ((scrRate - mu.scrRate) / safeSD(sig.scrRate))
+            availableWeights.append((weights[3], scrZ))
+            availableWeights.append((weights[4], rrZ))
+
+            guard availableWeights.count >= 2 else { return nil }
+
+            let totalW  = availableWeights.reduce(0) { $0 + $1.w }
+            let csiRaw  = availableWeights.reduce(0) { $0 + ($1.w / totalW) * $1.z }
+            let csiFinal = 100.0 / (1.0 + exp(-1.5 * csiRaw))
+
+            let pepZ   = pepInv.map    { clampZ(($0 - mu.pepInv)   / safeSD(sig.pepInv))   } ?? 0
+            let sclZ   = sclMean.map   { clampZ(($0 - mu.scl)      / safeSD(sig.scl))      } ?? 0
+            let rmssdZ = rmssdInv.map  { clampZ(($0 - mu.rmssdInv) / safeSD(sig.rmssdInv)) } ?? 0
+
+            return Output(
+                score: csiFinal,
+                components: CSIComponents(pepZ: pepZ, sclZ: sclZ, rmssdZ: rmssdZ, scrRateZ: scrZ, rrZ: rrZ),
+                label: "CSI-5"
+            )
+        } else {
+            // CSI-4 fallback path
+            var availableWeights: [(w: Double, z: Double)] = []
+
+            if let p = pepInv {
+                let z = clampZ((p - mu.pepInv) / safeSD(sig.pepInv))
+                availableWeights.append((0.35, z))
+            }
+            if let s = sclMean {
+                let z = clampZ((s - mu.scl) / safeSD(sig.scl))
+                availableWeights.append((0.30, z))
+            }
+            if let r = rmssdInv {
+                let z = clampZ((r - mu.rmssdInv) / safeSD(sig.rmssdInv))
+                availableWeights.append((0.25, z))
+            }
+            let scrZ = clampZ((scrRate - mu.scrRate) / safeSD(sig.scrRate))
+            availableWeights.append((0.10, scrZ))
+
+            guard availableWeights.count >= 2 else { return nil }
+
+            let totalW   = availableWeights.reduce(0) { $0 + $1.w }
+            let csiRaw   = availableWeights.reduce(0) { $0 + ($1.w / totalW) * $1.z }
+            let csiFinal = 100.0 / (1.0 + exp(-1.5 * csiRaw))
+
+            let pepZ   = pepInv.map    { clampZ(($0 - mu.pepInv)   / safeSD(sig.pepInv))   } ?? 0
+            let sclZ   = sclMean.map   { clampZ(($0 - mu.scl)      / safeSD(sig.scl))      } ?? 0
+            let rmssdZ = rmssdInv.map  { clampZ(($0 - mu.rmssdInv) / safeSD(sig.rmssdInv)) } ?? 0
+
+            return Output(
+                score: csiFinal,
+                components: CSIComponents(pepZ: pepZ, sclZ: sclZ, rmssdZ: rmssdZ, scrRateZ: scrZ, rrZ: nil),
+                label: "CSI-4"
+            )
+        }
+    }
+
+    // MARK: - Helpers (duplicated from CSIEngine — value-type safe inside actor)
+
+    private func safeSD(_ sd: Double) -> Double {
+        sd < 1e-6 ? 1.0 : sd
+    }
+
+    private func clampZ(_ z: Double) -> Double {
+        max(-3.0, min(3.0, z.isNaN ? 0 : z))
+    }
+}
+
 // MARK: - CSIEngine
 //
 // Composite Stress Index engine. Computes a 0–100 stress score from four
@@ -50,11 +182,6 @@ final class CSIEngine {
 
     private static let epochSeconds:    Double = 30.0
     private static let baselineEpochs:  Int    = 4       // 4 × 30 s = 120 s
-    private static let w1: Double = 0.35  // PEP⁻¹
-    private static let w2: Double = 0.30  // SCL
-    private static let w3: Double = 0.25  // RMSSD⁻¹
-    private static let w4: Double = 0.10  // SCR rate
-    private static let sigmoidK: Double = 1.5
     private static let scrThreshold: Float = 0.05  // µS phasic crossing threshold
 
     // MARK: - Internals (not Observable-tracked)
@@ -100,6 +227,9 @@ final class CSIEngine {
 
     // Timer
     private var epochTimer: Timer?
+
+    // Background actor for CPU-bound epoch scoring
+    private let epochComputer = EpochComputer()
 
     // MARK: - Init
 
@@ -258,7 +388,6 @@ final class CSIEngine {
         }
 
         // ── Collect IBlock PEP samples ─────────────────────────────────────
-        // IBlock delivers per-beat PEP; we use whatever the BLEManager holds.
         if let iBlock = ble.latestIBlock, iBlock.pep > 0 {
             epochPEPSamples.append(Double(iBlock.pep))
         }
@@ -267,7 +396,6 @@ final class CSIEngine {
         if let sBlock = ble.latestSBlock {
             epochSCLSamples.append(Double(sBlock.sclTonic))
 
-            // Track phasic history for SCR rate (keep last 60 s)
             let now = Date()
             sclPhasicHistory.append((value: sBlock.sclPhasic, date: now))
             sclPhasicHistory.removeAll { now.timeIntervalSince($0.date) > 60 }
@@ -295,7 +423,7 @@ final class CSIEngine {
         }
         epochSCLSamples.removeAll(keepingCapacity: true)
 
-        // RMSSD⁻¹ — prefer firmware value if available and beat count is sufficient
+        // RMSSD⁻¹ — prefer firmware value if available
         let rmssdInv: Double?
         let rmssd = latestFirmwareRMSSD ?? rpeak.rmssd
         if let r = rmssd, r > 0 {
@@ -307,26 +435,18 @@ final class CSIEngine {
         // SCR rate (events / min from phasic crossings, 60 s window)
         let scrRate: Double = computeSCRRate()
 
-        // ── Determine if R-block is usable for CSI-5-RR ──────────────────
-        let rrBlock = latestRBlock
-        let rrIsUsable: Bool
-        if let rb = rrBlock, rb.rrValid, rb.rrBpm >= 4, rb.rrBpm <= 40 {
-            rrIsUsable = true
-        } else {
-            rrIsUsable = false
-        }
-
         // ── Baseline accumulation ─────────────────────────────────────────
         if !isBaselineComplete {
             if let p = pepInv   { baselinePEPInv.append(p) }
             if let s = sclMean  { baselineSCL.append(s) }
             if let r = rmssdInv { baselineRMSSDInv.append(r) }
             baselineSCRRate.append(scrRate)
-            if rrIsUsable, let rb = rrBlock {
+
+            let rrBlock = latestRBlock
+            if let rb = rrBlock, rb.rrValid, rb.rrBpm >= 4, rb.rrBpm <= 40 {
                 baselineRR.append(Double(rb.rrBpm))
             }
 
-            // Baseline progress is driven by SCL availability (most reliable indicator)
             let epochsDone = max(baselinePEPInv.count,
                                  baselineSCL.count,
                                  baselineRMSSDInv.count,
@@ -339,113 +459,36 @@ final class CSIEngine {
             return
         }
 
-        // ── Z-score and CSI ───────────────────────────────────────────────
+        // ── Z-score and CSI — dispatch to background actor ────────────────
         guard isBaselineComplete else { return }
 
-        if rrIsUsable, let rb = rrBlock {
-            // CSI-5-RR path
-            csiLabel = "CSI-5"
-            let rrBpmD = Double(rb.rrBpm)
-            let rrZ = clampZ((rrBpmD - rrMean) / safeSD(rrSd))
+        // Capture value-type snapshots — safe to send across actor boundaries
+        let input = EpochComputer.Input(
+            pepInv:   pepInv,
+            sclMean:  sclMean,
+            rmssdInv: rmssdInv,
+            scrRate:  scrRate,
+            rrBlock:  latestRBlock,
+            mu:       mu,
+            sig:      sig,
+            rrMean:   rrMean,
+            rrSd:     rrSd
+        )
 
-            // Select weights based on confounder flag
-            // [PEP⁻¹, SCL, RMSSD⁻¹, SCR_rate, RR]
-            let weights: [Double]
-            if rb.rrConfounder {
-                weights = [0.39, 0.33, 0.10, 0.08, 0.10]
+        Task { [weak self] in
+            guard let self else { return }
+            let result = await epochComputer.compute(input)
+            // Hop back to MainActor to write observable state
+            // (Task inherits MainActor isolation from CSIEngine)
+            if let result {
+                self.score           = result.score
+                self.componentScores = result.components
+                self.csiLabel        = result.label
             } else {
-                weights = [0.32, 0.27, 0.22, 0.09, 0.10]
+                self.score = nil
             }
-
-            var availableWeights: [(w: Double, z: Double)] = []
-            if let p = pepInv {
-                let z = clampZ((p - mu.pepInv) / safeSD(sig.pepInv))
-                availableWeights.append((weights[0], z))
-            }
-            if let s = sclMean {
-                let z = clampZ((s - mu.scl) / safeSD(sig.scl))
-                availableWeights.append((weights[1], z))
-            }
-            if let r = rmssdInv {
-                let z = clampZ((r - mu.rmssdInv) / safeSD(sig.rmssdInv))
-                availableWeights.append((weights[2], z))
-            }
-            let scrZ = clampZ((scrRate - mu.scrRate) / safeSD(sig.scrRate))
-            availableWeights.append((weights[3], scrZ))
-            availableWeights.append((weights[4], rrZ))
-
-            guard availableWeights.count >= 2 else {
-                score = nil
-                sendWatchMessage()
-                return
-            }
-
-            let totalW = availableWeights.reduce(0) { $0 + $1.w }
-            let csiRaw = availableWeights.reduce(0) { $0 + ($1.w / totalW) * $1.z }
-            let csiFinal = 100.0 / (1.0 + exp(-CSIEngine.sigmoidK * csiRaw))
-
-            let pepZ   = pepInv.map    { clampZ(($0 - mu.pepInv)   / safeSD(sig.pepInv))   } ?? 0
-            let sclZ   = sclMean.map   { clampZ(($0 - mu.scl)      / safeSD(sig.scl))      } ?? 0
-            let rmssdZ = rmssdInv.map  { clampZ(($0 - mu.rmssdInv) / safeSD(sig.rmssdInv)) } ?? 0
-
-            score = csiFinal
-            componentScores = CSIComponents(
-                pepZ:     pepZ,
-                sclZ:     sclZ,
-                rmssdZ:   rmssdZ,
-                scrRateZ: scrZ,
-                rrZ:      rrZ
-            )
-        } else {
-            // CSI-4 fallback path
-            csiLabel = "CSI-4"
-
-            var availableWeights: [(w: Double, z: Double)] = []
-
-            if let p = pepInv {
-                let z = clampZ((p - mu.pepInv) / safeSD(sig.pepInv))
-                availableWeights.append((CSIEngine.w1, z))
-            }
-            if let s = sclMean {
-                let z = clampZ((s - mu.scl) / safeSD(sig.scl))
-                availableWeights.append((CSIEngine.w2, z))
-            }
-            if let r = rmssdInv {
-                let z = clampZ((r - mu.rmssdInv) / safeSD(sig.rmssdInv))
-                availableWeights.append((CSIEngine.w3, z))
-            }
-            let scrZ = clampZ((scrRate - mu.scrRate) / safeSD(sig.scrRate))
-            availableWeights.append((CSIEngine.w4, scrZ))
-
-            guard availableWeights.count >= 2 else {
-                score = nil
-                sendWatchMessage()
-                return
-            }
-
-            // Proportional reweighting for missing markers
-            let totalW = availableWeights.reduce(0) { $0 + $1.w }
-            let csiRaw = availableWeights.reduce(0) { $0 + ($1.w / totalW) * $1.z }
-
-            // Sigmoid to [0, 100]
-            let csiFinal = 100.0 / (1.0 + exp(-CSIEngine.sigmoidK * csiRaw))
-
-            // Build component scores (use all four, marking unavailable as 0)
-            let pepZ   = pepInv.map    { clampZ(($0 - mu.pepInv)   / safeSD(sig.pepInv))   } ?? 0
-            let sclZ   = sclMean.map   { clampZ(($0 - mu.scl)      / safeSD(sig.scl))      } ?? 0
-            let rmssdZ = rmssdInv.map  { clampZ(($0 - mu.rmssdInv) / safeSD(sig.rmssdInv)) } ?? 0
-
-            score = csiFinal
-            componentScores = CSIComponents(
-                pepZ:     pepZ,
-                sclZ:     sclZ,
-                rmssdZ:   rmssdZ,
-                scrRateZ: scrZ,
-                rrZ:      nil
-            )
+            self.sendWatchMessage()
         }
-
-        sendWatchMessage()
     }
 
     // MARK: - Baseline finalisation
@@ -461,7 +504,6 @@ final class CSIEngine {
         sig.rmssdInv = stddev(baselineRMSSDInv)
         sig.scrRate  = stddev(baselineSCRRate)
 
-        // RR baseline — use accumulated values if we have enough, otherwise keep initial estimates
         if baselineRR.count >= 2 {
             rrMean = mean(baselineRR)
             rrSd   = stddev(baselineRR)
@@ -496,8 +538,6 @@ final class CSIEngine {
     // MARK: - SCR rate computation
 
     private func computeSCRRate() -> Double {
-        // Count phasic upward crossings of 0.05 µS threshold in the last 60 s
-        // Minimum 1 s between events (enforced by only counting rising edges).
         var eventCount = 0
         var wasBelow = true
         var lastEventTime: Date? = nil
@@ -506,7 +546,6 @@ final class CSIEngine {
         for entry in sclPhasicHistory {
             let isAbove = entry.value >= CSIEngine.scrThreshold
             if isAbove && wasBelow {
-                // Rising edge — check inter-event interval
                 if let last = lastEventTime,
                    entry.date.timeIntervalSince(last) < minInterEventSec {
                     // Too close — not a new event
@@ -518,7 +557,6 @@ final class CSIEngine {
             wasBelow = !isAbove
         }
 
-        // sclPhasicHistory covers ≤ 60 s, express rate as events/min
         let windowMin = sclPhasicHistory.isEmpty ? 1.0 :
             min(1.0, (sclPhasicHistory.last!.date.timeIntervalSince(
                 sclPhasicHistory.first!.date) + 1.0) / 60.0)
@@ -540,7 +578,7 @@ final class CSIEngine {
     }
 
     private func safeSD(_ sd: Double) -> Double {
-        sd < 1e-6 ? 1.0 : sd   // If σ < 1e-6, treat as 1.0 → z = x - μ (no division by 0)
+        sd < 1e-6 ? 1.0 : sd
     }
 
     private func clampZ(_ z: Double) -> Double {

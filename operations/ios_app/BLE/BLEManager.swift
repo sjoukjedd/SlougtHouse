@@ -111,10 +111,17 @@ final class BLEManager: NSObject {
     @ObservationIgnored private var connectedPeripheral: CBPeripheral?
     @ObservationIgnored private var characteristics: [CBUUID: CBCharacteristic] = [:]
 
+    // Dedicated queue for all BLE callbacks — keeps high-frequency ECG parsing
+    // off the main thread entirely.
+    @ObservationIgnored private let bleQueue = DispatchQueue(
+        label: "ble.callback",
+        qos: .userInitiated
+    )
+
     init(modelContext: ModelContext) {
         super.init()
         csiEngine = CSIEngine(ble: self, modelContext: modelContext)
-        centralManager = CBCentralManager(delegate: self, queue: .main)
+        centralManager = CBCentralManager(delegate: self, queue: bleQueue)
     }
 
     // MARK: - Public API
@@ -202,6 +209,7 @@ final class BLEManager: NSObject {
 
     /// Called on every new S-block (10 Hz). Detects upward threshold crossings
     /// with a 5-second refractory period, then recomputes rolling rate over 60 s.
+    /// Must be called on MainActor — reads and writes @MainActor-isolated SCR state.
     private func updateSCR(phasic: Float) {
         let threshold: Float = 0.05
         let refractorySeconds: TimeInterval = 5.0
@@ -250,19 +258,19 @@ final class BLEManager: NSObject {
 }
 
 // MARK: - CBCentralManagerDelegate
-// CBCentralManager is created with queue: .main, so all callbacks arrive on the main thread.
-// We use nonisolated + MainActor.assumeIsolated to satisfy the protocol while keeping
-// the guarantee that we are always on the main actor when touching state.
+// CBCentralManager is created with bleQueue, so all callbacks arrive on that background queue.
+// Delegate methods are nonisolated; they do background-safe work directly and dispatch
+// observable state updates to MainActor via Task { @MainActor in }.
 
 extension BLEManager: CBCentralManagerDelegate {
 
     nonisolated func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        MainActor.assumeIsolated {
-            switch central.state {
-            case .poweredOn:
-                break // Ready; scanning starts on user request
-            default:
-                resetState()
+        switch central.state {
+        case .poweredOn:
+            break // Ready; scanning starts on user request
+        default:
+            Task { @MainActor [weak self] in
+                self?.resetState()
             }
         }
     }
@@ -271,16 +279,18 @@ extension BLEManager: CBCentralManagerDelegate {
                                     didDiscover peripheral: CBPeripheral,
                                     advertisementData: [String: Any],
                                     rssi RSSI: NSNumber) {
-        MainActor.assumeIsolated {
-            let id = peripheral.identifier
+        let id = peripheral.identifier
+        let rssiValue = RSSI.intValue
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             if let idx = discoveredPeripherals.firstIndex(where: { $0.id == id }) {
-                discoveredPeripherals[idx].rssi = RSSI.intValue
+                discoveredPeripherals[idx].rssi = rssiValue
             } else {
                 let dp = DiscoveredPeripheral(
                     id: id,
                     peripheral: peripheral,
                     name: peripheral.name ?? id.uuidString,
-                    rssi: RSSI.intValue
+                    rssi: rssiValue
                 )
                 discoveredPeripherals.append(dp)
             }
@@ -289,7 +299,8 @@ extension BLEManager: CBCentralManagerDelegate {
 
     nonisolated func centralManager(_ central: CBCentralManager,
                                     didConnect peripheral: CBPeripheral) {
-        MainActor.assumeIsolated {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             connectionState = .connected(peripheral)
             lastDisconnectReason = nil
             peripheral.discoverServices([VUAMSUUID.service])
@@ -299,15 +310,19 @@ extension BLEManager: CBCentralManagerDelegate {
     nonisolated func centralManager(_ central: CBCentralManager,
                                     didFailToConnect peripheral: CBPeripheral,
                                     error: Error?) {
-        MainActor.assumeIsolated { resetState() }
+        Task { @MainActor [weak self] in
+            self?.resetState()
+        }
     }
 
     nonisolated func centralManager(_ central: CBCentralManager,
                                     didDisconnectPeripheral peripheral: CBPeripheral,
                                     error: Error?) {
-        MainActor.assumeIsolated {
-            if let error {
-                lastDisconnectReason = error.localizedDescription
+        let reason = error?.localizedDescription
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            if let reason {
+                lastDisconnectReason = reason
             }
             resetState()
         }
@@ -320,9 +335,9 @@ extension BLEManager: CBPeripheralDelegate {
 
     nonisolated func peripheral(_ peripheral: CBPeripheral,
                                 didDiscoverServices error: Error?) {
-        MainActor.assumeIsolated {
-            guard error == nil,
-                  let services = peripheral.services else { return }
+        guard error == nil, let services = peripheral.services else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             for service in services where service.uuid == VUAMSUUID.service {
                 peripheral.discoverCharacteristics(VUAMSUUID.allUUIDs, for: service)
             }
@@ -332,9 +347,9 @@ extension BLEManager: CBPeripheralDelegate {
     nonisolated func peripheral(_ peripheral: CBPeripheral,
                                 didDiscoverCharacteristicsFor service: CBService,
                                 error: Error?) {
-        MainActor.assumeIsolated {
-            guard error == nil,
-                  let chars = service.characteristics else { return }
+        guard error == nil, let chars = service.characteristics else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             for ch in chars {
                 characteristics[ch.uuid] = ch
                 if VUAMSUUID.allBlockUUIDs.contains(ch.uuid) ||
@@ -350,70 +365,106 @@ extension BLEManager: CBPeripheralDelegate {
                                 error: Error?) {
         guard error == nil, let data = characteristic.value else { return }
         let uuid = characteristic.uuid
-        MainActor.assumeIsolated {
-            do {
-                if uuid == VUAMSUUID.aBlock {
-                    let block = try ABlock.parse(from: data)
-                    latestABlock = block
-                    ecg1Buffer.append(block.ecg1.map { Float($0) })
-                    ecg2Buffer.append(block.ecg2.map { Float($0) })
+
+        do {
+            if uuid == VUAMSUUID.aBlock {
+                let block = try ABlock.parse(from: data)
+                // Buffer appends are thread-safe (SignalBuffer has NSLock)
+                ecg1Buffer.append(block.ecg1.map { Float($0) })
+                ecg2Buffer.append(block.ecg2.map { Float($0) })
+                // Store @ObservationIgnored property — written only from bleQueue, safe
+                latestABlock = block
+                // Observable UI properties → MainActor
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
                     signalQuality["ecg1"] = true
                     signalQuality["ecg2"] = true
-                } else if uuid == VUAMSUUID.iBlock {
-                    let block = try IBlock.parse(from: data)
+                }
+            } else if uuid == VUAMSUUID.iBlock {
+                let block = try IBlock.parse(from: data)
+                icgBuffer.append([block.dZdt])
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
                     latestIBlock = block
-                    icgBuffer.append([block.dZdt])
                     signalQuality["icg"] = true
-                } else if uuid == VUAMSUUID.mBlock {
-                    let block = try MBlock.parse(from: data)
-                    latestMBlock = block
-                } else if uuid == VUAMSUUID.pBlock {
-                    let block = try PBlock.parse(from: data)
-                    ppgBuffer.append([Float(block.ppgIr)])
+                }
+            } else if uuid == VUAMSUUID.mBlock {
+                let block = try MBlock.parse(from: data)
+                // @ObservationIgnored — safe to write on bleQueue
+                latestMBlock = block
+            } else if uuid == VUAMSUUID.pBlock {
+                let block = try PBlock.parse(from: data)
+                ppgBuffer.append([Float(block.ppgIr)])
+                // Counters are @ObservationIgnored and only touched from bleQueue
+                ppgDecimateCounter += 1
+                let doResp = ppgDecimateCounter >= 5
+                if doResp { ppgDecimateCounter = 0 }
+                ppgDisplayCounter += 1
+                let doDisplay = ppgDisplayCounter >= 10
+                if doDisplay { ppgDisplayCounter = 0 }
+
+                // IIR DC removal for RESP — computed on bleQueue before handing off
+                let irValue = Double(block.ppgIr)
+                if doResp {
+                    respMean = 0.99 * respMean + 0.01 * irValue
+                    let respSample = Float(irValue - respMean)
+                    respBuffer.append([respSample])
+                }
+
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
                     signalQuality["ppg"] = true
-                    // Throttle SwiftUI observable update to 5 Hz (every 10th packet)
-                    ppgDisplayCounter += 1
-                    if ppgDisplayCounter >= 10 {
-                        ppgDisplayCounter = 0
+                    if doDisplay {
                         latestPBlock = block
                     }
-                    // Downsample PPG IR to 10 Hz for RESP waveform display
-                    ppgDecimateCounter += 1
-                    if ppgDecimateCounter >= 5 {
-                        ppgDecimateCounter = 0
-                        let irValue = Double(block.ppgIr)
-                        respMean = 0.99 * respMean + 0.01 * irValue
-                        respBuffer.append([Float(irValue - respMean)])
-                    }
-                } else if uuid == VUAMSUUID.sBlock {
-                    let block = try SBlock.parse(from: data)
-                    latestSBlock = block
-                    sclBuffer.append([block.sclTonic])
-                    sclPhasicBuffer.append([block.sclPhasic])
+                }
+            } else if uuid == VUAMSUUID.sBlock {
+                let block = try SBlock.parse(from: data)
+                // @ObservationIgnored — safe on bleQueue
+                latestSBlock = block
+                sclBuffer.append([block.sclTonic])
+                sclPhasicBuffer.append([block.sclPhasic])
+                // updateSCR reads sclPhasicBuffer (thread-safe) and writes
+                // @MainActor SCR state — must run on MainActor
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
                     signalQuality["scl"] = true
                     updateSCR(phasic: block.sclPhasic)
-                } else if uuid == VUAMSUUID.tBlock {
-                    let block = try TBlock.parse(from: data)
+                }
+            } else if uuid == VUAMSUUID.tBlock {
+                let block = try TBlock.parse(from: data)
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
                     latestTBlock = block
                     signalQuality["temperature"] = true
-                } else if uuid == VUAMSUUID.xBlock {
-                    if let block = XBlock.parse(from: data) {
-                        currentActivity = block
-                    }
-                } else if uuid == VUAMSUUID.yBlock {
-                    let block = try YBlock.parse(from: data)
-                    latestYBlock = block
-                    csiEngine.updateFromYBlock(block)
-                } else if uuid == VUAMSUUID.rBlock {
-                    if let block = RBlock.parse(from: data) {
-                        latestRBlock = block
-                        csiEngine.updateFromRBlock(block)
+                }
+            } else if uuid == VUAMSUUID.xBlock {
+                if let block = XBlock.parse(from: data) {
+                    Task { @MainActor [weak self] in
+                        self?.currentActivity = block
                     }
                 }
-                // status characteristic — parse if needed in future
-            } catch {
-                // Silently drop malformed packets; production would log to telemetry
+            } else if uuid == VUAMSUUID.yBlock {
+                let block = try YBlock.parse(from: data)
+                // @ObservationIgnored — safe on bleQueue
+                latestYBlock = block
+                // csiEngine is @MainActor — dispatch
+                Task { @MainActor [weak self] in
+                    self?.csiEngine.updateFromYBlock(block)
+                }
+            } else if uuid == VUAMSUUID.rBlock {
+                if let block = RBlock.parse(from: data) {
+                    // @ObservationIgnored — safe on bleQueue
+                    latestRBlock = block
+                    // csiEngine is @MainActor — dispatch
+                    Task { @MainActor [weak self] in
+                        self?.csiEngine.updateFromRBlock(block)
+                    }
+                }
             }
+            // status characteristic — parse if needed in future
+        } catch {
+            // Silently drop malformed packets; production would log to telemetry
         }
     }
 

@@ -7,24 +7,19 @@ struct WaveformView: View {
     let color: Color
     let yRange: ClosedRange<Float>
 
-    /// Refresh ticker — drives redraws at ~30 fps.
-    @State private var tick: Date = .now
-    @State private var timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
-
     // Layout constants
     private let backgroundColour = Color(red: 0x10/255.0, green: 0x14/255.0, blue: 0x30/255.0)
     private let gridColour       = Color.white.opacity(0.12)
     private let displaySeconds: Int = 5
 
     var body: some View {
-        Canvas { context, size in
-            // Background
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(backgroundColour))
-
-            drawGrid(context: context, size: size)
-            drawWaveform(context: context, size: size)
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { _ in
+            Canvas { context, size in
+                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(backgroundColour))
+                drawGrid(context: context, size: size)
+                drawWaveform(context: context, size: size)
+            }
         }
-        .onReceive(timer) { t in tick = t }
     }
 
     // MARK: - Grid
