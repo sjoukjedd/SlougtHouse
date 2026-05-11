@@ -23,6 +23,7 @@
 		6F2C6C9D781E6189BB06B50D /* VUAMSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A35DA3BCEFF157DC433533 /* VUAMSApp.swift */; };
 		7D8078503C3C4615FAA98DF5 /* VUAMS.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */; };
 		87B52313B6D948D461755299 /* GATTProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D71872D8EA659484F60880 /* GATTProfile.swift */; };
+		96ABBBE0717702F0D70D70D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10D9E17E0FD446D612FDFF79 /* Assets.xcassets */; };
 		9B2C3BF470E81FB5E489100D /* DataBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC182115564A9404D68C49F /* DataBlocks.swift */; };
 		9B94DB975D82E38037EA24D2 /* CSIBaselineRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FA264B86A50EE38750E3FC /* CSIBaselineRecord.swift */; };
 		C912A750CC87806238848BE2 /* RPeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A654F5FDC3A8A04B556461 /* RPeakDetector.swift */; };
@@ -52,8 +53,9 @@
 
 /* Begin PBXFileReference section */
 		011E4FF5B70A86E0F39A1393 /* VUAMSWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSWatchApp.swift; sourceTree = "<group>"; };
-		07EDCE44D2779E138F053CD7 /* VUAMS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VUAMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		07EDCE44D2779E138F053CD7 /* VUAMS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VUAMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2BE800695CB6B11773EC80 /* SignalBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalBuffer.swift; sourceTree = "<group>"; };
+		10D9E17E0FD446D612FDFF79 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		11A35DA3BCEFF157DC433533 /* VUAMSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSApp.swift; sourceTree = "<group>"; };
 		3D192F0B03AE143D3EFFBC79 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchContentView.swift; sourceTree = "<group>"; };
 		410E7A1232E1AD4D07CCBDC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -81,7 +83,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		08F3E8AF2FB1ED01000CF3C4 /* Products */ = {
+		08F3E8B12FB2806C000CF3C4 /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
@@ -187,6 +189,7 @@
 		F4DD189F02DBC15F8BE843C7 /* VUAMS */ = {
 			isa = PBXGroup;
 			children = (
+				10D9E17E0FD446D612FDFF79 /* Assets.xcassets */,
 				828926C5EDEDE3371CC45A18 /* Info.plist */,
 			);
 			path = VUAMS;
@@ -265,6 +268,9 @@
 					AF12C6B39ED5336502B3CA4B = {
 						DevelopmentTeam = "";
 					};
+					F4EB0AAEA8AE17315996E75D = {
+						DevelopmentTeam = "";
+					};
 				};
 			};
 			buildConfigurationList = 55BAC4322574AAD6942BF933 /* Build configuration list for PBXProject "VUAMS" */;
@@ -281,7 +287,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 08F3E8AF2FB1ED01000CF3C4 /* Products */;
+					ProductGroup = 08F3E8B12FB2806C000CF3C4 /* Products */;
 					ProjectRef = 9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */;
 				},
 			);
@@ -307,6 +313,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96ABBBE0717702F0D70D70D5 /* Assets.xcassets in Resources */,
 				7D8078503C3C4615FAA98DF5 /* VUAMS.xcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -495,9 +502,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -513,9 +518,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
