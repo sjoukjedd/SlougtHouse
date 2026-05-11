@@ -19,10 +19,16 @@ struct ConnectionView: View {
                     deviceList
                 }
             }
-            .navigationTitle("VU-AMS Connect")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Image("SlowHorsesLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 28)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     scanButton
                 }
