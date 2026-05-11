@@ -5,10 +5,12 @@ import Observation
 // MARK: - Message Keys
 
 enum WatchMessageKey {
-    static let heartRate      = "hr"        // Double, bpm
-    static let respirationRate = "rr"       // Double, breaths/min
-    static let ecgSamples     = "ecg"       // [Double], 1000 Hz lead-1 samples (batch)
+    static let heartRate       = "hr"        // Double, bpm
+    static let respirationRate = "rr"        // Double, breaths/min
+    static let ecgSamples      = "ecg"       // [Double], 1000 Hz lead-1 samples (batch)
     static let deviceConnected = "connected" // Bool
+    static let csiScore        = "csi"       // Double, 0–100; -1 = not available
+    static let csiGated        = "gated"     // Bool
 }
 
 // MARK: - WatchConnectivityReceiver
@@ -25,6 +27,8 @@ final class WatchConnectivityReceiver: NSObject {
     private(set) var respirationRate: Double = 0    // breaths/min
     private(set) var ecgBuffer: [Double] = []       // ring buffer, last 5 s at 1000 Hz
     private(set) var deviceConnected: Bool = false
+    private(set) var csiScore: Double = -1          // 0–100; -1 = not available
+    private(set) var csiGated: Bool = false
 
     // 5 seconds × 1000 samples/s
     @ObservationIgnored private let ecgBufferCapacity = 5_000
@@ -63,6 +67,12 @@ final class WatchConnectivityReceiver: NSObject {
         }
         if let connected = message[WatchMessageKey.deviceConnected] as? Bool {
             deviceConnected = connected
+        }
+        if let csi = message[WatchMessageKey.csiScore] as? Double {
+            csiScore = csi
+        }
+        if let gated = message[WatchMessageKey.csiGated] as? Bool {
+            csiGated = gated
         }
     }
 }

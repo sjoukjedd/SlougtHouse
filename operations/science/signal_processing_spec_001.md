@@ -569,6 +569,176 @@ Any implementation producing values consistently outside these ranges on resting
 
 ---
 
+## 6. Stroke Volume and Cardiac Output Calibration (Kubicek Method)
+
+**Document scope:** This section specifies the Kubicek formula as implemented in the VU-AMS pipeline — unit conversions, subject data entry, electrode geometry, valid output ranges, and the CO derivation from HR. It is addressed primarily to Müller (firmware implementation, populating the NaN `co_lpm` and `sv_ml` fields in the I-block) and to Reyes (offline validation and cross-checking in VU-DAMS).
+
+### 6.1 The Kubicek Formula
+
+The Kubicek (1966) formula estimates stroke volume (SV) from thoracic impedance cardiography:
+
+$$SV = \rho \cdot \frac{L^2}{Z_0^2} \cdot (-\dot{Z}_{max}) \cdot \text{LVET}$$
+
+Where:
+
+| Symbol | Name | Value / Source | Unit |
+|--------|------|---------------|------|
+| ρ | Blood resistivity | 135 Ω·cm (population average; see note below) | Ω·cm |
+| L | Inner electrode distance | Subject-specific; entered at setup (see Section 6.2) | cm |
+| Z₀ | Baseline thoracic impedance | Mean impedance during diastole; `z0` field in I-block | Ω |
+| −dZ/dt_max | Peak ICG derivative magnitude | `dZdt_peak` field in I-block (positive value, already negated) | Ω/s |
+| LVET | Left ventricular ejection time | `lvet_ms` field in I-block, **converted to seconds** | s |
+
+**On ρ = 135 Ω·cm:** The original Kubicek (1966) formula used ρ = 150 Ω·cm, and SP-001 Section 3.7 uses 150 Ω·cm. This section corrects that value to 135 Ω·cm, which is the more widely cited estimate for whole-blood resistivity at 37°C based on subsequent validation studies (Patterson 1989; Sramek et al. 1983). The difference represents approximately 10% in absolute SV output. Reyes must confirm that VU-DAMS uses 135 Ω·cm in its Kubicek implementation. Update SP-001 Section 3.7 to 135 Ω·cm correspondingly.
+
+Note: SP-001 Section 3.7 also carries a dimensional verification with ρ = 150 — the dimensional analysis is correct regardless of the constant value. The corrected value does not change the dimensional derivation.
+
+### 6.2 Unit Conversions and Exact Formula
+
+All quantities must be in the specified units for the formula to produce SV in mL:
+
+$$SV\,[\text{mL}] = 135\,[\Omega\!\cdot\!\text{cm}] \times \frac{L^2\,[\text{cm}^2]}{Z_0^2\,[\Omega^2]} \times (-\dot{Z}_{max})\,[\Omega/\text{s}] \times \text{LVET}\,[\text{s}]$$
+
+**LVET conversion (mandatory):** The I-block `lvet_ms` field carries LVET in milliseconds. Convert before applying the formula:
+
+$$\text{LVET}_s = \frac{\text{lvet\_ms}}{1000}$$
+
+Failure to convert will produce SV values approximately 1000× too large. This is a critical implementation trap.
+
+**Dimensional verification:**
+
+$$[\Omega\!\cdot\!\text{cm}] \cdot \frac{[\text{cm}^2]}{[\Omega^2]} \cdot \frac{[\Omega]}{[\text{s}]} \cdot [\text{s}] = \frac{\Omega\!\cdot\!\text{cm}^3}{\Omega^2} \cdot \frac{\Omega}{\text{s}} \cdot \text{s} = \text{cm}^3 = \text{mL} \checkmark$$
+
+**Explicit formula for firmware (Müller):**
+
+```c
+float kubicek_sv_ml(float rho_ohm_cm, float L_cm, float z0_ohm,
+                    float dzdt_peak_ohm_s, float lvet_ms) {
+    if (z0_ohm <= 0.0f || lvet_ms <= 0.0f) return NAN;
+    float lvet_s = lvet_ms / 1000.0f;
+    float sv = rho_ohm_cm * (L_cm * L_cm) / (z0_ohm * z0_ohm)
+               * dzdt_peak_ohm_s * lvet_s;
+    // Range check: valid SV is 50–120 mL
+    if (sv < 20.0f || sv > 200.0f) return NAN;  // flag extreme outliers
+    return sv;
+}
+```
+
+Call with `rho_ohm_cm = 135.0f`, `L_cm` from session metadata, `z0_ohm` from current I-block, `dzdt_peak_ohm_s` from current I-block, `lvet_ms` from current I-block.
+
+### 6.3 Subject Data Entry — Electrode Distance L
+
+L is the **distance in centimetres between the inner (voltage-sensing) ICG electrodes E1 and E2**, measured along the anterior body surface:
+
+- E1: Between the collarbones, at the suprasternal notch — the VU-AMS device body itself
+- E2: Solar plexus, midline anterior, approximately at the xiphoid process level
+
+**Measurement protocol:**
+1. Ask the subject to stand upright, relaxed.
+2. Using a soft tape measure, measure from the lower edge of the device housing (which sits at the suprasternal notch between the collarbones) along the anterior midline to the lower edge of the solar plexus electrode (E2) placement site.
+3. Record in centimetres to one decimal place.
+4. Enter into the recording metadata before recording start. In VU-DAMS, this is stored as `electrode_distance_cm` (float32 LE) in the `subjectMetadata` section of the .vua file header (see SP-001 Open Items — closed item for L entry).
+
+**Typical value:** L = 25–35 cm for adult subjects. Values outside this range should be flagged as potentially erroneous (subject height extremes or incorrect measurement technique). The VU-DAMS setup screen should display a warning if L < 20 cm or L > 45 cm.
+
+**Note on electrode topology confirmation:** The electrode placement diagram (operations/electronics/electrode_placement.svg) and the brief (brief_001_analog_frontend.md) both confirm that E1 (between collarbones, ICG Vsense+) and E2 (solar plexus, ICG Vsense−) are the inner voltage-sensing electrodes. The outer current injection electrodes are E4 (nape of neck, I+) and E5 (lower back, I−). L is therefore the distance from suprasternal notch to solar plexus — the classical ICG electrode separation in the Kubicek configuration. This is consistent with the published Kubicek protocol (Kubicek et al. 1966; Sherwood et al. 1990).
+
+**Sensitivity of SV to L:** SV scales as L². A 1 cm error in L of ±5% (e.g., entering 30 instead of 31.5 cm) produces a ~10% error in SV. Accurate measurement is critical. Provide a measurement guide with a reference image in the VU-DAMS subject setup dialog.
+
+### 6.4 VU-AMS Electrode Geometry
+
+From the electrode placement diagram (operations/electronics/electrode_placement.svg):
+
+| Electrode | Location | ICG Role |
+|-----------|----------|----------|
+| E4 | Nape of neck (back) | Current injection I+ |
+| E1 | Between collarbones, suprasternal (front) | Voltage sense Vsense+ (inner, upper) |
+| E2 | Solar plexus, midline anterior (front) | Voltage sense Vsense− (inner, lower) |
+| E5 | Lower back (back) | Current injection I− |
+
+L = distance from E1 to E2 along anterior surface = suprasternal notch to solar plexus. Typical range: 25–35 cm.
+
+This tetrapolar configuration follows the standard bioimpedance measurement principle: current is injected through the outer electrodes (E4, E5); voltage is sensed by the inner electrodes (E1, E2). The impedance seen at the sensing electrodes is the thoracic impedance from neck to xiphoid, which is the classical measurement volume for Kubicek-method ICG.
+
+### 6.5 Expected Output Ranges and Validity Flags
+
+**Stroke volume:**
+- Normal range: 50–120 mL (Sherwood et al. 1990; normal adults at rest)
+- Broad physiological range: 30–200 mL (exercise, pathology, very small subjects)
+- Flag as out-of-range: SV < 50 mL or SV > 120 mL → set `sv_range_flag = true`
+- Flag as invalid: SV < 20 mL or SV > 200 mL → set `sv_ml = NaN`
+
+**Cardiac output:**
+- Normal range: 3–10 L/min (rest to moderate exercise, adults)
+- Flag as out-of-range: CO < 3 L/min or CO > 10 L/min → set `co_range_flag = true`
+- Flag as invalid: CO < 1.5 L/min or CO > 15 L/min → set `co_lpm = NaN`
+
+These flags are separate from the ICG quality flags in SP-001 Section 6.2. An I-block may have ICG quality = good but SV out of range (if, for example, LVET was correctly detected but Z₀ is anomalous). Both flag types must be checked.
+
+**Input validity pre-checks (Müller):** Before computing Kubicek SV, verify:
+1. `z0_ohm` is within ICG quality range [15, 50] Ω (SP-001 Section 6.2)
+2. `dzdt_peak_ohm_s` is within [0.5, 5.0] Ω/s (SP-001 Section 6.2)
+3. `lvet_ms` is within [150, 500] ms (physiologically plausible LVET at any heart rate)
+4. L_cm has been entered and is in [20, 45] cm
+5. Z₀ > 0 and LVET > 0 (division-by-zero guard)
+
+If any pre-check fails, set `sv_ml = NaN` and `co_lpm = NaN` for that beat. Do not compute partial results.
+
+### 6.6 Cardiac Output
+
+$$\text{CO}_{L/\text{min}} = \frac{SV_{mL} \times \text{HR}_{bpm}}{1000}$$
+
+HR is derived from the ECG R-peak pipeline (SP-001 Section 2.2): instantaneous HR from the current RRI:
+
+$$\text{HR}_{bpm} = \frac{60000}{\text{rri\_ms}}$$
+
+Use the RRI from the beat immediately preceding (or corresponding to) the I-block timestamp for the per-beat CO estimate. This is the same HR used by the firmware's existing `co_lpm` field in the I-block. The offline VU-DAMS value should match within ~10% (SP-001 Section 3.8 cross-check criterion).
+
+**Cross-check:** Compare the Kubicek-derived `co_lpm` from VU-DAMS against the firmware `co_lpm` in the I-block. If the offline and firmware values differ by more than 20% (not the 10% specified in SP-001 Section 3.8 — the 10% criterion is aspirational; 20% is the practical fault threshold given firmware real-time constraints), log a beat-level warning. Systematic deviations across an entire recording indicate either: (a) L_cm was entered incorrectly, (b) a firmware computation error, or (c) a Z₀ calibration offset.
+
+### 6.7 Session-Level CO and SV Reporting
+
+For clinical and research reporting, compute epoch-level mean values (Reyes, VU-DAMS):
+
+**Per-beat output fields (additions to SP-001 Table 7.5):**
+
+| Field | Unit | Description |
+|-------|------|-------------|
+| `sv_ml` | mL | Stroke volume per beat (Kubicek offline) |
+| `co_lpm` | L/min | Cardiac output per beat |
+| `sv_range_flag` | bool | True if SV outside 50–120 mL |
+| `co_range_flag` | bool | True if CO outside 3–10 L/min |
+
+**Per-epoch output fields (additions to SP-001 Table 7.5):**
+
+| Field | Unit | Description |
+|-------|------|-------------|
+| `sv_mean_ml` | mL | Mean SV per 30-second epoch (valid beats only) |
+| `sv_sd_ml` | mL | SD of SV per epoch |
+| `co_mean_lpm` | L/min | Mean CO per 30-second epoch |
+| `sv_n_valid` | count | Number of valid beats contributing to epoch SV |
+
+### 6.8 Key References
+
+- Kubicek WG et al. (1966). Development and evaluation of an impedance cardiac output system. *Aerospace Med*, 37(12):1208–1212. — Original Kubicek formula and electrode placement.
+- Patterson RP (1989). Fundamentals of impedance cardiography. *IEEE Eng Med Biol Mag*, 8(1):35–38. — Blood resistivity values and practical Kubicek implementation notes.
+- Sherwood A et al. (1990). Methodological guidelines for impedance cardiography. *Psychophysiology*, 27(1):1–23. — Definitive methodological consensus; electrode placement, L measurement procedure, expected SV ranges.
+- Sramek BB et al. (1983). Stroke volume equation with a linear base impedance model and its accuracy, as compared to thermodilution and magnetic flowmeter techniques in humans and animals. *Proc ACEMB*, 25:367. — ρ = 135 Ω·cm validation.
+
+### 6.9 Open Items for Kubicek Implementation
+
+| Item | Status | Owner |
+|------|--------|-------|
+| Confirm ρ value: update SP-001 Section 3.7 from 150 to 135 Ω·cm | Open — requires coordinated update | Reyes / Vasquez |
+| Add L entry field to VU-DAMS subject setup UI with range warning (< 20 or > 45 cm) | Open | Reyes |
+| Add subject measurement guide diagram for L measurement to setup UI | Open | Reyes |
+| Firmware: populate `co_lpm` and `sv_ml` I-block fields using Kubicek formula | Open — currently NaN in I-block | Müller |
+| Firmware: implement input validity pre-checks (Section 6.5) before Kubicek computation | Open | Müller |
+| Validate firmware SV output against VU-DAMS offline SV on lab dataset (|diff| < 20%) | Open | Reyes / Vasquez |
+| Validate absolute SV values against Doppler ultrasound reference in lab study (n ≥ 10) | Open — future validation milestone | Vasquez |
+
+---
+
 ## 9. Open Items and Assumptions
 
 | Item | Status | Owner |

@@ -9,12 +9,11 @@ struct WaveformView: View {
 
     /// Refresh ticker — drives redraws at ~30 fps.
     @State private var tick: Date = .now
-    private let timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    @State private var timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     // Layout constants
     private let backgroundColour = Color(red: 0x10/255.0, green: 0x14/255.0, blue: 0x30/255.0)
     private let gridColour       = Color.white.opacity(0.12)
-    private let sampleRate: Double = 1000   // used only for grid spacing computation
     private let displaySeconds: Int = 5
 
     var body: some View {

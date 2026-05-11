@@ -15,15 +15,17 @@
 /* --------------------------------------------------------------------------
  * Block type identifiers (header.type)
  * -------------------------------------------------------------------------- */
-#define BLOCK_TYPE_A    0x41    /* 'A' — ECG raw samples        */
-#define BLOCK_TYPE_B    0x42    /* 'B' — Barometric pressure    */
-#define BLOCK_TYPE_I    0x49    /* 'I' — ICG derived parameters */
-#define BLOCK_TYPE_M    0x4D    /* 'M' — IMU raw samples        */
-#define BLOCK_TYPE_P    0x50    /* 'P' — PPG                    */
-#define BLOCK_TYPE_S    0x53    /* 'S' — SCL / EDA              */
-#define BLOCK_TYPE_T    0x54    /* 'T' — Temperature            */
+#define BLOCK_TYPE_A    0x41    /* 'A' — ECG raw samples                         */
+#define BLOCK_TYPE_B    0x42    /* 'B' — Barometric pressure                     */
+#define BLOCK_TYPE_I    0x49    /* 'I' — ICG derived parameters                  */
+#define BLOCK_TYPE_M    0x4D    /* 'M' — IMU raw samples                         */
+#define BLOCK_TYPE_P    0x50    /* 'P' — PPG                                     */
+#define BLOCK_TYPE_S    0x53    /* 'S' — SCL / EDA                               */
+#define BLOCK_TYPE_T    0x54    /* 'T' — Temperature                             */
 #define BLOCK_TYPE_V    0x56    /* 'V' — high-ODR accelerometer for SAD (SD only) */
-#define BLOCK_TYPE_Z    0x5A    /* 'Z' — raw ICG impedance waveform (SD only) */
+#define BLOCK_TYPE_Y    0x59    /* 'Y' — HRV summary, one per 30-beat window     */
+#define BLOCK_TYPE_Z    0x5A    /* 'Z' — raw ICG impedance waveform (SD only)    */
+#define BLOCK_TYPE_R    0x52    /* 'R' — Respiratory rate (PPG-RIIV), 5-second updates */
 
 /* Current schema version */
 #define BLOCK_VERSION   0x01
@@ -177,6 +179,39 @@ typedef struct __attribute__((packed)) {
 } x_block_t;
 
 /* --------------------------------------------------------------------------
+ * Y-block — HRV summary, emitted every 30 valid beats (~30 s at rest)
+ * Published via BLE AND stored to SD.
+ * payload_len = 4+4+4+1+1 = 14 bytes
+ *
+ * SAFETY NOTE: rmssd_ms and hr_ecg_bpm are wellness/research metrics only.
+ * They are NOT validated for clinical or diagnostic use.
+ * -------------------------------------------------------------------------- */
+typedef struct __attribute__((packed)) {
+    vuams_block_header_t header;
+    float    rmssd_ms;       /* RMSSD over last 30 valid beats [ms]    */
+    float    rri_last_ms;    /* Most recent RRI [ms]                   */
+    float    hr_ecg_bpm;     /* Instantaneous HR from ECG [bpm]        */
+    uint8_t  beat_count;     /* Valid beats in RMSSD window (max 30)   */
+    uint8_t  reserved;       /* pad to 4-byte alignment                */
+} y_block_t;
+
+/* --------------------------------------------------------------------------
+ * R-block — Respiratory rate from PPG-RIIV, emitted every 5 seconds
+ * payload_len = 12 bytes  (4 float + 6 flags + 2 pad)
+ * -------------------------------------------------------------------------- */
+typedef struct __attribute__((packed)) {
+    vuams_block_header_t header;
+    float    rr_bpm;        /* Respiratory rate [breaths/min] (NaN if invalid) */
+    uint8_t  rr_valid;      /* 0x01 = valid; 0x00 = invalid                    */
+    uint8_t  rr_quality;    /* Quality 0–100 (0xFF = not computed)             */
+    uint8_t  rr_method;     /* 0=PPG-RIIV, 1=HRV-RSA, 2=IMU, 3=Fusion        */
+    uint8_t  rr_conflict;   /* 0x01 if two methods differ by >4 br/min        */
+    uint8_t  rr_confounder; /* 0x01 if rr_bpm outside 12–20 br/min            */
+    uint8_t  rr_caution;    /* 0x01 if rr_bpm outside 8–22 br/min             */
+    uint8_t  _pad[2];
+} r_block_t;
+
+/* --------------------------------------------------------------------------
  * Generic block pointer — used by queue items
  * -------------------------------------------------------------------------- */
 typedef struct {
@@ -189,5 +224,7 @@ typedef struct {
         p_block_t p;
         s_block_t s;
         t_block_t t;
+        y_block_t y;
+        r_block_t r;
     };
 } vuams_block_t;

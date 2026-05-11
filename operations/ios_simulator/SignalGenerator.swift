@@ -18,6 +18,10 @@ final class SignalGenerator {
         didSet { applyConfig() }
     }
 
+    // MARK: - Latest sample (zero-cost read, no time advance)
+
+    private(set) var latest: Sample
+
     // MARK: - Time tracking
 
     private var t: Double = 0.0   // master clock in seconds
@@ -71,6 +75,13 @@ final class SignalGenerator {
 
     init(config: Config = Config()) {
         self.config = config
+        latest = Sample(
+            time: 0, ecgMV: 0, icgOhmPerS: 0,
+            sclTonic: config.sclTonic, sclPhasic: 0,
+            ppgAC: 1.0, spo2Pct: 97.5,
+            ax: 0, ay: 0, az: 9.81, gx: 0, gy: 0, gz: 0,
+            tempC: 33.4, hrBPM: config.heartRateBPM
+        )
         applyConfig()
         scheduleNextScr()
     }
@@ -91,17 +102,12 @@ final class SignalGenerator {
     // MARK: - Advance clock
 
     /// Advance by `dt` seconds. Returns a snapshot of all signals at the new time.
+    @discardableResult
     func advance(by dt: Double) -> Sample {
         t += dt
-        return makeSample()
-    }
-
-    /// Compute sample batch for an array of times (relative offsets from current t, already advanced)
-    func samples(at times: [Double]) -> [Sample] {
-        times.map { offset -> Sample in
-            t += offset
-            return makeSample()
-        }
+        let s = makeSample()
+        latest = s
+        return s
     }
 
     // MARK: - ECG
@@ -110,12 +116,10 @@ final class SignalGenerator {
         // Phase within current RR interval
         let phase = (t - lastRPeak).truncatingRemainder(dividingBy: rrInterval)
 
-        // At each new beat boundary, jitter the next RR
+        // At each new beat boundary, jitter the RR interval
         if phase < 0 || (t - lastRPeak) >= rrInterval {
-            lastRPeak = t - (phase < 0 ? 0 : phase)
             let jitter = (rrRng.nextDouble() * 2 - 1) * 0.020   // ±20 ms
-            // rrInterval already set from config; apply tiny per-beat jitter separately
-            _ = jitter  // jitter incorporated below via phaseOffset
+            lastRPeak = t - (phase < 0 ? 0 : phase) + jitter
         }
 
         let phaseInBeat = t - lastRPeak
@@ -126,12 +130,6 @@ final class SignalGenerator {
         }
         v += ecgNoiseAmplitude * ecgRng.nextGaussian()
         return v   // mV
-    }
-
-    // Detect R-peak phase for synchronisation
-    private func rPeakPhase() -> Double {
-        let phase = (t - lastRPeak).truncatingRemainder(dividingBy: rrInterval)
-        return phase
     }
 
     // MARK: - ICG
@@ -193,12 +191,11 @@ final class SignalGenerator {
         scrEvents.removeAll { t - $0.startTime > $0.recoveryTC * 5 }
     }
 
-    private func sclValue() -> Double {
+    // Returns (tonic µS, phasic µS) as separate components.
+    private func sclComponents() -> (tonic: Double, phasic: Double) {
         updateScr()
-        let tonicBase = config.stressMode ? 6.0 : (config.stressMode ? 6.0 : config.sclTonic)
-        // Tonic: slow sinus 120s period, 0.4 µS amplitude
+        let tonicBase = config.stressMode ? 6.0 : config.sclTonic
         let tonic = tonicBase + 0.4 * sin(2 * .pi * t / 120.0)
-        // Phasic: sum of active SCR events
         var phasic = 0.0
         for ev in scrEvents {
             let elapsed = t - ev.startTime
@@ -206,7 +203,7 @@ final class SignalGenerator {
             let decay = exp(-elapsed / ev.recoveryTC)
             phasic += ev.amplitude * rise * decay
         }
-        return tonic + phasic   // µS
+        return (tonic, phasic)
     }
 
     // MARK: - PPG
@@ -244,7 +241,7 @@ final class SignalGenerator {
     private func makeSample() -> Sample {
         let ecg = ecgVoltage()
         let icg = icgDZDT()
-        let scl = sclValue()
+        let scl = sclComponents()
         let ppg = ppgValue()
         let imu = imuValues()
         let temp = tempValue()
@@ -254,7 +251,8 @@ final class SignalGenerator {
             time: t,
             ecgMV: ecg,
             icgOhmPerS: icg,
-            sclUS: scl,
+            sclTonic: scl.tonic,
+            sclPhasic: scl.phasic,
             ppgAC: ppg.ac,
             spo2Pct: ppg.spo2,
             ax: imu.ax, ay: imu.ay, az: imu.az,
@@ -270,7 +268,8 @@ final class SignalGenerator {
         let time: Double
         let ecgMV: Double
         let icgOhmPerS: Double
-        let sclUS: Double
+        let sclTonic: Double    // µS tonic component
+        let sclPhasic: Double   // µS phasic (SCR) component
         let ppgAC: Double
         let spo2Pct: Double
         let ax, ay, az: Double

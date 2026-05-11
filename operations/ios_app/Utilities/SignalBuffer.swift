@@ -7,7 +7,6 @@ final class SignalBuffer {
     private let capacity: Int
     private var writeIndex: Int = 0
     private var count: Int = 0
-    private let lock = NSLock()
 
     /// - Parameters:
     ///   - seconds:    Window size in seconds.
@@ -22,10 +21,8 @@ final class SignalBuffer {
     /// Append a batch of samples, overwriting oldest when full.
     func append(_ samples: [Float]) {
         guard !samples.isEmpty else { return }
-        lock.lock()
-        defer { lock.unlock() }
         for sample in samples {
-            buffer[writeIndex % capacity] = sample
+            buffer[writeIndex] = sample
             writeIndex = (writeIndex + 1) % capacity
             if count < capacity { count += 1 }
         }
@@ -35,8 +32,6 @@ final class SignalBuffer {
 
     /// Returns up to `count` most recent samples in chronological order.
     func latest(count requested: Int) -> [Float] {
-        lock.lock()
-        defer { lock.unlock() }
         let available = min(requested, count)
         guard available > 0 else { return [] }
         var result = [Float](repeating: 0, count: available)
@@ -50,8 +45,6 @@ final class SignalBuffer {
 
     /// Total number of samples currently held.
     var currentCount: Int {
-        lock.lock()
-        defer { lock.unlock() }
         return count
     }
 }

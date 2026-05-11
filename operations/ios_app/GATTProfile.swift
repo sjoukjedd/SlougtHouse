@@ -9,9 +9,11 @@ enum VUAMSUUID {
     static let sBlock  = CBUUID(string: "A5D5B006-5A5A-4B4B-8888-1A2B3C4D5E6F") // SCL
     static let tBlock  = CBUUID(string: "A5D5B007-5A5A-4B4B-8888-1A2B3C4D5E6F") // Temp
     static let xBlock  = CBUUID(string: "A5D5B00D-5A5A-4B4B-8888-1A2B3C4D5E6F") // HAR/SAD context
+    static let yBlock  = CBUUID(string: "A5D5B008-5A5A-4B4B-8888-1A2B3C4D5E6F") // HRV summary
+    static let rBlock  = CBUUID(string: "A5D5B00E-5A5A-4B4B-8888-1A2B3C4D5E6F") // Respiratory rate
     static let status  = CBUUID(string: "A5D5B009-5A5A-4B4B-8888-1A2B3C4D5E6F")
     static let control = CBUUID(string: "A5D5B00A-5A5A-4B4B-8888-1A2B3C4D5E6F")
 
-    static let allBlockUUIDs: [CBUUID] = [aBlock, iBlock, mBlock, pBlock, sBlock, tBlock, xBlock]
+    static let allBlockUUIDs: [CBUUID] = [aBlock, iBlock, mBlock, pBlock, sBlock, tBlock, xBlock, yBlock, rBlock]
     static let allUUIDs: [CBUUID] = allBlockUUIDs + [status, control]
 }

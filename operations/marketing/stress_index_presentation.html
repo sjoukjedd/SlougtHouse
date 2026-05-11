@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VU-AMS Composite Stress Index</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #080c1e;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #00b6cb;
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: linear-gradient(135deg, #080c1e 0%, #0a0f2e 100%);
+            overflow-y: auto;
+            cursor: pointer;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 30px;
+            right: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #00b6cb;
+            z-index: 50;
+        }
+
+        .slide-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00b6cb;
+            margin-bottom: 40px;
+            max-width: 80%;
+            line-height: 1.2;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-body {
+            font-size: 20px;
+            line-height: 1.8;
+            color: #d0d4e8;
+            margin-bottom: 40px;
+        }
+
+        .slide-body ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .slide-body li {
+            margin-bottom: 20px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .slide-body li:before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: #00b6cb;
+            font-size: 12px;
+            line-height: 2;
+        }
+
+        .slide-body strong {
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        .visual-placeholder {
+            background: #0a0f2e;
+            border: 2px solid #00b6cb;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #7a7f9e;
+            font-size: 16px;
+            margin-top: 40px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .formula-box {
+            background: #0a0f2e;
+            border: 1px solid #00b6cb;
+            border-radius: 8px;
+            padding: 40px;
+            margin-top: 40px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            line-height: 2.2;
+            color: #d0d4e8;
+        }
+
+        .formula-box .var {
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        .formula-box .sub {
+            font-size: 0.8em;
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.3em;
+        }
+
+        .weight-pills {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .weight-pill {
+            background: #101430;
+            border: 1px solid #00b6cb;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #d0d4e8;
+        }
+
+        .weight-pill .label {
+            color: #00b6cb;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .marker-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .marker-card {
+            background: #101430;
+            border: 1px solid #0078A8;
+            border-radius: 8px;
+            padding: 30px;
+        }
+
+        .marker-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00b6cb;
+            margin-bottom: 15px;
+        }
+
+        .marker-card-body {
+            font-size: 16px;
+            color: #d0d4e8;
+            line-height: 1.6;
+        }
+
+        .marker-direction {
+            font-size: 24px;
+            color: #29c66d;
+            margin-top: 15px;
+            font-weight: 800;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #0078A8;
+        }
+
+        th {
+            background: #0a0f2e;
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background: #0a0f2e;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 17px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #00b6cb;
+        }
+
+        .ans-diagram {
+            background: #101430;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid #0078A8;
+        }
+
+        .timeline-diagram {
+            background: #0a0f2e;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            font-size: 14px;
+            border: 1px solid #0078A8;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .timeline-label {
+            min-width: 120px;
+            color: #00b6cb;
+            font-weight: 600;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-bar.sitting { background: #29c66d; color: #080c1e; }
+        .timeline-bar.walking { background: #ff9800; color: #fff; }
+        .timeline-bar.recovery { background: #7a7f9e; color: #fff; opacity: 0.7; }
+
+        .disclaimer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #0078A8;
+            font-size: 14px;
+            color: #7a7f9e;
+            font-style: italic;
+        }
+
+        /* Slide-specific backgrounds */
+        .slide-01 {
+            background: linear-gradient(135deg, #080c1e 0%, #0a1240 100%);
+        }
+
+        .slide-02 {
+            background: linear-gradient(135deg, #080c1e 0%, #0f0e3d 100%);
+        }
+
+        .slide-title-main {
+            font-size: 72px;
+            font-weight: 800;
+            color: #00b6cb;
+            margin-bottom: 30px;
+        }
+
+        .slide-subtitle {
+            font-size: 28px;
+            color: #d0d4e8;
+            font-weight: 400;
+            margin-bottom: 40px;
+            max-width: 70%;
+            line-height: 1.4;
+        }
+
+        .controls-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            font-size: 13px;
+            color: #7a7f9e;
+            z-index: 50;
+        }
+
+        @media print {
+            .slide {
+                page-break-after: always;
+                opacity: 1;
+                transform: none;
+                position: relative;
+                height: auto;
+                margin: 0;
+                padding: 40px;
+            }
+
+            .progress-bar,
+            .slide-counter,
+            .controls-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px;
+            }
+
+            .slide-title {
+                font-size: 36px;
+            }
+
+            .slide-body {
+                font-size: 18px;
+            }
+
+            .marker-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+
+            .slide-title {
+                font-size: 28px;
+                max-width: 100%;
+            }
+
+            .slide-body {
+                font-size: 16px;
+            }
+
+            .slide-counter,
+            .controls-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="progress-bar" id="progressBar"></div>
+
+        <div class="slides-container" id="slidesContainer">
+            <!-- Slide 1 -->
+            <div class="slide slide-01 active">
+                <div class="slide-content">
+                    <div class="slide-title-main">The Problem</div>
+                    <div class="slide-subtitle">Why Measuring Stress in the Real World is Hard</div>
+                </div>
+                <div class="slide-body">
+                    <ul>
+                        <li>Stress is a <strong>multi-system phenomenon</strong>: no single biomarker tells the whole story</li>
+                        <li>Lab-based stress methods (cortisol, invasive BP) are impractical in daily life</li>
+                        <li>Wearables offer <strong>continuous ambulatory monitoring</strong> — but introduce new confounds (movement, temperature, variable breathing)</li>
+                        <li>VU-AMS goal: a principled, validated composite stress index from a chest-worn device</li>
+                    </ul>
+                    <div class="visual-placeholder">[ Lab vs. Daily Life: Controlled settings vs. walking, meetings, commute ]</div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide slide-02">
+                <div class="slide-title">The Autonomic Stress Response</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li>Stress activates the <strong>sympathetic nervous system</strong> and withdraws <strong>parasympathetic (vagal) tone</strong> simultaneously</li>
+                            <li>These two processes have <strong>different onset speeds</strong>, magnitudes, and recovery kinetics</li>
+                            <li>Electrodermal, cardiac, vascular, and respiratory systems all respond — but not identically</li>
+                            <li>Capturing all four provides <strong>redundancy and mechanistic insight</strong></li>
+                        </ul>
+                        <div class="ans-diagram">
+                            <strong style="color: #00b6cb;">ANS Under Stress:</strong><br><br>
+                            ↑ Heart rate, cardiac contractility, BP (sympathetic)<br>
+                            ↓ Beat-to-beat heart rate variability (vagal withdrawal)<br>
+                            ↑ Skin conductance, sweating (sympathetic cholinergic)<br>
+                            ↓ Peripheral skin temperature (vasoconstriction)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="slide-title">VU-AMS Sensors & Stress Markers</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li><strong>ECG (1 kHz):</strong> RMSSD (vagal tone) and LF/HF ratio (spectral balance)</li>
+                            <li><strong>ICG (per beat):</strong> PEP — the most validated ambulatory sympathetic cardiac marker</li>
+                            <li><strong>EDA/SCL (100 Hz):</strong> tonic skin conductance level and spontaneous SCR rate</li>
+                            <li><strong>IMU (100 Hz):</strong> activity classification to gate and protect cardiac and EDA metrics</li>
+                            <li><strong>Temperature (4 Hz):</strong> peripheral vasoconstriction — supplementary contextual indicator</li>
+                        </ul>
+                        <div class="visual-placeholder">[ VU-AMS chest device with labeled sensor sites and signal flows ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="slide-title">PEP and RMSSD: Cardiac Markers</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 25px;"><strong>PEP (Pre-Ejection Period):</strong> ICG-derived timing from electrical activation to aortic valve opening. Shortens under sympathetic drive. The best non-invasive, ambulatory sympathetic cardiac indicator (Sherwood et al., 1990).</p>
+                        <p style="margin-bottom: 25px;"><strong>RMSSD:</strong> Beat-to-beat RR interval variability. Dominated by respiratory sinus arrhythmia. Reflects vagal tone. Decreases under stress.</p>
+                        <ul>
+                            <li>Both markers are <strong>per-beat</strong>, enabling fine temporal resolution (seconds)</li>
+                            <li>Major confound for both: <strong>physical activity</strong> — heart rate and mechanics change dramatically during movement</li>
+                        </ul>
+                        <div class="visual-placeholder">[ Time-series plot: PEP dip during stressor, RMSSD dip during stressor, recovery afterward ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <div class="slide-title">Electrodermal Activity: Pure Sympathetic</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li>Eccrine sweat glands have <strong>no parasympathetic innervation</strong> — EDA is a clean sympathetic signal</li>
+                            <li><strong>Tonic SCL:</strong> slow-moving baseline reflecting accumulated arousal (minutes timescale)</li>
+                            <li><strong>Phasic SCR rate:</strong> discrete responses to each arousing event (1–3 per minute at rest; 5–10+ under stress)</li>
+                            <li>In ambulatory settings: robust to postural changes; sensitive to temperature and motion artefacts</li>
+                            <li>Torso placement (VU-AMS) gives valid but lower-amplitude signals — device-specific norms required (Boucsein, 2012)</li>
+                        </ul>
+                        <div class="visual-placeholder">[ EDA trace with tonic baseline and phasic spikes during stressor event ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <div class="slide-title">The Activity Problem</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li>Walking, climbing stairs, or standing up changes PEP, RMSSD, and SCL in ways that <strong>mimic stress</strong> — for several minutes</li>
+                            <li>Ignoring activity produces <strong>false stress positives</strong> in ambulatory recordings</li>
+                            <li>Solution: HAR module classifies every epoch — sitting, standing, walking, running, cycling, stairs</li>
+                            <li>Stress metrics computed only during <strong>low-activity states</strong> (sitting, standing still, lying)</li>
+                            <li><strong>5-minute post-activity recovery window</strong> enforced before stress metrics resume</li>
+                        </ul>
+                        <div class="timeline-diagram">
+                            <div class="timeline-item">
+                                <div class="timeline-label">Activity:</div>
+                                <div class="timeline-bar sitting">Sitting (CSI valid)</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-label">Activity:</div>
+                                <div class="timeline-bar walking">Walking (CSI paused)</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-label">Activity:</div>
+                                <div class="timeline-bar recovery">Recovery window (5 min)</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-label">Activity:</div>
+                                <div class="timeline-bar sitting">Sitting (CSI resumes)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide">
+                <div class="slide-title">The Composite Stress Index</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 20px;">Four markers, each z-scored to individual baseline, weighted and combined:</p>
+                        <div class="formula-box">
+                            <div><span class="var">CSI<sub class="sub">raw</sub></span> = 0.35·<span class="var">z</span>(<span class="var">PEP<sup>−1</sup></span>) + 0.30·<span class="var">z</span>(<span class="var">SCL</span>)<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.25·<span class="var">z</span>(<span class="var">RMSSD<sup>−1</sup></span>) + 0.10·<span class="var">z</span>(<span class="var">SCR rate</span>)</div>
+                        </div>
+                        <p style="margin-top: 20px; margin-bottom: 20px;"><strong>Then sigmoid-mapped to 0–100:</strong></p>
+                        <div class="formula-box">
+                            <div><span class="var">CSI</span> = 100 / (1 + e<sup>−1.5 · CSI<sub class="sub">raw</sub></sup>)</div>
+                        </div>
+                        <div class="weight-pills">
+                            <div class="weight-pill"><span class="label">w₁ = 0.35</span> PEP⁻¹ (sympathetic cardiac)</div>
+                            <div class="weight-pill"><span class="label">w₂ = 0.30</span> SCL (electrodermal)</div>
+                            <div class="weight-pill"><span class="label">w₃ = 0.25</span> RMSSD⁻¹ (parasympathetic)</div>
+                            <div class="weight-pill"><span class="label">w₄ = 0.10</span> SCR rate (arousal)</div>
+                        </div>
+                        <p style="margin-top: 20px; font-size: 16px; color: #7a7f9e;"><strong>Interpretation:</strong> 50 = baseline; &gt;65 = elevated; &gt;75 = substantial stress</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide">
+                <div class="slide-title">Validation Plan</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li><strong>Reference dataset:</strong> WESAD (Schmidt et al., 2018) — chest-worn ECG + EDA, TSST stressor. Target AUC ≥ 0.75</li>
+                            <li><strong>Laboratory protocol:</strong> N = 20, three stressors (mental arithmetic, cold pressor, TSST), 5-minute recovery blocks, climate-controlled environment</li>
+                            <li><strong>Expected responses:</strong>
+                                <ul style="margin-top: 10px;">
+                                    <li>PEP decrease: 10–25 ms</li>
+                                    <li>RMSSD decrease: 20–50%</li>
+                                    <li>SCL increase: 1–6 µS</li>
+                                </ul>
+                            </li>
+                            <li><strong>Acceptance criterion:</strong> CSI AUC ≥ 0.80 against TSST ground truth</li>
+                        </ul>
+                        <div class="visual-placeholder">[ Protocol timeline: baseline → stressor → recovery → TSST with overlaid CSI curve ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide">
+                <div class="slide-title">BRS: Advanced Marker (Offline)</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li><strong>Baroreflex Sensitivity (BRS):</strong> gain of the pressure-heart rate reflex loop; validated cardiac risk marker</li>
+                            <li>Suppressed by acute stress; indicates impaired vagal responsiveness</li>
+                            <li><strong>Computed by BRAVO module:</strong> Sequence Method + Spectral Method on 5-minute windows</li>
+                            <li>In VU-AMS: uses PTT proxy (PEP) — no blood pressure cuff; outputs in relative units (ms/ms)</li>
+                            <li><strong>Included in CSI-5 (extended offline index):</strong> adds 15% weight alongside 4 primary markers</li>
+                            <li>Reference: La Rovere et al. (1988); ATRAMI Investigators (1998)</li>
+                        </ul>
+                        <div class="visual-placeholder">[ Scatter plot: RRI vs. PTT with up-sequences (green) and down-sequences (red) ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide">
+                <div class="slide-title">Live Display & Reporting</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <ul>
+                            <li><strong>iOS app (Chen):</strong> real-time CSI gauge (0–100, colour-coded zones), marker breakdown bar, activity gate indicator, respiratory rate warning</li>
+                            <li><strong>VU-DAMS offline (Reyes):</strong> full-recording CSI time-series with condition overlays, per-marker z-score traces, summary statistics, correlation matrix</li>
+                            <li><strong>Export:</strong> All markers available as CSV and JSON for secondary analysis</li>
+                            <li><strong>Key insight:</strong> CSI is an <strong>intra-individual, within-session</strong> relative measure — not an absolute cross-person comparison</li>
+                            <li><strong>Future:</strong> multi-session baseline adaptation; group-level normative reference ranges pending validation study</li>
+                        </ul>
+                        <div class="visual-placeholder">[ Side-by-side: iOS gauge (circular, 0–100) and VU-DAMS time-series plot with condition labels ]</div>
+                    </div>
+                </div>
+                <div class="disclaimer">
+                    <strong>For research use only.</strong> Not intended for clinical diagnosis.
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-counter" id="slideCounter">1 / 10</div>
+        <div class="controls-hint">← → or spacebar to navigate • shift-click to go back</div>
+    </div>
+
+    <script>
+        const slidesContainer = document.getElementById('slidesContainer');
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+
+        let currentSlide = 0;
+
+        function updateSlide() {
+            // Update slide visibility
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Update progress bar
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+
+            // Update slide counter
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // Click navigation
+        document.addEventListener('click', (e) => {
+            if (e.shiftKey) {
+                prevSlide();
+            } else {
+                nextSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>

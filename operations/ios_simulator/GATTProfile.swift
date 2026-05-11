@@ -10,4 +10,7 @@ enum VUAMSUUID {
     static let tBlock   = CBUUID(string: "A5D5B007-5A5A-4B4B-8888-1A2B3C4D5E6F")
     static let status   = CBUUID(string: "A5D5B009-5A5A-4B4B-8888-1A2B3C4D5E6F")
     static let control  = CBUUID(string: "A5D5B00A-5A5A-4B4B-8888-1A2B3C4D5E6F")
+    static let xBlock   = CBUUID(string: "A5D5B00D-5A5A-4B4B-8888-1A2B3C4D5E6F")
+    static let yBlock   = CBUUID(string: "A5D5B008-5A5A-4B4B-8888-1A2B3C4D5E6F")
+    static let rBlock   = CBUUID(string: "A5D5B00E-5A5A-4B4B-8888-1A2B3C4D5E6F") // Respiratory rate
 }

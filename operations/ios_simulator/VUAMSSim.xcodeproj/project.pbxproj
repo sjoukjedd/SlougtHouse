@@ -18,7 +18,7 @@
 		59809D5AD21BDB3248283800 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5B3A44D38CC2299399972009 /* VUAMSSimApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSSimApp.swift; sourceTree = "<group>"; };
 		7DF3A1BD81E0FBF2ED499BB7 /* SignalGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalGenerator.swift; sourceTree = "<group>"; };
-		7ED7F4E39FE7C53CE65982A4 /* VUAMSSim.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VUAMSSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7ED7F4E39FE7C53CE65982A4 /* VUAMSSim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VUAMSSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		80644981205E03231FBECA02 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		840EE0843C7D661DB49D5E1F /* SimPeripheralManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimPeripheralManager.swift; sourceTree = "<group>"; };
 		EBAE843800D3B75FCAFDA00B /* GATTProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GATTProfile.swift; sourceTree = "<group>"; };
@@ -33,7 +33,6 @@
 				7DF3A1BD81E0FBF2ED499BB7 /* SignalGenerator.swift */,
 				840EE0843C7D661DB49D5E1F /* SimPeripheralManager.swift */,
 				5B3A44D38CC2299399972009 /* VUAMSSimApp.swift */,
-				DC792D87E994A74C09BE3FFC /* VUAMSSim */,
 			);
 			name = ios_simulator;
 			path = .;
@@ -92,11 +91,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-					12F5BB74E61B1E71E9E03F6F = {
-						DevelopmentTeam = "";
-					};
-				};
 			};
 			buildConfigurationList = D37D89127E8A3DC828D6FCB0 /* Build configuration list for PBXProject "VUAMSSim" */;
 			developmentRegion = en;
@@ -138,6 +132,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMSSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -275,6 +270,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMSSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

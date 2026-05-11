@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreBluetooth
+import SwiftData
 
 /// "Connect" tab — scan, device list, status indicator.
 struct ConnectionView: View {
@@ -119,6 +120,8 @@ private struct DeviceRow: View {
 }
 
 #Preview {
-    ConnectionView()
-        .environment(BLEManager())
+    let container = try! ModelContainer(for: CSIBaselineRecord.self,
+                                        configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    return ConnectionView()
+        .environment(BLEManager(modelContext: container.mainContext))
 }

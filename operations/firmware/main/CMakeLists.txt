@@ -13,6 +13,8 @@ idf_component_register(
         "tasks/task_usb_guard.c"
         "tasks/task_har.c"
         "tasks/task_sad.c"
+        "tasks/ecg_analysis.c"
+        "tasks/icg_analysis.c"
     INCLUDE_DIRS
         "."
         "tasks"

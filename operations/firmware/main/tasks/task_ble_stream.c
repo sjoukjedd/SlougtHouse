@@ -6,7 +6,7 @@
  * Date:   2026-05-08
  *
  * Implements the VUAMS BLE GATT service.
- * One notify characteristic per block type (A/I/M/P/S/T).
+ * One notify characteristic per block type (A/I/M/P/S/T/Y).
  * Uses ESP-IDF NimBLE stack (CONFIG_BT_NIMBLE_ENABLED=y).
  *
  * UUIDs as defined in config.h — must match Chen's iOS stack exactly.
@@ -45,6 +45,8 @@ static uint16_t s_chr_handle_m = 0;
 static uint16_t s_chr_handle_p = 0;
 static uint16_t s_chr_handle_s = 0;
 static uint16_t s_chr_handle_t = 0;
+static uint16_t s_chr_handle_y = 0;
+static uint16_t s_chr_handle_r = 0;
 
 /* --------------------------------------------------------------------------
  * NimBLE GATT service definition
@@ -117,6 +119,24 @@ static const struct ble_gatt_svc_def s_gatt_svcs[] = {
                     0x4B, 0x4B, 0x5A, 0x5A, 0x07, 0xB0, 0xD5, 0xA5),
                 .access_cb  = gatt_chr_access_cb,
                 .val_handle = &s_chr_handle_t,
+                .flags      = BLE_GATT_CHR_F_NOTIFY,
+            },
+            /* Y-block: HRV summary (RMSSD, HR, RRI) — one per 30-beat window */
+            {
+                .uuid       = BLE_UUID128_DECLARE(
+                    0x6F, 0x5E, 0x4D, 0x3C, 0x2B, 0x1A, 0x88, 0x88,
+                    0x4B, 0x4B, 0x5A, 0x5A, 0x08, 0xB0, 0xD5, 0xA5),
+                .access_cb  = gatt_chr_access_cb,
+                .val_handle = &s_chr_handle_y,
+                .flags      = BLE_GATT_CHR_F_NOTIFY,
+            },
+            /* R-block: Respiratory rate */
+            {
+                .uuid       = BLE_UUID128_DECLARE(
+                    0x6F, 0x5E, 0x4D, 0x3C, 0x2B, 0x1A, 0x88, 0x88,
+                    0x4B, 0x4B, 0x5A, 0x5A, 0x0E, 0xB0, 0xD5, 0xA5),
+                .access_cb  = gatt_chr_access_cb,
+                .val_handle = &s_chr_handle_r,
                 .flags      = BLE_GATT_CHR_F_NOTIFY,
             },
             { 0 } /* terminator */
@@ -312,6 +332,12 @@ void task_ble_stream(void *pvParameters)
                 break;
             case BLOCK_TYPE_T:
                 notify_block(s_chr_handle_t, block_ptr, sizeof(t_block_t));
+                break;
+            case BLOCK_TYPE_Y:
+                notify_block(s_chr_handle_y, block_ptr, sizeof(y_block_t));
+                break;
+            case BLOCK_TYPE_R:
+                notify_block(s_chr_handle_r, block_ptr, sizeof(r_block_t));
                 break;
             default:
                 ESP_LOGW(TAG, "Unknown block type 0x%02X", type);

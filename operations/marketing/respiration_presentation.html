@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VU-AMS Ademhalingsanalyse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #080c1e;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #00b6cb;
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: linear-gradient(135deg, #080c1e 0%, #0a0f2e 100%);
+            overflow-y: auto;
+            cursor: pointer;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 30px;
+            right: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #00b6cb;
+            z-index: 50;
+        }
+
+        .slide-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00b6cb;
+            margin-bottom: 40px;
+            max-width: 80%;
+            line-height: 1.2;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-body {
+            font-size: 20px;
+            line-height: 1.8;
+            color: #d0d4e8;
+            margin-bottom: 40px;
+        }
+
+        .slide-body ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .slide-body li {
+            margin-bottom: 20px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .slide-body li:before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: #00b6cb;
+            font-size: 12px;
+            line-height: 2;
+        }
+
+        .slide-body strong {
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        .formula-box {
+            background: #0a0f2e;
+            border: 1px solid #00b6cb;
+            border-radius: 8px;
+            padding: 40px;
+            margin-top: 40px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            line-height: 2.2;
+            color: #d0d4e8;
+        }
+
+        .formula-box .var {
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        .formula-box .sub {
+            font-size: 0.8em;
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.3em;
+        }
+
+        /* Code / terminal blocks */
+        .code-block {
+            background: #060810;
+            border: 1px solid #00b6cb;
+            border-radius: 8px;
+            padding: 28px 32px;
+            margin-top: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.9;
+            color: #00b6cb;
+            white-space: pre;
+        }
+
+        .code-block .dim {
+            color: #3a6070;
+        }
+
+        /* Method cards */
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-top: 36px;
+        }
+
+        .method-card {
+            background: #101430;
+            border: 1px solid #0078A8;
+            border-radius: 8px;
+            padding: 28px;
+        }
+
+        .method-card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #00b6cb;
+            margin-bottom: 12px;
+        }
+
+        .method-card-body {
+            font-size: 15px;
+            color: #d0d4e8;
+            line-height: 1.6;
+        }
+
+        .method-card-badge {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #0a1a30;
+            border: 1px solid #00b6cb;
+            color: #00b6cb;
+        }
+
+        /* Step list */
+        .step-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .step-list li {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 22px;
+            align-items: flex-start;
+            padding-left: 0;
+        }
+
+        .step-list li:before {
+            display: none;
+        }
+
+        .step-num {
+            min-width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #00b6cb;
+            color: #080c1e;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-text {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #d0d4e8;
+        }
+
+        .step-text strong {
+            color: #00b6cb;
+        }
+
+        /* UI elements panel */
+        .ui-panel {
+            background: #101430;
+            border: 1px solid #0078A8;
+            border-radius: 8px;
+            padding: 28px 32px;
+            margin-top: 12px;
+        }
+
+        .ui-panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #00b6cb;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ui-panel-body {
+            font-size: 16px;
+            color: #d0d4e8;
+            line-height: 1.7;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .dot-green  { background: #29c66d; }
+        .dot-amber  { background: #ff9800; }
+        .dot-grey   { background: #7a7f9e; }
+
+        /* Weight pills (reused from original) */
+        .weight-pills {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .weight-pill {
+            background: #101430;
+            border: 1px solid #00b6cb;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #d0d4e8;
+        }
+
+        .weight-pill .label {
+            color: #00b6cb;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 36px;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #0078A8;
+        }
+
+        th {
+            background: #0a0f2e;
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background: #0a0f2e;
+        }
+
+        /* Quality gate list */
+        .gate-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .gate-list li {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            padding-left: 0;
+        }
+
+        .gate-list li:before {
+            display: none;
+        }
+
+        .gate-icon {
+            min-width: 28px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #00b6cb;
+            font-weight: 700;
+        }
+
+        .gate-text {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #d0d4e8;
+        }
+
+        .gate-text strong {
+            color: #00b6cb;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding-left: 0;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #d0d4e8;
+        }
+
+        .checklist li:before {
+            display: none;
+        }
+
+        .check-box {
+            min-width: 22px;
+            height: 22px;
+            border: 2px solid #00b6cb;
+            border-radius: 4px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Quote */
+        .quote-block {
+            margin-top: 40px;
+            padding: 24px 32px;
+            border-left: 4px solid #00b6cb;
+            background: #0a0f2e;
+            border-radius: 0 8px 8px 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #d0d4e8;
+            line-height: 1.7;
+        }
+
+        .quote-block .attribution {
+            margin-top: 12px;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 15px;
+            color: #00b6cb;
+        }
+
+        /* Info band (highlight box) */
+        .info-band {
+            background: #0a1a30;
+            border: 1px solid #00b6cb;
+            border-radius: 8px;
+            padding: 20px 28px;
+            margin-top: 28px;
+            font-size: 16px;
+            color: #d0d4e8;
+            line-height: 1.7;
+        }
+
+        .info-band strong {
+            color: #00b6cb;
+        }
+
+        /* Section heading inside slide-body */
+        .section-heading {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00b6cb;
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        /* Conflict indicator */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 28px;
+        }
+
+        .two-col-card {
+            background: #101430;
+            border: 1px solid #0078A8;
+            border-radius: 8px;
+            padding: 24px 28px;
+        }
+
+        .two-col-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00b6cb;
+            margin-bottom: 10px;
+        }
+
+        .two-col-card-body {
+            font-size: 15px;
+            color: #d0d4e8;
+            line-height: 1.65;
+        }
+
+        /* Slide-specific backgrounds */
+        .slide-01 {
+            background: linear-gradient(135deg, #080c1e 0%, #0a1240 100%);
+        }
+
+        .slide-02 {
+            background: linear-gradient(135deg, #080c1e 0%, #0f0e3d 100%);
+        }
+
+        /* Title slide styling */
+        .slide-title-main {
+            font-size: 64px;
+            font-weight: 800;
+            color: #00b6cb;
+            margin-bottom: 24px;
+            line-height: 1.15;
+        }
+
+        .slide-subtitle {
+            font-size: 26px;
+            color: #d0d4e8;
+            font-weight: 400;
+            margin-bottom: 40px;
+            max-width: 70%;
+            line-height: 1.5;
+        }
+
+        .badge-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #101430;
+            border: 1px solid #00b6cb;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #00b6cb;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00b6cb;
+        }
+
+        .controls-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            font-size: 13px;
+            color: #7a7f9e;
+            z-index: 50;
+        }
+
+        .disclaimer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #0078A8;
+            font-size: 14px;
+            color: #7a7f9e;
+            font-style: italic;
+        }
+
+        @media print {
+            .slide {
+                page-break-after: always;
+                opacity: 1;
+                transform: none;
+                position: relative;
+                height: auto;
+                margin: 0;
+                padding: 40px;
+            }
+
+            .progress-bar,
+            .slide-counter,
+            .controls-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px;
+            }
+
+            .slide-title {
+                font-size: 36px;
+            }
+
+            .slide-body {
+                font-size: 18px;
+            }
+
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+
+            .slide-title {
+                font-size: 28px;
+                max-width: 100%;
+            }
+
+            .slide-body {
+                font-size: 16px;
+            }
+
+            .slide-counter,
+            .controls-hint {
+                display: none;
+            }
+
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="progress-bar" id="progressBar"></div>
+
+        <div class="slides-container" id="slidesContainer">
+
+            <!-- Slide 1 — Titel -->
+            <div class="slide slide-01 active">
+                <div class="slide-content">
+                    <div class="slide-title-main">Ademhalingsanalyse<br>in de VU-AMS</div>
+                    <div class="slide-subtitle">Respiratoire meting als nieuwe dimensie in stressonderzoek</div>
+                    <div class="badge-row">
+                        <div class="badge">
+                            <div class="badge-dot"></div>
+                            VU-AMS
+                        </div>
+                        <div class="badge">
+                            <div class="badge-dot"></div>
+                            2026-05-11
+                        </div>
+                        <div class="badge">
+                            <div class="badge-dot"></div>
+                            Firmware + iOS
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 — Waarom ademhaling? -->
+            <div class="slide slide-02">
+                <div class="slide-title">Waarom ademhaling?</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 24px;">Ademhaling is de <strong>belangrijkste verstorende factor</strong> voor RMSSD-gebaseerde stressindices. Wanneer iemand sneller of langzamer ademt dan normaal (12–20 adh/min), verandert de HF-component van de HRV — en daarmee de RMSSD. Dat is geen stress; dat is fysiologie. De VU-AMS detecteert dit nu en past de analyse aan.</p>
+                        <ul>
+                            <li>Ademhaling moduleert RMSSD via <strong>Respiratoire Sinusaritmie (RSA)</strong> — versneld ademen verhoogt RMSSD kunstmatig</li>
+                            <li>Verhoogde ademfrequentie is <strong>zelf een stressmarker</strong> — hyperventilatie duidt op sympathische activatie</li>
+                            <li>Kennis van ademhaling maakt de <strong>CSI betrouwbaarder</strong> door gewichten dynamisch aan te passen</li>
+                        </ul>
+                        <div class="info-band">
+                            <strong>Normaal bereik:</strong> 12–20 ademhalingen/min (0.20–0.33 Hz) &nbsp;|&nbsp;
+                            <strong>Breed bereik:</strong> 8–22 adh/min &nbsp;|&nbsp;
+                            <strong>Buiten bereik:</strong> confounder-vlag actief
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 — Drie meetsignalen -->
+            <div class="slide">
+                <div class="slide-title">Drie meetsignalen</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 8px;">De VU-AMS leidt ademhalingsfrequentie af uit <strong>drie onafhankelijke signalen</strong> met complementaire foutmodi.</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Methode</th>
+                                    <th>Signaal</th>
+                                    <th>Basis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>PPG-RIIV</strong></td>
+                                    <td>Infrarood PPG (MAX30101)</td>
+                                    <td>Respiratoire amplitudemodulatie</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HRV-RSA</strong></td>
+                                    <td>ECG → RRI-reeks</td>
+                                    <td>Respiratoire sinusaritmie</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IMU</strong></td>
+                                    <td>Z-as accelerometer</td>
+                                    <td>Borstbewegingspatroon</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="two-col" style="margin-top: 0;">
+                        <div class="two-col-card">
+                            <div class="two-col-card-title">Beweging aanwezig</div>
+                            <div class="two-col-card-body">PPG-RIIV valt uit door bewegingsartefact &rarr; <strong>IMU</strong> werkt juist goed door borstbewegingen direct te meten.</div>
+                        </div>
+                        <div class="two-col-card">
+                            <div class="two-col-card-title">Aritmie aanwezig</div>
+                            <div class="two-col-card-body">HRV-RSA valt uit door onregelmatig ritme &rarr; <strong>PPG-RIIV</strong> blijft werken onafhankelijk van RRI-variabiliteit.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 — PPG-RIIV algoritme -->
+            <div class="slide">
+                <div class="slide-title">PPG-RIIV algoritme</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 20px;"><strong>PPG Respiratory-Induced Intensity Variation</strong> — primaire methode, geïmplementeerd in firmware en iOS.</p>
+                        <ul class="step-list">
+                            <li>
+                                <div class="step-num">1</div>
+                                <div class="step-text"><strong>4e-orde Butterworth bandpassfilter 0.1–0.5 Hz</strong> op het IR-kanaal — isoleert de RIIV-envelop van hartslag en ruis.</div>
+                            </li>
+                            <li>
+                                <div class="step-num">2</div>
+                                <div class="step-text"><strong>Piekdetectie</strong> met minimale interpiekafstand 1.5 s en 5% prominentiedrempel — voorkomt valse pieken bij artefacten.</div>
+                            </li>
+                            <li>
+                                <div class="step-num">3</div>
+                                <div class="step-text"><strong>Instantane ademfrequentie</strong> = 60 / (tijd tussen opeenvolgende pieken) in br/min.</div>
+                            </li>
+                            <li>
+                                <div class="step-num">4</div>
+                                <div class="step-text"><strong>Gemiddelde over 30 seconden schuivend venster</strong> → update elke 5 seconden via BLE R-block.</div>
+                            </li>
+                        </ul>
+                        <div class="info-band" style="margin-top: 24px;">
+                            <strong>Voordeel borstplaatsing:</strong> het VU-AMS apparaat zit op het borstbeen. Borstbewegingen moduleren het optische signaal direct — grotere RIIV-amplitude dan bij polsmeting.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 — De R-block -->
+            <div class="slide">
+                <div class="slide-title">De R-block (nieuw datablok)</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 8px;">Elk firmware-update stuurt een nieuw <strong>R-block (type byte 0x52)</strong> via BLE met ademhalingsdata en kwaliteitsvlaggen.</p>
+                        <div class="code-block"><span class="dim">R-block (22 bytes via BLE)</span>
+├── 12-byte BlockHeader   <span class="dim">type=0x52, timestamp</span>
+├── rr_bpm      float32   <span class="dim">Ademfrequentie [br/min]  (NaN = ongeldig)</span>
+├── rr_valid    uint8     <span class="dim">0x01 = geldig</span>
+├── rr_quality  uint8     <span class="dim">Kwaliteitsscore 0–100</span>
+├── rr_method   uint8     <span class="dim">0=PPG-RIIV  1=HRV-RSA  2=IMU  3=Fusie</span>
+├── rr_conflict uint8     <span class="dim">0x01 = methoden >4 br/min verschil</span>
+├── rr_confounder uint8   <span class="dim">0x01 = buiten normaal bereik 12–20</span>
+└── rr_caution  uint8     <span class="dim">0x01 = buiten breed bereik 8–22</span></div>
+                        <div class="info-band" style="margin-top: 20px;">
+                            <strong>Update-interval:</strong> elke 5 seconden &nbsp;|&nbsp;
+                            <strong>Bereik:</strong> 4–40 br/min &nbsp;|&nbsp;
+                            <strong>UUID:</strong> A5D5B00E-5A5A-4B4B-8888-1A2B3C4D5E6F
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 — Integratie in de CSI -->
+            <div class="slide">
+                <div class="slide-title">Integratie in de CSI</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 16px;">Ademhalingsfrequentie verbetert de Composite Stress Index op <strong>twee manieren</strong>.</p>
+
+                        <div class="section-heading">Confounder-correctie (altijd actief)</div>
+                        <p style="font-size: 18px; color: #d0d4e8; margin-bottom: 8px;">Wanneer RR buiten 12–20 br/min: RMSSD-gewicht verlaagd <strong>0.25 → 0.10</strong>. Redistributie naar PEP en SCL — de markers die minder door ademhaling worden beïnvloed.</p>
+
+                        <div class="section-heading">CSI-5-RR (wanneer RR beschikbaar)</div>
+                        <div class="formula-box" style="margin-top: 0; padding: 28px 32px;">
+                            <span class="var">CSI-5</span> = sigmoid( 0.32·<span class="var">z</span>(<span class="var">PEP⁻¹</span>) + 0.27·<span class="var">z</span>(<span class="var">SCL</span>)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.22·<span class="var">z</span>(<span class="var">RMSSD⁻¹</span>) + 0.09·<span class="var">z</span>(<span class="var">SCR</span>)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.10·<span class="var">z</span>(<span class="var">RR</span>) )
+                        </div>
+                        <div class="weight-pills">
+                            <div class="weight-pill"><span class="label">0.32</span> PEP⁻¹ (sympathisch cardiacrisch)</div>
+                            <div class="weight-pill"><span class="label">0.27</span> SCL (elektrodermaal)</div>
+                            <div class="weight-pill"><span class="label">0.22</span> RMSSD⁻¹ (parasympathisch)</div>
+                            <div class="weight-pill"><span class="label">0.09</span> SCR (arousal)</div>
+                            <div class="weight-pill"><span class="label">0.10</span> RR (ademhaling)</div>
+                        </div>
+                        <p style="margin-top: 18px; font-size: 15px; color: #7a7f9e;">De iOS-app toont automatisch <strong style="color: #00b6cb;">CSI-5</strong> zodra een valide RR beschikbaar is, en valt terug op <strong style="color: #7a7f9e;">CSI-4</strong> wanneer dat niet het geval is.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 — Display in de iOS-app -->
+            <div class="slide">
+                <div class="slide-title">Display in de iOS-app</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 24px;">Drie nieuwe UI-elementen verschijnen in de VU-AMS iOS-app zodra RR-data beschikbaar is.</p>
+
+                        <div class="method-grid">
+                            <div class="method-card">
+                                <div class="method-card-title">1 · Ademhaling-tegel</div>
+                                <div class="method-card-body">
+                                    Dashboard — toont RR in <strong>br/min</strong>.<br><br>
+                                    <span class="status-dot dot-green"></span>Groen: 12–20 br/min (normaal)<br>
+                                    <span class="status-dot dot-amber"></span>Amber: buiten normaal, mogelijke confounding<br>
+                                    <span class="status-dot dot-grey"></span>Grijs: geen geldig signaal
+                                </div>
+                                <span class="method-card-badge">Dashboard</span>
+                            </div>
+                            <div class="method-card">
+                                <div class="method-card-title">2 · RESP-golfvorm</div>
+                                <div class="method-card-body">
+                                    Live-tab — trage golfvorm in <strong>teakleur</strong> onder het PPG-signaal.<br><br>
+                                    Zichtbaar wanneer RR geldig is.<br>
+                                    30 seconden schuivend venster<br>
+                                    Samplingfrequentie: 10 Hz
+                                </div>
+                                <span class="method-card-badge">Live-tab</span>
+                            </div>
+                            <div class="method-card">
+                                <div class="method-card-title">3 · CSI-label</div>
+                                <div class="method-card-body">
+                                    Stress-tab — toont <strong>CSI-5</strong> wanneer RR beschikbaar is, <strong>CSI-4</strong> wanneer niet.<br><br>
+                                    Automatisch schakelen, geen gebruikersactie vereist.
+                                </div>
+                                <span class="method-card-badge">Stress-tab</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 — Kwaliteitsborging -->
+            <div class="slide">
+                <div class="slide-title">Kwaliteitsborging</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 24px;">De RR-schatting wordt <strong>alleen gebruikt wanneer de kwaliteit gegarandeerd is</strong>. Vijf gates beschermen de output.</p>
+                        <ul class="gate-list">
+                            <li>
+                                <div class="gate-icon">→</div>
+                                <div class="gate-text"><strong>Bewegingsgate:</strong> IMU a_RMS &gt; 0.15 g → PPG-RIIV ongeldig verklaard, rr_valid = 0</div>
+                            </li>
+                            <li>
+                                <div class="gate-icon">→</div>
+                                <div class="gate-text"><strong>PPG-contactverlies:</strong> ppg_valid == 0 → filterstatus gereset, lopend venster geleegd</div>
+                            </li>
+                            <li>
+                                <div class="gate-icon">→</div>
+                                <div class="gate-text"><strong>Conflictdetectie:</strong> twee methoden &gt; 4 br/min verschil → rr_conflict vlag gezet, app toont waarschuwingsindicator</div>
+                            </li>
+                            <li>
+                                <div class="gate-icon">→</div>
+                                <div class="gate-text"><strong>Bereikvalidatie:</strong> uitkomst buiten [4, 40] br/min → NaN teruggegeven, rr_valid = 0</div>
+                            </li>
+                            <li>
+                                <div class="gate-icon">→</div>
+                                <div class="gate-text"><strong>Kwaliteitsscore (0–100):</strong> energie-SNR in 0.15–0.40 Hz band ten opzichte van totale bandbreedte</div>
+                            </li>
+                        </ul>
+                        <div class="info-band">
+                            <strong>Validatie gepland:</strong> validatie van PPG-RIIV tegen referentie-spirometrie in de CSI laboratoriumstudie CAL-VAL-001 (Q3 2026).
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 — Technische specificaties -->
+            <div class="slide">
+                <div class="slide-title">Technische specificaties</div>
+                <div class="slide-content">
+                    <div class="slide-body" style="margin-bottom: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Waarde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Primaire methode</td>
+                                    <td><strong>PPG-RIIV</strong> (firmware)</td>
+                                </tr>
+                                <tr>
+                                    <td>Secundaire methoden</td>
+                                    <td>HRV-RSA, IMU (iOS / VU-DAMS)</td>
+                                </tr>
+                                <tr>
+                                    <td>Filtertype</td>
+                                    <td>4e-orde Butterworth bandpass</td>
+                                </tr>
+                                <tr>
+                                    <td>Filterband</td>
+                                    <td>0.1–0.5 Hz</td>
+                                </tr>
+                                <tr>
+                                    <td>Sampling firmware</td>
+                                    <td>50 Hz (PPG-kanaal)</td>
+                                </tr>
+                                <tr>
+                                    <td>Update-interval / venster</td>
+                                    <td>5 seconden / 30 seconden</td>
+                                </tr>
+                                <tr>
+                                    <td>CPU-belasting</td>
+                                    <td>&lt;0.002% van ESP32-S3 LX7</td>
+                                </tr>
+                                <tr>
+                                    <td>BLE-overhead</td>
+                                    <td>4.4 bytes/seconde</td>
+                                </tr>
+                                <tr>
+                                    <td>Normaal bereik</td>
+                                    <td>12–20 br/min</td>
+                                </tr>
+                                <tr>
+                                    <td>Breed bereik</td>
+                                    <td>8–22 br/min</td>
+                                </tr>
+                                <tr>
+                                    <td>Firmware bloktype</td>
+                                    <td>0x52 ('R')</td>
+                                </tr>
+                                <tr>
+                                    <td>BLE UUID</td>
+                                    <td><span style="font-family: 'Courier New', monospace; font-size: 14px; color: #00b6cb;">A5D5B00E-5A5A-4B4B-8888-1A2B3C4D5E6F</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 — Samenvatting & vervolgstappen -->
+            <div class="slide">
+                <div class="slide-title">Samenvatting &amp; vervolgstappen</div>
+                <div class="slide-content">
+                    <div class="slide-body">
+                        <p style="margin-bottom: 20px;">De VU-AMS meet nu ademhaling via drie methoden, corrigeert automatisch voor respiratoire confounding in de CSI, en toont ademhalingsfrequentie live in de iOS-app.</p>
+
+                        <ul class="checklist">
+                            <li>
+                                <div class="check-box"></div>
+                                Validatie PPG-RIIV tegen referentie-spirometrie (lab, Q3 2026)
+                            </li>
+                            <li>
+                                <div class="check-box"></div>
+                                HRV-RSA implementatie in iOS (Lomb-Scargle periodogram)
+                            </li>
+                            <li>
+                                <div class="check-box"></div>
+                                IMU ademhalingsdetectie in VU-DAMS (offline analyse)
+                            </li>
+                            <li>
+                                <div class="check-box"></div>
+                                Empirische kalibratie CSI-5-RR gewichten (na labstudie)
+                            </li>
+                            <li>
+                                <div class="check-box"></div>
+                                RIIV-golfvorm BLE-stream (firmware v2, optioneel)
+                            </li>
+                        </ul>
+
+                        <div class="quote-block">
+                            "Ademhaling is waar alles aan hangt. Miss het en je verklaart variantie die geen stress is."
+                            <div class="attribution">— Vasquez</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="disclaimer">
+                    <strong>Uitsluitend voor onderzoeksdoeleinden.</strong> Niet bedoeld voor klinische diagnose.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="slide-counter" id="slideCounter">1 / 10</div>
+        <div class="controls-hint">← → of spatiebalk om te navigeren &nbsp;•&nbsp; shift-klik om terug te gaan</div>
+    </div>
+
+    <script>
+        const slidesContainer = document.getElementById('slidesContainer');
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.shiftKey) {
+                prevSlide();
+            } else {
+                nextSlide();
+            }
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>

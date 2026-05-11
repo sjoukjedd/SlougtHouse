@@ -261,6 +261,68 @@ struct XBlock {
     }
 }
 
+// MARK: - Y Block (HRV Summary)
+
+struct YBlock {
+    let header: BlockHeader
+    let rmssdMs: Float
+    let rriLastMs: Float
+    let hrEcgBpm: Float
+    let beatCount: UInt8
+
+    /// Payload: Float32 rmssdMs | Float32 rriLastMs | Float32 hrEcgBpm | UInt8 beatCount | UInt8 reserved
+    static func parse(from data: Data) throws -> YBlock {
+        let (header, rest) = try BlockHeader.parse(from: data)
+        let needed = 4 + 4 + 4 + 1 + 1
+        guard rest.count >= needed else {
+            throw BlockParseError.insufficientData(needed: needed, got: rest.count)
+        }
+        return rest.withUnsafeBytes { ptr in
+            YBlock(
+                header:    header,
+                rmssdMs:   ptr.load(fromByteOffset: 0,  as: Float.self),
+                rriLastMs: ptr.load(fromByteOffset: 4,  as: Float.self),
+                hrEcgBpm:  ptr.load(fromByteOffset: 8,  as: Float.self),
+                beatCount: ptr.load(fromByteOffset: 12, as: UInt8.self)
+            )
+        }
+    }
+}
+
+// MARK: - R Block (Respiratory Rate)
+
+struct RBlock {
+    let header: BlockHeader
+    let rrBpm: Float
+    let rrValid: Bool
+    let rrQuality: UInt8
+    let rrMethod: UInt8
+    let rrConflict: Bool
+    let rrConfounder: Bool
+    let rrCaution: Bool
+}
+
+extension RBlock {
+    static func parse(from data: Data) -> RBlock? {
+        guard data.count >= 22 else { return nil }
+        guard data[0] == 0x52 else { return nil }
+        guard let (header, rest) = try? BlockHeader.parse(from: data) else { return nil }
+        guard rest.count >= 10 else { return nil }
+        let p = Array(rest)
+        let rrBpm = Float(bitPattern: UInt32(p[0]) | (UInt32(p[1]) << 8) | (UInt32(p[2]) << 16) | (UInt32(p[3]) << 24))
+        return RBlock(
+            header:       header,
+            rrBpm:        rrBpm,
+            rrValid:      p[4] == 0x01,
+            rrQuality:    p[5],
+            rrMethod:     p[6],
+            rrConflict:   p[7] == 0x01,
+            rrConfounder: p[8] == 0x01,
+            rrCaution:    p[9] == 0x01
+        )
+    }
+}
+
 // MARK: - T Block (Temperature)
 
 struct TBlock {

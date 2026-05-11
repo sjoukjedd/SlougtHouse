@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - ActivityView
 
@@ -273,7 +274,9 @@ private struct ActivityPlaceholderView: View {
 // MARK: - Preview
 
 #Preview {
-    let ble = BLEManager()
+    let container = try! ModelContainer(for: CSIBaselineRecord.self,
+                                        configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    let ble = BLEManager(modelContext: container.mainContext)
     ble.currentActivity = XBlock(
         seq: 42,
         timestampUs: 1_000_000,

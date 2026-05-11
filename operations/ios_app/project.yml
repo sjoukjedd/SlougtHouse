@@ -22,7 +22,11 @@ targets:
         excludes:
           - project.yml
           - "*.md"
+          - "**/*.md"
+          - ".claude/"
           - WatchApp/
+          - Tests/
+      - path: Models
     info:
       path: VUAMS/Info.plist
       properties:
@@ -38,6 +42,19 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: nl.vu-ams.app
         INFOPLIST_FILE: VUAMS/Info.plist
+
+  VUAMSTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+      - path: DataBlocks.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nl.vu-ams.tests
+        SWIFT_VERSION: "5.9"
+    dependencies:
+      - target: VUAMS
 
   VUAMSWatch:
     type: application

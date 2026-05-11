@@ -7,41 +7,104 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		23AA788F032C5E9D719ED5A5 /* DeltaDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1F2 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */; };
+		1513DE733C641AD9C35213B9 /* WatchStressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1352B01B2856636ED9C889 /* WatchStressView.swift */; };
+		1DEE6B87A5669353FD35F8A9 /* WatchWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555CC59C757C16DB8F818EA /* WatchWaveformView.swift */; };
+		226DCC81DA2CAAA0542D23AD /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB0101B2E553D86145CB3A1 /* ActivityView.swift */; };
+		2B8E398069AA85F22A35A0F5 /* WatchConnectivityReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B9BC2EC5382DF0107B0530 /* WatchConnectivityReceiver.swift */; };
+		325BCD57E8063C1E78216A57 /* VUAMSWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011E4FF5B70A86E0F39A1393 /* VUAMSWatchApp.swift */; };
+		3337F9A9D0126E6E52991DD3 /* DataBlockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3CDE8F013BD150537BE7DF /* DataBlockTests.swift */; };
 		33838AC9E3E354C444BBA4AE /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC428D877FFE3D7F2C70EE8 /* ConnectionView.swift */; };
+		37125A8A75F084C4FDC2338C /* DataBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC182115564A9404D68C49F /* DataBlocks.swift */; };
 		3A99A059D71E4EBA1B4663E6 /* SignalDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71761BAC66A5A931253BB24 /* SignalDashboardView.swift */; };
-		509E671ABA1D7DCD4B699671 /* DataBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01929868DE251DE82C04BA27 /* DataBlocks.swift */; };
 		586A2C9E7807C9737F3B3887 /* SignalBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2BE800695CB6B11773EC80 /* SignalBuffer.swift */; };
 		6A636C423D7A48E4A07B27BF /* BLEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51180540CAD892E40C4E8DAF /* BLEManager.swift */; };
+		6DAD730F1D605F49F8D063E2 /* CSIEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F28B5082872ACF48BFB06 /* CSIEngine.swift */; };
 		6E859388B639EFF41350303A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410E7A1232E1AD4D07CCBDC9 /* ContentView.swift */; };
 		6F2C6C9D781E6189BB06B50D /* VUAMSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A35DA3BCEFF157DC433533 /* VUAMSApp.swift */; };
+		7D8078503C3C4615FAA98DF5 /* VUAMS.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */; };
 		87B52313B6D948D461755299 /* GATTProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D71872D8EA659484F60880 /* GATTProfile.swift */; };
+		9B2C3BF470E81FB5E489100D /* DataBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC182115564A9404D68C49F /* DataBlocks.swift */; };
+		9B94DB975D82E38037EA24D2 /* CSIBaselineRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FA264B86A50EE38750E3FC /* CSIBaselineRecord.swift */; };
+		C912A750CC87806238848BE2 /* RPeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A654F5FDC3A8A04B556461 /* RPeakDetector.swift */; };
+		D9D23E16650F614542192871 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F1E661B0A0902E72BC421 /* RecordingSession.swift */; };
+		E69708FD8C792275671E3844 /* VUAMS.app in Resources */ = {isa = PBXBuildFile; fileRef = 07EDCE44D2779E138F053CD7 /* VUAMS.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F28DEF78D56969E65AD2CDD1 /* StressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CF60A3C604FCF3C61B1C76 /* StressView.swift */; };
+		F466CE9FC8727C8411A394D9 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D192F0B03AE143D3EFFBC79 /* WatchContentView.swift */; };
 		FA29B4A80F692D83C27ADED3 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8167555C6AC1798360B24C3C /* WaveformView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3DEBB00C334A6E8F67E0BE4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3FF997B48C4F1B5EA7110BC5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EB0AAEA8AE17315996E75D;
+			remoteInfo = VUAMS;
+		};
+		A3C2C3CE73B4C20FD34EB7C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3FF997B48C4F1B5EA7110BC5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EB0AAEA8AE17315996E75D;
+			remoteInfo = VUAMS;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		01929868DE251DE82C04BA27 /* DataBlocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBlocks.swift; sourceTree = "<group>"; };
-		07EDCE44D2779E138F053CD7 /* VUAMS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VUAMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		011E4FF5B70A86E0F39A1393 /* VUAMSWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSWatchApp.swift; sourceTree = "<group>"; };
+		07EDCE44D2779E138F053CD7 /* VUAMS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VUAMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2BE800695CB6B11773EC80 /* SignalBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalBuffer.swift; sourceTree = "<group>"; };
 		11A35DA3BCEFF157DC433533 /* VUAMSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VUAMSApp.swift; sourceTree = "<group>"; };
+		3D192F0B03AE143D3EFFBC79 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchContentView.swift; sourceTree = "<group>"; };
 		410E7A1232E1AD4D07CCBDC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		444216AECEF7CEAA1F2E0DC7 /* VUAMSWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VUAMSWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51180540CAD892E40C4E8DAF /* BLEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEManager.swift; sourceTree = "<group>"; };
+		5D3F28B5082872ACF48BFB06 /* CSIEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSIEngine.swift; sourceTree = "<group>"; };
+		66FA264B86A50EE38750E3FC /* CSIBaselineRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSIBaselineRecord.swift; sourceTree = "<group>"; };
 		67D71872D8EA659484F60880 /* GATTProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GATTProfile.swift; sourceTree = "<group>"; };
+		6EB0101B2E553D86145CB3A1 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		72C9E35C5E342EFDB8BDD1D4 /* VUAMSTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VUAMSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		789F0A70B125C903CB9279A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7D8F1E661B0A0902E72BC421 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		8167555C6AC1798360B24C3C /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
-		822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaDecoder.swift; sourceTree = "<group>"; };
-		B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		828926C5EDEDE3371CC45A18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = VUAMS.xcodeproj; sourceTree = "<group>"; };
+		AF3CDE8F013BD150537BE7DF /* DataBlockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBlockTests.swift; sourceTree = "<group>"; };
+		B3CF60A3C604FCF3C61B1C76 /* StressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StressView.swift; sourceTree = "<group>"; };
+		B555CC59C757C16DB8F818EA /* WatchWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWaveformView.swift; sourceTree = "<group>"; };
+		B5A654F5FDC3A8A04B556461 /* RPeakDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPeakDetector.swift; sourceTree = "<group>"; };
 		D71761BAC66A5A931253BB24 /* SignalDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalDashboardView.swift; sourceTree = "<group>"; };
+		DA1352B01B2856636ED9C889 /* WatchStressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStressView.swift; sourceTree = "<group>"; };
 		ECC428D877FFE3D7F2C70EE8 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
+		F8B9BC2EC5382DF0107B0530 /* WatchConnectivityReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityReceiver.swift; sourceTree = "<group>"; };
+		FAC182115564A9404D68C49F /* DataBlocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBlocks.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		08F3E8AF2FB1ED01000CF3C4 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1212B099C0C233472CEE2F3C /* WatchApp */ = {
+			isa = PBXGroup;
+			children = (
+				789F0A70B125C903CB9279A3 /* Info.plist */,
+				011E4FF5B70A86E0F39A1393 /* VUAMSWatchApp.swift */,
+				F8B9BC2EC5382DF0107B0530 /* WatchConnectivityReceiver.swift */,
+				3D192F0B03AE143D3EFFBC79 /* WatchContentView.swift */,
+				DA1352B01B2856636ED9C889 /* WatchStressView.swift */,
+				B555CC59C757C16DB8F818EA /* WatchWaveformView.swift */,
+			);
+			path = WatchApp;
+			sourceTree = "<group>";
+		};
 		4D4C03E8267A5E95E749FEFD /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				822CC30FFA0927196C8AE2D3 /* DeltaDecoder.swift */,
-				B2C3D4E5F6A7B8C9D0E1F2A3 /* RecordingSession.swift */,
+				5D3F28B5082872ACF48BFB06 /* CSIEngine.swift */,
+				7D8F1E661B0A0902E72BC421 /* RecordingSession.swift */,
+				B5A654F5FDC3A8A04B556461 /* RPeakDetector.swift */,
 				0A2BE800695CB6B11773EC80 /* SignalBuffer.swift */,
 			);
 			path = Utilities;
@@ -50,12 +113,15 @@
 		5E4EEECB3D22B9E779026B41 = {
 			isa = PBXGroup;
 			children = (
+				FAC182115564A9404D68C49F /* DataBlocks.swift */,
 				941F62EB93F3170BED36C990 /* BLE */,
 				7EBD399E2588DEFF80206FB1 /* ios_app */,
 				E4658F1B6ECA28DDE737A5D0 /* Models */,
+				865FD90951D5E09F785FC633 /* Tests */,
 				4D4C03E8267A5E95E749FEFD /* Utilities */,
 				8964FA4087F9C1FF530D12A9 /* Views */,
 				F4DD189F02DBC15F8BE843C7 /* VUAMS */,
+				1212B099C0C233472CEE2F3C /* WatchApp */,
 				92DE4D6B9A282DB39C3B06E0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,25 +129,30 @@
 		7EBD399E2588DEFF80206FB1 /* ios_app */ = {
 			isa = PBXGroup;
 			children = (
-				01929868DE251DE82C04BA27 /* DataBlocks.swift */,
 				67D71872D8EA659484F60880 /* GATTProfile.swift */,
+				9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */,
 				11A35DA3BCEFF157DC433533 /* VUAMSApp.swift */,
-				941F62EB93F3170BED36C990 /* BLE */,
-				E4658F1B6ECA28DDE737A5D0 /* Models */,
-				4D4C03E8267A5E95E749FEFD /* Utilities */,
-				8964FA4087F9C1FF530D12A9 /* Views */,
-				F4DD189F02DBC15F8BE843C7 /* VUAMS */,
 			);
 			name = ios_app;
 			path = .;
 			sourceTree = "<group>";
 		};
+		865FD90951D5E09F785FC633 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				AF3CDE8F013BD150537BE7DF /* DataBlockTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		8964FA4087F9C1FF530D12A9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6EB0101B2E553D86145CB3A1 /* ActivityView.swift */,
 				ECC428D877FFE3D7F2C70EE8 /* ConnectionView.swift */,
 				410E7A1232E1AD4D07CCBDC9 /* ContentView.swift */,
 				D71761BAC66A5A931253BB24 /* SignalDashboardView.swift */,
+				B3CF60A3C604FCF3C61B1C76 /* StressView.swift */,
 				8167555C6AC1798360B24C3C /* WaveformView.swift */,
 			);
 			path = Views;
@@ -91,6 +162,8 @@
 			isa = PBXGroup;
 			children = (
 				07EDCE44D2779E138F053CD7 /* VUAMS.app */,
+				72C9E35C5E342EFDB8BDD1D4 /* VUAMSTests.xctest */,
+				444216AECEF7CEAA1F2E0DC7 /* VUAMSWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -106,6 +179,7 @@
 		E4658F1B6ECA28DDE737A5D0 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				66FA264B86A50EE38750E3FC /* CSIBaselineRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -121,11 +195,49 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		334ADD5455879EDFF1C0F307 /* VUAMSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5B01202005B056D48355675 /* Build configuration list for PBXNativeTarget "VUAMSTests" */;
+			buildPhases = (
+				CCC46A27D64C47D524D05E4C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E9791E3353760A11FA658BD3 /* PBXTargetDependency */,
+			);
+			name = VUAMSTests;
+			packageProductDependencies = (
+			);
+			productName = VUAMSTests;
+			productReference = 72C9E35C5E342EFDB8BDD1D4 /* VUAMSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AF12C6B39ED5336502B3CA4B /* VUAMSWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09E35C43926A19EF749D8D06 /* Build configuration list for PBXNativeTarget "VUAMSWatch" */;
+			buildPhases = (
+				81362C2D31094102155AA292 /* Sources */,
+				076906B60F0B50FA8737FB8A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				77E3F8C0CCF0EDB1DE3C135C /* PBXTargetDependency */,
+			);
+			name = VUAMSWatch;
+			packageProductDependencies = (
+			);
+			productName = VUAMSWatch;
+			productReference = 444216AECEF7CEAA1F2E0DC7 /* VUAMSWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		F4EB0AAEA8AE17315996E75D /* VUAMS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7176D77FF15BDE5282C73624 /* Build configuration list for PBXNativeTarget "VUAMS" */;
 			buildPhases = (
 				19571908E7AA40E008BACF7F /* Sources */,
+				404D65DCE6955D9BE3DFEB69 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -147,7 +259,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					F4EB0AAEA8AE17315996E75D = {
+					334ADD5455879EDFF1C0F307 = {
+						DevelopmentTeam = "";
+					};
+					AF12C6B39ED5336502B3CA4B = {
 						DevelopmentTeam = "";
 					};
 				};
@@ -164,35 +279,143 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 92DE4D6B9A282DB39C3B06E0 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 08F3E8AF2FB1ED01000CF3C4 /* Products */;
+					ProjectRef = 9D7B868CC1682490971AE3A1 /* VUAMS.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				F4EB0AAEA8AE17315996E75D /* VUAMS */,
+				334ADD5455879EDFF1C0F307 /* VUAMSTests */,
+				AF12C6B39ED5336502B3CA4B /* VUAMSWatch */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		076906B60F0B50FA8737FB8A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E69708FD8C792275671E3844 /* VUAMS.app in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		404D65DCE6955D9BE3DFEB69 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D8078503C3C4615FAA98DF5 /* VUAMS.xcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		19571908E7AA40E008BACF7F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				226DCC81DA2CAAA0542D23AD /* ActivityView.swift in Sources */,
 				6A636C423D7A48E4A07B27BF /* BLEManager.swift in Sources */,
+				9B94DB975D82E38037EA24D2 /* CSIBaselineRecord.swift in Sources */,
+				6DAD730F1D605F49F8D063E2 /* CSIEngine.swift in Sources */,
 				33838AC9E3E354C444BBA4AE /* ConnectionView.swift in Sources */,
 				6E859388B639EFF41350303A /* ContentView.swift in Sources */,
-				509E671ABA1D7DCD4B699671 /* DataBlocks.swift in Sources */,
-				23AA788F032C5E9D719ED5A5 /* DeltaDecoder.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1F2 /* RecordingSession.swift in Sources */,
+				9B2C3BF470E81FB5E489100D /* DataBlocks.swift in Sources */,
 				87B52313B6D948D461755299 /* GATTProfile.swift in Sources */,
+				C912A750CC87806238848BE2 /* RPeakDetector.swift in Sources */,
+				D9D23E16650F614542192871 /* RecordingSession.swift in Sources */,
 				586A2C9E7807C9737F3B3887 /* SignalBuffer.swift in Sources */,
 				3A99A059D71E4EBA1B4663E6 /* SignalDashboardView.swift in Sources */,
+				F28DEF78D56969E65AD2CDD1 /* StressView.swift in Sources */,
 				6F2C6C9D781E6189BB06B50D /* VUAMSApp.swift in Sources */,
 				FA29B4A80F692D83C27ADED3 /* WaveformView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		81362C2D31094102155AA292 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				325BCD57E8063C1E78216A57 /* VUAMSWatchApp.swift in Sources */,
+				2B8E398069AA85F22A35A0F5 /* WatchConnectivityReceiver.swift in Sources */,
+				F466CE9FC8727C8411A394D9 /* WatchContentView.swift in Sources */,
+				1513DE733C641AD9C35213B9 /* WatchStressView.swift in Sources */,
+				1DEE6B87A5669353FD35F8A9 /* WatchWaveformView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC46A27D64C47D524D05E4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3337F9A9D0126E6E52991DD3 /* DataBlockTests.swift in Sources */,
+				37125A8A75F084C4FDC2338C /* DataBlocks.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		77E3F8C0CCF0EDB1DE3C135C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EB0AAEA8AE17315996E75D /* VUAMS */;
+			targetProxy = 3DEBB00C334A6E8F67E0BE4D /* PBXContainerItemProxy */;
+		};
+		E9791E3353760A11FA658BD3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EB0AAEA8AE17315996E75D /* VUAMS */;
+			targetProxy = A3C2C3CE73B4C20FD34EB7C9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		09FF21FBF9E985C57BFE5310 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WatchApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.app.watchkitapp";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		3F302484ABE61E2D0ADD9804 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WatchApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.app.watchkitapp";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		67067B33FF04914242DC3454 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.tests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VUAMS.app/VUAMS";
+			};
+			name = Release;
+		};
 		72DCA867AAA6892446EB5DBC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -243,19 +466,38 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
+		};
+		9DCE073986B11F3E5E74F147 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.vu-ams.tests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VUAMS.app/VUAMS";
+			};
+			name = Debug;
 		};
 		A76091CD846278FF8B60C5D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -271,7 +513,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = L34UB8AH3J;
 				INFOPLIST_FILE = VUAMS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,16 +583,25 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		09E35C43926A19EF749D8D06 /* Build configuration list for PBXNativeTarget "VUAMSWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F302484ABE61E2D0ADD9804 /* Debug */,
+				09FF21FBF9E985C57BFE5310 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		55BAC4322574AAD6942BF933 /* Build configuration list for PBXProject "VUAMS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -363,6 +616,15 @@
 			buildConfigurations = (
 				A76091CD846278FF8B60C5D4 /* Debug */,
 				CA726F2BF9B0ABFDD68B444C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D5B01202005B056D48355675 /* Build configuration list for PBXNativeTarget "VUAMSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DCE073986B11F3E5E74F147 /* Debug */,
+				67067B33FF04914242DC3454 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

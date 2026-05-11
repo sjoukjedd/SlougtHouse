@@ -25,3 +25,6 @@ operations/vudam_app/target/
 # ESP-IDF sdkconfig (generated; keep sdkconfig.defaults)
 sdkconfig
 sdkconfig.old
+
+# Watchdog runtime log
+.watchdog/*.log

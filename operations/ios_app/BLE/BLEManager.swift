@@ -1,6 +1,7 @@
 import Foundation
 import CoreBluetooth
 import Observation
+import SwiftData
 
 // MARK: - Connection State
 
@@ -58,6 +59,8 @@ final class BLEManager: NSObject {
     var latestPBlock: PBlock?
     var latestSBlock: SBlock?
     var latestTBlock: TBlock?
+    var latestYBlock: YBlock?
+    var latestRBlock: RBlock?
     var currentActivity: XBlock?
     var signalQuality: [String: Bool] = [
         "ecg1":       false,
@@ -73,17 +76,29 @@ final class BLEManager: NSObject {
     // not observed directly by SwiftUI.
     @ObservationIgnored let ecg1Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
     @ObservationIgnored let ecg2Buffer  = SignalBuffer(seconds: 5, sampleRate: 1000)
-    @ObservationIgnored let icgBuffer   = SignalBuffer(seconds: 5, sampleRate: 1000)
-    @ObservationIgnored let ppgBuffer   = SignalBuffer(seconds: 5, sampleRate: 100)
+    @ObservationIgnored let icgBuffer   = SignalBuffer(seconds: 5, sampleRate: 200)
+    @ObservationIgnored let ppgBuffer   = SignalBuffer(seconds: 5, sampleRate: 50)
     @ObservationIgnored let sclBuffer   = SignalBuffer(seconds: 5, sampleRate: 10)
+    @ObservationIgnored let respBuffer  = SignalBuffer(seconds: 30, sampleRate: 10)
+
+    // CSI engine — owns the R-peak detector and 30-second epoch timer.
+    // Declared as a stored property (not lazy) so the ModelContext can be
+    // injected at init time.
+    @ObservationIgnored var csiEngine: CSIEngine!
+
+    // RESP waveform downsampling state (50 Hz PPG IR → 10 Hz RESP)
+    // Keep every 5th PPG sample; apply IIR DC removal before storing in respBuffer.
+    @ObservationIgnored private var ppgDecimateCounter: Int = 0
+    @ObservationIgnored private var respMean: Double = 0
 
     // BLE internals
     @ObservationIgnored private var centralManager: CBCentralManager!
     @ObservationIgnored private var connectedPeripheral: CBPeripheral?
     @ObservationIgnored private var characteristics: [CBUUID: CBCharacteristic] = [:]
 
-    override init() {
+    init(modelContext: ModelContext) {
         super.init()
+        csiEngine = CSIEngine(ble: self, modelContext: modelContext)
         centralManager = CBCentralManager(delegate: self, queue: .main)
     }
 
@@ -293,6 +308,14 @@ extension BLEManager: CBPeripheralDelegate {
                     latestPBlock = block
                     ppgBuffer.append([Float(block.ppgIr)])
                     signalQuality["ppg"] = true
+                    // Downsample PPG IR to 10 Hz for RESP waveform display
+                    ppgDecimateCounter += 1
+                    if ppgDecimateCounter >= 5 {
+                        ppgDecimateCounter = 0
+                        let irValue = Double(block.ppgIr)
+                        respMean = 0.99 * respMean + 0.01 * irValue
+                        respBuffer.append([Float(irValue - respMean)])
+                    }
                 } else if uuid == VUAMSUUID.sBlock {
                     let block = try SBlock.parse(from: data)
                     latestSBlock = block
@@ -305,6 +328,15 @@ extension BLEManager: CBPeripheralDelegate {
                 } else if uuid == VUAMSUUID.xBlock {
                     if let block = XBlock.parse(from: data) {
                         currentActivity = block
+                    }
+                } else if uuid == VUAMSUUID.yBlock {
+                    let block = try YBlock.parse(from: data)
+                    latestYBlock = block
+                    csiEngine.updateFromYBlock(block)
+                } else if uuid == VUAMSUUID.rBlock {
+                    if let block = RBlock.parse(from: data) {
+                        latestRBlock = block
+                        csiEngine.updateFromRBlock(block)
                     }
                 }
                 // status characteristic — parse if needed in future

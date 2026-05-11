@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Live numeric dashboard — grid of key physiological values.
 struct SignalDashboardView: View {
@@ -23,6 +24,7 @@ struct SignalDashboardView: View {
                     MetricTile(label: "Temp",   unit: "°C",    value: tempText, accent: accentColour, dim: dimColour)
                     MetricTile(label: "HRV",    unit: "ms",    value: "—",      accent: accentColour, dim: dimColour)
                     MetricTile(label: "Z₀",     unit: "Ω",     value: z0Text,   accent: accentColour, dim: dimColour)
+                    RRMetricTile(value: rrText, tileBackground: rrTileBackground, accent: accentColour, dim: dimColour)
                 }
                 .padding()
             }
@@ -65,6 +67,25 @@ struct SignalDashboardView: View {
         guard let i = ble.latestIBlock else { return "—" }
         return i.z0.formatted(.number.precision(.fractionLength(1)))
     }
+
+    private var rrText: String {
+        guard let r = ble.latestRBlock, r.rrValid, !r.rrBpm.isNaN else { return "—" }
+        return String(format: "%.1f", r.rrBpm)
+    }
+
+    private var rrTileBackground: Color {
+        guard let r = ble.latestRBlock, r.rrValid, !r.rrBpm.isNaN else {
+            return Color(red: 0x10/255.0, green: 0x14/255.0, blue: 0x30/255.0) // dim/default
+        }
+        let bpm = r.rrBpm
+        if bpm >= 12 && bpm <= 20 {
+            return Color(red: 0x0A/255.0, green: 0x2E/255.0, blue: 0x1A/255.0) // green tint
+        } else if bpm >= 4 && bpm <= 40 {
+            return Color(red: 0x2E/255.0, green: 0x1E/255.0, blue: 0x04/255.0) // amber tint
+        } else {
+            return Color(red: 0x10/255.0, green: 0x14/255.0, blue: 0x30/255.0) // dim/default
+        }
+    }
 }
 
 // MARK: - Metric Tile
@@ -100,7 +121,43 @@ private struct MetricTile: View {
     }
 }
 
+// MARK: - RR Metric Tile
+
+/// Respiratory rate tile with dynamic background colour:
+/// - Green tint when rr_bpm is in normal range 12–20 br/min
+/// - Amber tint when rr_bpm is outside 12–20 but within 4–40 (confounder zone)
+/// - Default dim when invalid or unavailable
+private struct RRMetricTile: View {
+    let value:          String
+    let tileBackground: Color
+    let accent:         Color
+    let dim:            Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Ademhaling")
+                .font(.caption)
+                .foregroundStyle(dim)
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 36, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(accent)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Text("br/min")
+                    .font(.caption2)
+                    .foregroundStyle(dim)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(tileBackground, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 #Preview {
-    SignalDashboardView()
-        .environment(BLEManager())
+    let container = try! ModelContainer(for: CSIBaselineRecord.self,
+                                        configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    return SignalDashboardView()
+        .environment(BLEManager(modelContext: container.mainContext))
 }

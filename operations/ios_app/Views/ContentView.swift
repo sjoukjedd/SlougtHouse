@@ -1,9 +1,10 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Tab selection
 
 private enum AppTab {
-    case connect, live, record, dashboard, activity
+    case connect, live, record, dashboard, activity, stress
 }
 
 // MARK: - ContentView
@@ -32,6 +33,9 @@ struct ContentView: View {
             }
             Tab("Activiteit", systemImage: "figure.walk", value: AppTab.activity) {
                 ActivityView()
+            }
+            Tab("Stress", systemImage: "brain.head.profile", value: AppTab.stress) {
+                StressView()
             }
         }
         .tint(accentColour)
@@ -232,7 +236,14 @@ private struct LiveWaveformView: View {
                 ChannelRowView(title: "PPG-IR",
                                buffer: ble.ppgBuffer,
                                color: .red,
-                               yRange: 0...1_000_000)
+                               yRange: 400_000...600_000)
+
+                if ble.latestRBlock?.rrValid == true {
+                    ChannelRowView(title: "RESP",
+                                   buffer: ble.respBuffer,
+                                   color: Color(red: 0.0, green: 0.80, blue: 0.70),
+                                   yRange: -5000...5000)
+                }
             }
             .padding(.vertical, 8)
         }
@@ -261,6 +272,8 @@ private struct ChannelRowView: View {
 }
 
 #Preview {
-    ContentView()
-        .environment(BLEManager())
+    let container = try! ModelContainer(for: CSIBaselineRecord.self,
+                                        configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    return ContentView()
+        .environment(BLEManager(modelContext: container.mainContext))
 }

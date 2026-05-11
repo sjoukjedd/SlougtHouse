@@ -5,6 +5,26 @@ struct WatchContentView: View {
     @Environment(WatchConnectivityReceiver.self) private var receiver
 
     var body: some View {
+        TabView {
+            // ── Page 1: Vitals / waveform ─────────────────────────────────
+            WatchVitalsPage()
+
+            // ── Page 2: CSI stress ────────────────────────────────────────
+            WatchStressView()
+        }
+        .tabViewStyle(.page)
+    }
+}
+
+// MARK: - WatchVitalsPage
+//
+// Original waveform + metrics content, extracted into its own page view.
+
+private struct WatchVitalsPage: View {
+
+    @Environment(WatchConnectivityReceiver.self) private var receiver
+
+    var body: some View {
         ScrollView {
             VStack(spacing: 8) {
                 WatchConnectionBadgeView(isConnected: receiver.deviceConnected)
