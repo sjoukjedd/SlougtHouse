@@ -56,14 +56,15 @@ final class BLEManager: NSObject {
     var subjectId: String = ""
     var electrodDistanceCm: Float? = nil
     var lastDisconnectReason: String? = nil
-    var latestABlock: ABlock?
+    // High-frequency blocks not consumed by any view — suppress observation tracking.
+    @ObservationIgnored var latestABlock: ABlock?
     var latestIBlock: IBlock?
-    var latestMBlock: MBlock?
-    var latestPBlock: PBlock?
-    var latestSBlock: SBlock?
+    @ObservationIgnored var latestMBlock: MBlock?
+    var latestPBlock: PBlock?           // throttled to 5 Hz by ppgDisplayCounter
+    @ObservationIgnored var latestSBlock: SBlock?
     var latestTBlock: TBlock?
-    var latestYBlock: YBlock?
-    var latestRBlock: RBlock?
+    @ObservationIgnored var latestYBlock: YBlock?
+    @ObservationIgnored var latestRBlock: RBlock?
     var currentActivity: XBlock?
     var signalQuality: [String: Bool] = [
         "ecg1":       false,
@@ -102,6 +103,8 @@ final class BLEManager: NSObject {
     // Keep every 5th PPG sample; apply IIR DC removal before storing in respBuffer.
     @ObservationIgnored private var ppgDecimateCounter: Int = 0
     @ObservationIgnored private var respMean: Double = 0
+    // Throttle latestPBlock SwiftUI updates to 5 Hz (every 10th packet at 50 Hz).
+    @ObservationIgnored private var ppgDisplayCounter: Int = 0
 
     // BLE internals
     @ObservationIgnored private var centralManager: CBCentralManager!
@@ -366,9 +369,14 @@ extension BLEManager: CBPeripheralDelegate {
                     latestMBlock = block
                 } else if uuid == VUAMSUUID.pBlock {
                     let block = try PBlock.parse(from: data)
-                    latestPBlock = block
                     ppgBuffer.append([Float(block.ppgIr)])
                     signalQuality["ppg"] = true
+                    // Throttle SwiftUI observable update to 5 Hz (every 10th packet)
+                    ppgDisplayCounter += 1
+                    if ppgDisplayCounter >= 10 {
+                        ppgDisplayCounter = 0
+                        latestPBlock = block
+                    }
                     // Downsample PPG IR to 10 Hz for RESP waveform display
                     ppgDecimateCounter += 1
                     if ppgDecimateCounter >= 5 {

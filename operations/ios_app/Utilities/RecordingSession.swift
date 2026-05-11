@@ -19,14 +19,25 @@ final class RecordingSession {
     /// BLE peripheral name (used in the sidecar and for file naming).
     let deviceName: String
 
+    /// Subject identifier entered by the researcher before recording starts.
+    let subjectId: String
+
+    /// Distance between the inner ICG electrodes in centimetres (Kubicek SV formula).
+    let electrodDistanceCm: Float?
+
     /// Difference between wall-clock time and device uptime, set once the
     /// first data block is received.  `nil` until that moment.
     private(set) var deviceBootOffset: TimeInterval?
 
     // MARK: - Init
 
-    init(deviceName: String, startTimestamp: Date = Date()) {
+    init(deviceName: String,
+         subjectId: String = "",
+         electrodDistanceCm: Float? = nil,
+         startTimestamp: Date = Date()) {
         self.deviceName = deviceName
+        self.subjectId = subjectId
+        self.electrodDistanceCm = electrodDistanceCm
         self.startTimestamp = startTimestamp
     }
 

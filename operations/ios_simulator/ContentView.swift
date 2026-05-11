@@ -64,7 +64,7 @@ final class SimViewModel: ObservableObject, SimPeripheralManagerDelegate {
 
         displayHR   = s.hrBPM
         displaySpO2 = s.spo2Pct
-        displaySCL  = s.sclUS
+        displaySCL  = s.sclTonic
         displayTemp = s.tempC
 
         // Feed ECG ring buffer at display rate (sub-sampled for Canvas)

@@ -448,34 +448,6 @@ final class CSIEngine {
         sendWatchMessage()
     }
 
-    // MARK: - Baseline reset
-
-    /// Clears all baseline accumulators and deletes the persisted baseline record.
-    /// The engine will start fresh accumulation from the next epoch.
-    func resetBaseline() {
-        isBaselineComplete = false
-        baselineProgress = 0.0
-        score = nil
-        componentScores = nil
-
-        baselinePEPInv.removeAll()
-        baselineSCL.removeAll()
-        baselineRMSSDInv.removeAll()
-        baselineSCRRate.removeAll()
-        baselineRR.removeAll()
-
-        rrMean = 15.0
-        rrSd = 3.0
-
-        mu  = MarkerStats()
-        sig = MarkerStats()
-
-        // Delete stored baseline so it is not restored on next launch
-        let existing = (try? modelContext.fetch(FetchDescriptor<CSIBaselineRecord>())) ?? []
-        for old in existing { modelContext.delete(old) }
-        try? modelContext.save()
-    }
-
     // MARK: - Baseline finalisation
 
     private func finaliseBaseline() {
@@ -509,12 +481,12 @@ final class CSIEngine {
 
     private func sendWatchMessage() {
         let session = WCSession.default
-        guard session.isReachable else { return }
+        guard session.activationState == .activated, session.isReachable else { return }
         let scoreValue: Double = score ?? -1.0
         session.sendMessage(
             [
-                WatchMessageKey.csiScore: scoreValue,
-                WatchMessageKey.csiGated: isActivityGated
+                "csi": scoreValue,
+                "gated": isActivityGated
             ],
             replyHandler: nil,
             errorHandler: nil

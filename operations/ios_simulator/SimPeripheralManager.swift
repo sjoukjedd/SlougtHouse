@@ -308,7 +308,7 @@ final class SimPeripheralManager: NSObject {
         data.append(0x58)                                                           // byte[0]: type
         withUnsafeBytes(of: xSeq.littleEndian) { data.append(contentsOf: $0) }     // bytes[1-2]: seq
         xSeq &+= 1
-        let tsUs = UInt32(Date().timeIntervalSince1970 * 1_000_000) & 0xFFFFFFFF
+        let tsUs = UInt32(UInt64(Date().timeIntervalSince1970 * 1_000_000) & 0xFFFF_FFFF)
         withUnsafeBytes(of: tsUs.littleEndian) { data.append(contentsOf: $0) }     // bytes[3-6]: timestampUs
         data.append(3)                                                              // byte[7]: activityClass = standing
         withUnsafeBytes(of: UInt16(0).littleEndian) { data.append(contentsOf: $0) } // bytes[8-9]: cadenceSpm = 0

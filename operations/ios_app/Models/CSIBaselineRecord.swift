@@ -1,3 +1,4 @@
+import Foundation
 import SwiftData
 
 // MARK: - CSIBaselineRecord
@@ -53,3 +54,4 @@ final class CSIBaselineRecord {
         self.epochCount   = epochCount
     }
 }
+

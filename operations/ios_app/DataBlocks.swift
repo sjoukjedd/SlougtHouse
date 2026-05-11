@@ -25,8 +25,8 @@ struct BlockHeader {
         }
         let type    = data[0]
         let version = data[1]
-        let payloadLength = data.withUnsafeBytes { $0.load(fromByteOffset: 2, as: UInt16.self).littleEndian }
-        let timestampUs   = data.withUnsafeBytes { $0.load(fromByteOffset: 4, as: UInt64.self).littleEndian }
+        let payloadLength = data.withUnsafeBytes { $0.loadUnaligned(fromByteOffset: 2, as: UInt16.self).littleEndian }
+        let timestampUs   = data.withUnsafeBytes { $0.loadUnaligned(fromByteOffset: 4, as: UInt64.self).littleEndian }
         let header = BlockHeader(type: type, version: version,
                                  payloadLength: payloadLength, timestampUs: timestampUs)
         return (header, data.dropFirst(wireSize))
@@ -46,7 +46,7 @@ struct ABlock {
         guard rest.count >= 2 else {
             throw BlockParseError.insufficientData(needed: 2, got: rest.count)
         }
-        let sampleCount = Int(rest.withUnsafeBytes { $0.load(fromByteOffset: 0, as: UInt16.self).littleEndian })
+        let sampleCount = Int(rest.withUnsafeBytes { $0.loadUnaligned(fromByteOffset: 0, as: UInt16.self).littleEndian })
         let needed = 2 + sampleCount * 4 * 2
         guard rest.count >= needed else {
             throw BlockParseError.insufficientData(needed: needed, got: rest.count)
@@ -55,8 +55,8 @@ struct ABlock {
         var ecg2 = [Int32](repeating: 0, count: sampleCount)
         rest.withUnsafeBytes { ptr in
             for i in 0..<sampleCount {
-                ecg1[i] = ptr.load(fromByteOffset: 2 + i * 4, as: Int32.self).littleEndian
-                ecg2[i] = ptr.load(fromByteOffset: 2 + sampleCount * 4 + i * 4, as: Int32.self).littleEndian
+                ecg1[i] = ptr.loadUnaligned(fromByteOffset: 2 + i * 4, as: Int32.self).littleEndian
+                ecg2[i] = ptr.loadUnaligned(fromByteOffset: 2 + sampleCount * 4 + i * 4, as: Int32.self).littleEndian
             }
         }
         return ABlock(header: header, ecg1: ecg1, ecg2: ecg2)
@@ -82,7 +82,7 @@ struct IBlock {
             throw BlockParseError.insufficientData(needed: needed, got: rest.count)
         }
         let floats: [Float] = rest.withUnsafeBytes { ptr in
-            (0..<6).map { ptr.load(fromByteOffset: $0 * 4, as: Float.self) }
+            (0..<6).map { ptr.loadUnaligned(fromByteOffset: $0 * 4, as: Float.self) }
         }
         return IBlock(header: header,
                       z0: floats[0], dZdt: floats[1],
@@ -107,7 +107,7 @@ struct MBlock {
             throw BlockParseError.insufficientData(needed: needed, got: rest.count)
         }
         let v: [Int16] = rest.withUnsafeBytes { ptr in
-            (0..<9).map { ptr.load(fromByteOffset: $0 * 2, as: Int16.self).littleEndian }
+            (0..<9).map { ptr.loadUnaligned(fromByteOffset: $0 * 2, as: Int16.self).littleEndian }
         }
         return MBlock(header: header,
                       accel: SIMD3(v[0], v[1], v[2]),
@@ -133,10 +133,10 @@ struct PBlock {
             throw BlockParseError.insufficientData(needed: needed, got: rest.count)
         }
         return rest.withUnsafeBytes { ptr in
-            let ppgRed  = ptr.load(fromByteOffset: 0, as: UInt32.self).littleEndian
-            let ppgIr   = ptr.load(fromByteOffset: 4, as: UInt32.self).littleEndian
-            let spo2    = ptr.load(fromByteOffset: 8, as: Float.self)
-            let hr      = ptr.load(fromByteOffset: 12, as: UInt8.self)
+            let ppgRed  = ptr.loadUnaligned(fromByteOffset: 0, as: UInt32.self).littleEndian
+            let ppgIr   = ptr.loadUnaligned(fromByteOffset: 4, as: UInt32.self).littleEndian
+            let spo2    = ptr.loadUnaligned(fromByteOffset: 8, as: Float.self)
+            let hr      = ptr.loadUnaligned(fromByteOffset: 12, as: UInt8.self)
             return PBlock(header: header, ppgRed: ppgRed, ppgIr: ppgIr,
                           spo2Pct: spo2, hrPpg: hr)
         }
@@ -159,8 +159,8 @@ struct SBlock {
         }
         return rest.withUnsafeBytes { ptr in
             SBlock(header: header,
-                   sclTonic:  ptr.load(fromByteOffset: 0, as: Float.self),
-                   sclPhasic: ptr.load(fromByteOffset: 4, as: Float.self))
+                   sclTonic:  ptr.loadUnaligned(fromByteOffset: 0, as: Float.self),
+                   sclPhasic: ptr.loadUnaligned(fromByteOffset: 4, as: Float.self))
         }
     }
 }
@@ -236,15 +236,15 @@ struct XBlock {
         guard data[0] == 0x58 else { return nil }
 
         let seq = data.withUnsafeBytes {
-            $0.load(fromByteOffset: 1, as: UInt16.self).littleEndian
+            $0.loadUnaligned(fromByteOffset: 1, as: UInt16.self).littleEndian
         }
         let timestampUs = data.withUnsafeBytes {
-            $0.load(fromByteOffset: 3, as: UInt32.self).littleEndian
+            $0.loadUnaligned(fromByteOffset: 3, as: UInt32.self).littleEndian
         }
         let rawActivity = data[7]
         let activityClass = ActivityClass(rawValue: rawActivity) ?? .unknown
         let rawCadence = data.withUnsafeBytes {
-            $0.load(fromByteOffset: 8, as: UInt16.self).littleEndian
+            $0.loadUnaligned(fromByteOffset: 8, as: UInt16.self).littleEndian
         }
         let motionRaw = data[10]
         let speakingRaw = data[11]
@@ -284,10 +284,10 @@ struct YBlock {
         return rest.withUnsafeBytes { ptr in
             YBlock(
                 header:    header,
-                rmssdMs:   ptr.load(fromByteOffset: 0,  as: Float.self),
-                rriLastMs: ptr.load(fromByteOffset: 4,  as: Float.self),
-                hrEcgBpm:  ptr.load(fromByteOffset: 8,  as: Float.self),
-                beatCount: ptr.load(fromByteOffset: 12, as: UInt8.self)
+                rmssdMs:   ptr.loadUnaligned(fromByteOffset: 0,  as: Float.self),
+                rriLastMs: ptr.loadUnaligned(fromByteOffset: 4,  as: Float.self),
+                hrEcgBpm:  ptr.loadUnaligned(fromByteOffset: 8,  as: Float.self),
+                beatCount: ptr.loadUnaligned(fromByteOffset: 12, as: UInt8.self)
             )
         }
     }
@@ -343,8 +343,8 @@ struct TBlock {
         }
         return rest.withUnsafeBytes { ptr in
             TBlock(header: header,
-                   skinTempC: ptr.load(fromByteOffset: 0, as: Float.self),
-                   tempRaw:   ptr.load(fromByteOffset: 4, as: Int16.self).littleEndian)
+                   skinTempC: ptr.loadUnaligned(fromByteOffset: 0, as: Float.self),
+                   tempRaw:   ptr.loadUnaligned(fromByteOffset: 4, as: Int16.self).littleEndian)
         }
     }
 }
