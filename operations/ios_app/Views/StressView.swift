@@ -16,8 +16,9 @@ struct StressView: View {
     private let accent        = Color(red: 0x00/255.0, green: 0xB6/255.0, blue: 0xCB/255.0)
     private let tileBackground = Color(red: 0x10/255.0, green: 0x14/255.0, blue: 0x30/255.0)
 
+    private var engine: CSIEngine { ble.csiEngine }
+
     var body: some View {
-        let engine: CSIEngine = ble.csiEngine
         ZStack {
             background.ignoresSafeArea()
             ScrollView {
