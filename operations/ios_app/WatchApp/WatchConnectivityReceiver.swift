@@ -29,11 +29,25 @@ final class WatchConnectivityReceiver: NSObject {
     private(set) var deviceConnected: Bool = false
     private(set) var csiScore: Double = -1          // 0–100; -1 = not available
     private(set) var csiGated: Bool = false
+    private(set) var isRecording: Bool = false
+    private(set) var isPhoneReachable: Bool = false
 
     // 5 seconds × 1000 samples/s
     @ObservationIgnored private let ecgBufferCapacity = 5_000
 
     @ObservationIgnored private var session: WCSession?
+
+    // MARK: Recording control (Watch → iPhone)
+
+    func sendRecordingCommand(_ cmd: String) {
+        guard let s = session, s.isReachable else { return }
+        isRecording = (cmd == "startRecording")
+        s.sendMessage(["cmd": cmd], replyHandler: nil, errorHandler: { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.isRecording = !(self?.isRecording ?? false)
+            }
+        })
+    }
 
     // MARK: Session activation
 
@@ -74,6 +88,9 @@ final class WatchConnectivityReceiver: NSObject {
         if let gated = message[WatchMessageKey.csiGated] as? Bool {
             csiGated = gated
         }
+        if let recording = message["isRecording"] as? Bool {
+            isRecording = recording
+        }
     }
 }
 
@@ -104,5 +121,11 @@ extension WatchConnectivityReceiver: WCSessionDelegate {
     nonisolated func session(_ session: WCSession,
                              didReceiveApplicationContext applicationContext: [String: Any]) {
         Task { @MainActor in handleMessage(applicationContext) }
+    }
+
+    nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        Task { @MainActor [weak self] in
+            self?.isPhoneReachable = session.isReachable
+        }
     }
 }

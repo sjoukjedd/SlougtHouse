@@ -35,6 +35,28 @@ private struct WatchVitalsPage: View {
 
                 WatchMetricsRowView(heartRate: receiver.heartRate,
                                     respirationRate: receiver.respirationRate)
+
+                Button {
+                    let cmd = receiver.isRecording ? "stopRecording" : "startRecording"
+                    receiver.sendRecordingCommand(cmd)
+                } label: {
+                    Label(
+                        receiver.isRecording ? "Stop" : "Start",
+                        systemImage: receiver.isRecording ? "stop.circle.fill" : "record.circle"
+                    )
+                    .font(.system(size: 13, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(receiver.isRecording ? .red : .green)
+                .disabled(!receiver.isPhoneReachable)
+                .padding(.horizontal, 4)
+
+                if !receiver.isPhoneReachable {
+                    Text("Geen verbinding")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(.vertical, 6)
         }

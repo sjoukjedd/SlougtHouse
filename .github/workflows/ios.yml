@@ -42,6 +42,14 @@ jobs:
         working-directory: operations/ios_app
         run: xcodegen generate
 
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('operations/ios_app/project.yml') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
       - name: Build (iOS Simulator, no signing)
         working-directory: operations/ios_app
         run: |
@@ -53,6 +61,27 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build \
             | xcpretty --color || (cat /tmp/xcodebuild.log 2>/dev/null; exit 1)
+
+      - name: Test (VUAMSTests, iOS Simulator)
+        working-directory: operations/ios_app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme VUAMSTests \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath /tmp/VUAMSTests.xcresult \
+            test \
+            | xcpretty --color || exit 1
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: /tmp/VUAMSTests.xcresult
+          retention-days: 14
 
       - name: Report build status
         if: always()

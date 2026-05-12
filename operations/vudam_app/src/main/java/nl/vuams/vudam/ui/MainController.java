@@ -19,6 +19,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import nl.vuams.vudam.analysis.CSIAnalyser;
 import nl.vuams.vudam.analysis.HRVAnalyser;
 import nl.vuams.vudam.analysis.HarAnalyser;
 import nl.vuams.vudam.analysis.RPeakDetector;
@@ -70,11 +71,21 @@ public class MainController {
     @FXML private TableColumn<IcgRow, Number> icgCoCol;
     @FXML private TableColumn<IcgRow, Number> icgZ0Col;
 
+    // ---- CSI table ----
+    @FXML private TableView<CsiRow>           csiTable;
+    @FXML private TableColumn<CsiRow, Number> csiEpochCol;
+    @FXML private TableColumn<CsiRow, Number> csiScoreCol;
+    @FXML private TableColumn<CsiRow, Number> csiPepZCol;
+    @FXML private TableColumn<CsiRow, Number> csiSclZCol;
+    @FXML private TableColumn<CsiRow, Number> csiRmssdZCol;
+    @FXML private TableColumn<CsiRow, Number> csiScrZCol;
+
     // ---- Menu items that need enabling after load ----
     @FXML private MenuItem menuExportCsv;
     @FXML private MenuItem menuDetectRpeaks;
     @FXML private MenuItem menuComputeHrv;
     @FXML private MenuItem menuDetectBpoints;
+    @FXML private MenuItem menuComputeCsi;
 
     // ---- Status bar ----
     @FXML private Label statusLabel;
@@ -94,6 +105,7 @@ public class MainController {
     private List<DataBlock> loadedBlocks = List.of();
     private List<Double>    rriMs        = List.of();  // R-R intervals in ms
     private File            currentFile;
+    private CSIAnalyser     csiAnalyser  = new CSIAnalyser();
 
     /** Called by {@link nl.vuams.vudam.VUDAMSApp} after FXML load. */
     public void setPrimaryStage(Stage stage) {
@@ -114,6 +126,16 @@ public class MainController {
         icgSvCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().svMl()));
         icgCoCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().coLpm()));
         icgZ0Col  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().z0()));
+
+        // CSI table cell-value factories (FXML-declared tab)
+        if (csiTable != null) {
+            csiEpochCol .setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().epoch()));
+            csiScoreCol .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().score()));
+            csiPepZCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().pepZ()));
+            csiSclZCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().sclZ()));
+            csiRmssdZCol.setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().rmssdZ()));
+            csiScrZCol  .setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().scrZ()));
+        }
 
         // Activiteit tab — build programmatically if FXML does not declare it
         initActivityTab();
@@ -248,6 +270,126 @@ public class MainController {
     }
 
     @FXML
+    private void handleComputeCsi() {
+        if (loadedBlocks.isEmpty()) return;
+
+        setStatus("Computing CSI epochs…");
+        new Thread(() -> {
+            // Collect IBlocks and SBlocks sorted by timestamp
+            List<DataBlock.IBlock> iBlocks = loadedBlocks.stream()
+                    .filter(b -> b instanceof DataBlock.IBlock)
+                    .map(b -> (DataBlock.IBlock) b)
+                    .sorted(java.util.Comparator.comparingLong(DataBlock.IBlock::timestampUs))
+                    .toList();
+            List<DataBlock.SBlock> sBlocks = loadedBlocks.stream()
+                    .filter(b -> b instanceof DataBlock.SBlock)
+                    .map(b -> (DataBlock.SBlock) b)
+                    .sorted(java.util.Comparator.comparingLong(DataBlock.SBlock::timestampUs))
+                    .toList();
+
+            if (iBlocks.isEmpty()) {
+                Platform.runLater(() -> {
+                    setStatus("CSI: no IBlock data available.");
+                    showInfo("No ICG data", "This recording contains no I-blocks (ICG parameters). Cannot compute CSI.");
+                });
+                return;
+            }
+
+            final long EPOCH_US = 30_000_000L; // 30 s in µs
+            long firstTs = iBlocks.get(0).timestampUs();
+
+            // Build a list of IBlock timestamps for RRI computation from IBlocks
+            // (beat-to-beat intervals from ICG timestamps serve as RRI proxy when
+            //  dedicated R-peak detection has not been run yet)
+            List<Long> beatTimesUs = iBlocks.stream()
+                    .map(DataBlock.IBlock::timestampUs)
+                    .toList();
+
+            csiAnalyser.reset();
+            ObservableList<CsiRow> rows = FXCollections.observableArrayList();
+            int epochIndex = 0;
+
+            long epochStart = firstTs;
+            while (true) {
+                long epochEnd = epochStart + EPOCH_US;
+
+                // Gather IBlocks in this epoch
+                final long es = epochStart;
+                final long ee = epochEnd;
+                List<DataBlock.IBlock> epochIBlocks = iBlocks.stream()
+                        .filter(b -> b.timestampUs() >= es && b.timestampUs() < ee)
+                        .toList();
+                if (epochIBlocks.isEmpty()) break;
+
+                // PEP: mean over epoch
+                double pepMs = epochIBlocks.stream()
+                        .mapToDouble(DataBlock.IBlock::pepMs)
+                        .average()
+                        .orElse(Double.NaN);
+
+                // RMSSD from beat-to-beat intervals within this epoch
+                List<Long> epochBeatTimes = beatTimesUs.stream()
+                        .filter(t -> t >= es && t < ee)
+                        .toList();
+                double rmssdMs;
+                if (epochBeatTimes.size() >= 2) {
+                    double sumSq = 0.0;
+                    int count = 0;
+                    for (int i = 1; i < epochBeatTimes.size(); i++) {
+                        double diffMs = (epochBeatTimes.get(i) - epochBeatTimes.get(i - 1)) / 1000.0;
+                        sumSq += diffMs * diffMs;
+                        count++;
+                    }
+                    rmssdMs = Math.sqrt(sumSq / count);
+                } else {
+                    // Fallback: use global rriMs if R-peak detection was run
+                    rmssdMs = rriMs.isEmpty() ? Double.NaN : computeRmssd(rriMs);
+                }
+
+                // SCL: mean tonic from SBlocks in this epoch
+                List<DataBlock.SBlock> epochSBlocks = sBlocks.stream()
+                        .filter(b -> b.timestampUs() >= es && b.timestampUs() < ee)
+                        .toList();
+                double sclUs = epochSBlocks.stream()
+                        .mapToDouble(DataBlock.SBlock::sclTonicUs)
+                        .average()
+                        .orElse(0.0);
+
+                // SCR rate: fallback to 0.0 (phasic detection not yet implemented)
+                double scrRate = 0.0;
+
+                if (!Double.isFinite(pepMs) || pepMs <= 0.0
+                        || !Double.isFinite(rmssdMs) || rmssdMs <= 0.0) {
+                    epochStart = epochEnd;
+                    epochIndex++;
+                    continue;
+                }
+
+                CSIAnalyser.EpochInput input = new CSIAnalyser.EpochInput(
+                        pepMs, sclUs, rmssdMs, scrRate);
+                CSIAnalyser.CSIResult result = csiAnalyser.addEpoch(input);
+
+                if (result != null) {
+                    final int ep = epochIndex;
+                    rows.add(new CsiRow(ep, result.score, result.pepZ,
+                            result.sclZ, result.rmssdZ, result.scrZ));
+                }
+
+                epochStart = epochEnd;
+                epochIndex++;
+            }
+
+            Platform.runLater(() -> {
+                if (csiTable != null) {
+                    csiTable.setItems(rows);
+                }
+                setStatus("CSI computed: %d epochs scored (first 4 used as baseline)."
+                        .formatted(rows.size()));
+            });
+        }, "csi-thread").start();
+    }
+
+    @FXML
     private void handleDetectBpoints() {
         if (loadedBlocks.isEmpty()) return;
 
@@ -323,6 +465,8 @@ public class MainController {
 
                 Platform.runLater(() -> {
                     loadedBlocks = blocks;
+                    rriMs = List.of();
+                    csiAnalyser.reset();
                     populateWaveforms(blocks);
                     populateActivityTable(harResults, sadResults);
                     enablePostLoadMenus();
@@ -493,6 +637,16 @@ public class MainController {
         return signal;
     }
 
+    private static double computeRmssd(List<Double> rri) {
+        if (rri.size() < 2) return Double.NaN;
+        double sumSq = 0.0;
+        for (int i = 1; i < rri.size(); i++) {
+            double diff = rri.get(i) - rri.get(i - 1);
+            sumSq += diff * diff;
+        }
+        return Math.sqrt(sumSq / (rri.size() - 1));
+    }
+
     private static List<Double> computeRri(List<Integer> peakIndices, double sampleRateHz) {
         List<Double> rri = new ArrayList<>(peakIndices.size() - 1);
         for (int i = 1; i < peakIndices.size(); i++) {
@@ -568,6 +722,7 @@ public class MainController {
         menuExportCsv.setDisable(false);
         menuDetectRpeaks.setDisable(false);
         menuDetectBpoints.setDisable(false);
+        if (menuComputeCsi != null) menuComputeCsi.setDisable(false);
     }
 
     private void setStatus(String msg) {
@@ -604,6 +759,8 @@ public class MainController {
     // =========================================================================
 
     record HrvRow(String metric, double value, String unit) {}
+
+    record CsiRow(int epoch, double score, double pepZ, double sclZ, double rmssdZ, double scrZ) {}
 
     record IcgRow(int beat, double pepMs, double lvetMs, double svMl, double coLpm, double z0) {}
 

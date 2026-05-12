@@ -57,14 +57,15 @@ final class BLEManager: NSObject {
     var electrodDistanceCm: Float? = nil
     var lastDisconnectReason: String? = nil
     // High-frequency blocks not consumed by any view — suppress observation tracking.
-    @ObservationIgnored var latestABlock: ABlock?
+    // nonisolated(unsafe): written only from bleQueue, never concurrently.
+    @ObservationIgnored nonisolated(unsafe) var latestABlock: ABlock?
     var latestIBlock: IBlock?
-    @ObservationIgnored var latestMBlock: MBlock?
+    @ObservationIgnored nonisolated(unsafe) var latestMBlock: MBlock?
     var latestPBlock: PBlock?           // throttled to 5 Hz by ppgDisplayCounter
-    @ObservationIgnored var latestSBlock: SBlock?
+    @ObservationIgnored nonisolated(unsafe) var latestSBlock: SBlock?
     var latestTBlock: TBlock?
-    @ObservationIgnored var latestYBlock: YBlock?
-    @ObservationIgnored var latestRBlock: RBlock?
+    @ObservationIgnored nonisolated(unsafe) var latestYBlock: YBlock?
+    @ObservationIgnored nonisolated(unsafe) var latestRBlock: RBlock?
     var currentActivity: XBlock?
     var signalQuality: [String: Bool] = [
         "ecg1":       false,
@@ -99,12 +100,11 @@ final class BLEManager: NSObject {
     // injected at init time.
     @ObservationIgnored var csiEngine: CSIEngine!
 
-    // RESP waveform downsampling state (50 Hz PPG IR → 10 Hz RESP)
-    // Keep every 5th PPG sample; apply IIR DC removal before storing in respBuffer.
-    @ObservationIgnored private var ppgDecimateCounter: Int = 0
-    @ObservationIgnored private var respMean: Double = 0
+    // RESP waveform downsampling state — written only from bleQueue.
+    @ObservationIgnored nonisolated(unsafe) private var ppgDecimateCounter: Int = 0
+    @ObservationIgnored nonisolated(unsafe) private var respMean: Double = 0
     // Throttle latestPBlock SwiftUI updates to 5 Hz (every 10th packet at 50 Hz).
-    @ObservationIgnored private var ppgDisplayCounter: Int = 0
+    @ObservationIgnored nonisolated(unsafe) private var ppgDisplayCounter: Int = 0
 
     // BLE internals
     @ObservationIgnored private var centralManager: CBCentralManager!

@@ -27,3 +27,11 @@ void task_ble_stream_init(void);
  *         Pass NULL as pvParameters.
  */
 void task_ble_stream(void *pvParameters);
+
+/**
+ * @brief  Return the electrode distance last set by the CONFIGURE_SESSION BLE
+ *         command (0x10).  Default is 30.0 cm until overridden by the host.
+ *
+ * @return Electrode distance in centimetres.
+ */
+float ble_get_electrode_distance_cm(void);

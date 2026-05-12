@@ -2,6 +2,7 @@ idf_component_register(
     SRCS
         "main.c"
         "psram_buffer.c"
+        "pool_alloc.c"
         "tasks/task_adc.c"
         "tasks/task_imu.c"
         "tasks/task_i2c_sensors.c"

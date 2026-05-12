@@ -25,12 +25,18 @@ private struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var bleManager: BLEManager?
+    @State private var watchCommandHandler = WatchCommandHandler()
 
     var body: some View {
         Group {
             if let ble = bleManager {
                 ContentView()
                     .environment(ble)
+                    .environment(watchCommandHandler)
+                    .onAppear {
+                        watchCommandHandler.ble = ble
+                        watchCommandHandler.activateSession()
+                    }
             } else {
                 // Constructed on first render; should be instantaneous.
                 Color.clear

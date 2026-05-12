@@ -50,11 +50,16 @@ jobs:
           cd operations/firmware
           idf.py set-target esp32s3
 
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: esp-idf-ccache-${{ runner.os }}
+
       - name: Build firmware
         run: |
           source ~/esp/esp-idf/export.sh
           cd operations/firmware
-          idf.py build
+          IDF_CCACHE_ENABLE=1 idf.py build
 
       - name: Upload firmware binary
         uses: actions/upload-artifact@v4

@@ -14,6 +14,7 @@
 
 #include "task_ble_stream.h"
 #include "config.h"
+#include "pool_alloc.h"
 #include "data_blocks.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -38,6 +39,21 @@ QueueHandle_t g_ble_tx_queue = NULL;
 /* Connection handle — 0xFFFF = no client connected */
 static uint16_t s_conn_handle = 0xFFFF;
 
+/* --------------------------------------------------------------------------
+ * Session configuration — updated via BLE command 0x10 CONFIGURE_SESSION
+ * -------------------------------------------------------------------------- */
+#define BLE_CMD_CONFIGURE_SESSION  0x10u
+
+/* Default electrode distance matches the KUBICEK_L_CM compile-time constant
+ * previously used in task_block_assembler.c.  Overwritten at session start
+ * by the iOS app sending command 0x10 with the subject's actual measurement. */
+static _Atomic float s_electrode_distance_cm = 30.0f;
+
+float ble_get_electrode_distance_cm(void)
+{
+    return s_electrode_distance_cm;
+}
+
 /* GATT characteristic value handles (populated after service registration) */
 static uint16_t s_chr_handle_a = 0;
 static uint16_t s_chr_handle_i = 0;
@@ -46,18 +62,71 @@ static uint16_t s_chr_handle_p = 0;
 static uint16_t s_chr_handle_s = 0;
 static uint16_t s_chr_handle_t = 0;
 static uint16_t s_chr_handle_y = 0;
-static uint16_t s_chr_handle_r = 0;
+static uint16_t s_chr_handle_r    = 0;
+static uint16_t s_chr_handle_ctrl = 0;  /* writable control characteristic */
 
 /* --------------------------------------------------------------------------
  * NimBLE GATT service definition
  * -------------------------------------------------------------------------- */
 
-/* Minimal GATT access callback — all characteristics are notify-only */
+/* Minimal GATT access callback — all notify-only characteristics */
 static int gatt_chr_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                                struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
     /* Notify-only characteristics need no read/write handler */
     return BLE_ATT_ERR_UNLIKELY;
+}
+
+/* --------------------------------------------------------------------------
+ * Control characteristic write callback
+ * Handles writable commands sent by the iOS app.
+ *
+ * Command 0x10 CONFIGURE_SESSION
+ *   Payload: 5 bytes — [0] = command byte (0x10),
+ *                      [1..4] = electrode_distance_cm as little-endian float32
+ * -------------------------------------------------------------------------- */
+static int gatt_ctrl_access_cb(uint16_t conn_handle, uint16_t attr_handle,
+                                struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+    if (ctxt->op != BLE_GATT_ACCESS_OP_WRITE_CHR) {
+        return BLE_ATT_ERR_UNLIKELY;
+    }
+
+    uint16_t len = OS_MBUF_PKTLEN(ctxt->om);
+    if (len < 1) {
+        return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+    }
+
+    uint8_t payload[16];
+    if (len > sizeof(payload)) { len = sizeof(payload); }
+    os_mbuf_copydata(ctxt->om, 0, len, payload);
+
+    uint8_t cmd = payload[0];
+    switch (cmd) {
+        case BLE_CMD_CONFIGURE_SESSION:
+            /* Expect exactly 5 bytes: cmd byte + 4-byte LE float */
+            if (len < 5) {
+                ESP_LOGW(TAG, "CMD 0x10: payload too short (%u B)", len);
+                return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+            }
+            float dist_cm;
+            memcpy(&dist_cm, &payload[1], sizeof(float));  /* LE host = native LE */
+            if (dist_cm < 1.0f || dist_cm > 100.0f) {
+                ESP_LOGW(TAG, "CMD 0x10: electrode_distance_cm=%.1f out of range",
+                         (double)dist_cm);
+                return BLE_ATT_ERR_VALUE_NOT_ALLOWED;
+            }
+            s_electrode_distance_cm = dist_cm;
+            ESP_LOGI(TAG, "CONFIGURE_SESSION: electrode_distance_cm=%.1f cm",
+                     (double)s_electrode_distance_cm);
+            break;
+
+        default:
+            ESP_LOGW(TAG, "Unknown BLE command 0x%02X", cmd);
+            return BLE_ATT_ERR_REQ_NOT_SUPPORTED;
+    }
+
+    return 0;
 }
 
 static const struct ble_gatt_svc_def s_gatt_svcs[] = {
@@ -139,6 +208,16 @@ static const struct ble_gatt_svc_def s_gatt_svcs[] = {
                 .val_handle = &s_chr_handle_r,
                 .flags      = BLE_GATT_CHR_F_NOTIFY,
             },
+            /* Control point — write-only; receives session configuration commands.
+             * UUID byte [12] = 0x0F, matching the VUAMS interface register §4.3. */
+            {
+                .uuid       = BLE_UUID128_DECLARE(
+                    0x6F, 0x5E, 0x4D, 0x3C, 0x2B, 0x1A, 0x88, 0x88,
+                    0x4B, 0x4B, 0x5A, 0x5A, 0x0F, 0xB0, 0xD5, 0xA5),
+                .access_cb  = gatt_ctrl_access_cb,
+                .val_handle = &s_chr_handle_ctrl,
+                .flags      = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_WRITE_NO_RSP,
+            },
             { 0 } /* terminator */
         },
     },
@@ -167,7 +246,8 @@ static int gap_event_handler(struct ble_gap_event *event, void *arg)
         case BLE_GAP_EVENT_DISCONNECT:
             ESP_LOGI(TAG, "Client disconnected, reason=%d", event->disconnect.reason);
             s_conn_handle = 0xFFFF;
-            /* TODO: clear EVT_BLE_CONNECTED; restart advertising */
+            /* TODO: clear EVT_BLE_CONNECTED */
+            start_advertising();
             break;
 
         case BLE_GAP_EVENT_SUBSCRIBE:
@@ -344,6 +424,6 @@ void task_ble_stream(void *pvParameters)
                 break;
         }
 
-        free(block_ptr);
+        pool_free(block_ptr);
     }
 }

@@ -24,6 +24,7 @@
 #include "icg_analysis.h"
 #include "psram_buffer.h"
 #include "data_blocks.h"
+#include "pool_alloc.h"
 #include "config.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -48,8 +49,9 @@ extern psram_ringbuf_t g_psram_buf;
 /* Y-block is emitted every this many valid beats */
 #define Y_BLOCK_BEAT_INTERVAL    30
 
-/* Kubicek stroke-volume formula constants */
-#define KUBICEK_L_CM  30.0f  /* TODO: replace with per-session value from subject metadata once session setup is wired */
+/* Kubicek stroke-volume formula: electrode distance is now read at runtime
+ * via ble_get_electrode_distance_cm() so it can be set per subject over BLE
+ * using the CONFIGURE_SESSION command (0x10) before recording starts.      */
 
 static ecg_analyzer_t s_ecg_an;
 static icg_analyzer_t s_icg_an;
@@ -214,23 +216,22 @@ static void dispatch_block(const void *block_ptr, size_t block_size, uint8_t typ
     }
 
     /* Forward to SD writer */
-    /* TODO: allocate from a pool allocator instead of heap for determinism */
-    void *sd_copy = malloc(block_size);
+    void *sd_copy = pool_alloc(block_size);
     if (sd_copy) {
         memcpy(sd_copy, block_ptr, block_size);
         if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
             ESP_LOGW(TAG, "sd_write_queue full — block 0x%02X dropped", type);
-            free(sd_copy);
+            pool_free(sd_copy);
         }
     }
 
     /* Forward to BLE streamer (separate copy — different lifetime) */
-    void *ble_copy = malloc(block_size);
+    void *ble_copy = pool_alloc(block_size);
     if (ble_copy) {
         memcpy(ble_copy, block_ptr, block_size);
         if (xQueueSend(g_ble_tx_queue, &ble_copy, 0) != pdTRUE) {
             /* BLE queue is best-effort: silently drop if full */
-            free(ble_copy);
+            pool_free(ble_copy);
         }
     }
 }
@@ -243,6 +244,9 @@ void task_block_assembler_init(void)
 {
     /* Output queues are owned by task_sd_writer and task_ble_stream;
      * those inits must be called before this one. */
+
+    /* Initialise static pool allocator (replaces heap malloc for block copies) */
+    pool_init();
 
     /* Initialise cardiac analysers */
     ecg_analyzer_init(&s_ecg_an, CARDIAC_SAMPLE_RATE_HZ);
@@ -304,7 +308,7 @@ void task_block_assembler(void *pvParameters)
                 }
             }
 
-            free(a_blk);
+            pool_free(a_blk);
             a_blk    = NULL;
             did_work = true;
         }
@@ -318,16 +322,16 @@ void task_block_assembler(void *pvParameters)
              * HAR runs at lower priority on the same core, so this copy is
              * safe.  Drop silently if the HAR queue is full (HAR is behind). */
             if (g_har_m_block_queue != NULL) {
-                m_block_t *har_copy = (m_block_t *)malloc(sizeof(m_block_t));
+                m_block_t *har_copy = (m_block_t *)pool_alloc(sizeof(m_block_t));
                 if (har_copy != NULL) {
                     memcpy(har_copy, m_blk, sizeof(m_block_t));
                     if (xQueueSend(g_har_m_block_queue, &har_copy, 0) != pdTRUE) {
-                        free(har_copy); /* HAR is behind — drop */
+                        pool_free(har_copy); /* HAR is behind — drop */
                     }
                 }
             }
 
-            free(m_blk);
+            pool_free(m_blk);
             m_blk = NULL;
             did_work = true;
         }
@@ -362,7 +366,7 @@ void task_block_assembler(void *pvParameters)
                 s_riiv_step  = 0;
             }
 
-            free(p_blk);
+            pool_free(p_blk);
             p_blk = NULL;
             did_work = true;
         }
@@ -371,7 +375,7 @@ void task_block_assembler(void *pvParameters)
         t_block_t *t_blk = NULL;
         while (xQueueReceive(g_temp_block_queue, &t_blk, 0) == pdTRUE) {
             dispatch_block(t_blk, sizeof(t_block_t), BLOCK_TYPE_T);
-            free(t_blk);
+            pool_free(t_blk);
             t_blk = NULL;
             did_work = true;
         }
@@ -380,7 +384,7 @@ void task_block_assembler(void *pvParameters)
         s_block_t *s_blk = NULL;
         while (xQueueReceive(g_scl_block_queue, &s_blk, 0) == pdTRUE) {
             dispatch_block(s_blk, sizeof(s_block_t), BLOCK_TYPE_S);
-            free(s_blk);
+            pool_free(s_blk);
             s_blk = NULL;
             did_work = true;
         }
@@ -399,12 +403,12 @@ void task_block_assembler(void *pvParameters)
             }
 
             /* Forward to SD writer only */
-            void *sd_copy = malloc(sizeof(b_block_t));
+            void *sd_copy = pool_alloc(sizeof(b_block_t));
             if (sd_copy) {
                 memcpy(sd_copy, b_blk, sizeof(b_block_t));
                 if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
                     ESP_LOGW(TAG, "sd_write_queue full — B-block dropped");
-                    free(sd_copy);
+                    pool_free(sd_copy);
                 }
             }
 
@@ -417,7 +421,7 @@ void task_block_assembler(void *pvParameters)
                 }
             }
 
-            free(b_blk);
+            pool_free(b_blk);
             b_blk = NULL;
             did_work = true;
         }
@@ -434,12 +438,12 @@ void task_block_assembler(void *pvParameters)
             }
 
             /* Forward to SD writer only */
-            void *sd_copy = malloc(sizeof(z_block_t));
+            void *sd_copy = pool_alloc(sizeof(z_block_t));
             if (sd_copy) {
                 memcpy(sd_copy, z_blk, sizeof(z_block_t));
                 if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
                     ESP_LOGW(TAG, "sd_write_queue full — Z-block dropped");
-                    free(sd_copy);
+                    pool_free(sd_copy);
                 }
             }
 
@@ -478,11 +482,12 @@ void task_block_assembler(void *pvParameters)
                     i_blk.z0        = beat.z0;
 
                     /* Kubicek stroke-volume formula (Patterson 1989).
-                     * rho = 135.0 Ω·cm; L = KUBICEK_L_CM (electrode distance).
+                     * rho = 135.0 Ω·cm; L = electrode distance from BLE session config.
                      * SV [mL] = rho × L² / Z0² × dZdt_peak × LVET_s
                      * CO [L/min] = SV [mL] × HR [bpm] / 1000 */
+                    float kubicek_l = ble_get_electrode_distance_cm();
                     i_blk.sv_ml = (beat.z0 <= 0.0f || beat.lvet_ms <= 0.0f) ? NAN :
-                        (135.0f * (KUBICEK_L_CM * KUBICEK_L_CM) /
+                        (135.0f * (kubicek_l * kubicek_l) /
                          (beat.z0 * beat.z0) *
                          beat.dZdt_peak *
                          (beat.lvet_ms / 1000.0f));
@@ -525,7 +530,7 @@ void task_block_assembler(void *pvParameters)
                 }
             }
 
-            free(z_blk);
+            pool_free(z_blk);
             z_blk    = NULL;
             did_work = true;
         }
@@ -535,7 +540,7 @@ void task_block_assembler(void *pvParameters)
         x_block_t *x_blk = NULL;
         while (xQueueReceive(g_x_block_queue, &x_blk, 0) == pdTRUE) {
             dispatch_block(x_blk, sizeof(x_block_t), BLOCK_TYPE_X);
-            free(x_blk);
+            pool_free(x_blk);
             x_blk = NULL;
             did_work = true;
         }
@@ -552,27 +557,27 @@ void task_block_assembler(void *pvParameters)
             }
 
             /* Forward to SD writer only (BLE not used for 1 kHz stream) */
-            void *sd_copy = malloc(sizeof(v_block_t));
+            void *sd_copy = pool_alloc(sizeof(v_block_t));
             if (sd_copy) {
                 memcpy(sd_copy, v_blk, sizeof(v_block_t));
                 if (xQueueSend(g_sd_write_queue, &sd_copy, pdMS_TO_TICKS(2)) != pdTRUE) {
                     ESP_LOGW(TAG, "sd_write_queue full — V-block dropped");
-                    free(sd_copy);
+                    pool_free(sd_copy);
                 }
             }
 
             /* Forward a copy to SAD's dedicated input queue */
             if (g_sad_v_block_queue != NULL) {
-                v_block_t *sad_copy = (v_block_t *)malloc(sizeof(v_block_t));
+                v_block_t *sad_copy = (v_block_t *)pool_alloc(sizeof(v_block_t));
                 if (sad_copy != NULL) {
                     memcpy(sad_copy, v_blk, sizeof(v_block_t));
                     if (xQueueSend(g_sad_v_block_queue, &sad_copy, 0) != pdTRUE) {
-                        free(sad_copy); /* SAD is behind — drop */
+                        pool_free(sad_copy); /* SAD is behind — drop */
                     }
                 }
             }
 
-            free(v_blk);
+            pool_free(v_blk);
             v_blk = NULL;
             did_work = true;
         }

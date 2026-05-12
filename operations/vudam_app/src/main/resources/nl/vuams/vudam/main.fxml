@@ -48,6 +48,8 @@
                               onAction="#handleComputeHrv" disable="true"/>
                     <MenuItem fx:id="menuDetectBpoints" text="Detect _B-points (ICG)"
                               onAction="#handleDetectBpoints" disable="true"/>
+                    <MenuItem fx:id="menuComputeCsi"    text="Compute _CSI (stress index)"
+                              onAction="#handleComputeCsi" disable="true"/>
                 </Menu>
                 <Menu text="_Help">
                     <MenuItem text="_About VU-DAMS" onAction="#handleAbout"/>
@@ -163,6 +165,23 @@
                             <NumberAxis label="RRI (ms)" autoRanging="true"/>
                         </yAxis>
                     </LineChart>
+                </Tab>
+
+                <!-- CSI tab -->
+                <Tab text="CSI (Stress)">
+                    <TableView fx:id="csiTable" tableMenuButtonVisible="false">
+                        <columns>
+                            <TableColumn fx:id="csiEpochCol"  text="Epoch #"    prefWidth="80"/>
+                            <TableColumn fx:id="csiScoreCol"  text="CSI [0-100]" prefWidth="100"/>
+                            <TableColumn fx:id="csiPepZCol"   text="PEP⁻¹ z"   prefWidth="90"/>
+                            <TableColumn fx:id="csiSclZCol"   text="SCL z"      prefWidth="90"/>
+                            <TableColumn fx:id="csiRmssdZCol" text="RMSSD⁻¹ z" prefWidth="100"/>
+                            <TableColumn fx:id="csiScrZCol"   text="SCR z"      prefWidth="90"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Run Analysis > Compute CSI to populate this table."/>
+                        </placeholder>
+                    </TableView>
                 </Tab>
             </TabPane>
         </SplitPane>
